@@ -7,9 +7,10 @@ signal look_direction_changed(position: Vector3, rotation: Vector3)
 @export var max_angle = PI / 2
 
 const SPEED = 5.0
-const JUMP_VELOCITY = 4.5
+const RUN_SPEED = SPEED * 2
+const JUMP_VELOCITY = 3
 
-var look_rotation: Vector2
+var look_rotation = Vector2(0, PI)
 
 func _ready():
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
@@ -25,12 +26,13 @@ func _physics_process(delta: float) -> void:
 
 	var input_dir := Input.get_vector("strafe_left", "strafe_right", "forward", "backwards")
 	var direction := (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+	var speed = RUN_SPEED if Input.is_action_pressed("run") else SPEED
 	if direction:
-		velocity.x = direction.x * SPEED
-		velocity.z = direction.z * SPEED
+		velocity.x = direction.x * speed
+		velocity.z = direction.z * speed
 	else:
-		velocity.x = move_toward(velocity.x, 0, SPEED)
-		velocity.z = move_toward(velocity.z, 0, SPEED)
+		velocity.x = move_toward(velocity.x, 0, speed)
+		velocity.z = move_toward(velocity.z, 0, speed)
 
 	move_and_slide()
 	

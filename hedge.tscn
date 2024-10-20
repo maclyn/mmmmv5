@@ -1,0 +1,25 @@
+[gd_scene load_steps=5 format=3 uid="uid://bu7ifkvrnmbcs"]
+
+[ext_resource type="Texture2D" uid="uid://dha17jlku16hv" path="res://textures/Hedge_wall.png" id="1_yicbp"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fjhcd"]
+albedo_texture = ExtResource("1_yicbp")
+uv1_scale = Vector3(1, 1.5, 0.5)
+uv1_triplanar_sharpness = 1.18921
+texture_filter = 0
+
+[sub_resource type="BoxMesh" id="BoxMesh_bhfp8"]
+material = SubResource("StandardMaterial3D_fjhcd")
+size = Vector3(2, 4, 0.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_c5cr7"]
+size = Vector3(2, 4, 0.2)
+
+[node name="Hedge" type="StaticBody3D"]
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_bhfp8")
+
+[node name="Collider" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_c5cr7")
