@@ -14,7 +14,12 @@ const MAX_DIST = MAZE_WIDTH_AND_HEIGHT * 4
 
 var blocks: Dictionary = {}
 
-enum Direction { NORTH, SOUTH, EAST, WEST }
+enum Direction {
+	NORTH, # backwards on a path
+	SOUTH, # forwards on a path
+	EAST, # left on a path
+	WEST # right on a path
+}
 
 func _dir_to_grid_move(direction: Direction) -> Vector2i:
 	match direction:
@@ -28,6 +33,41 @@ func _dir_to_grid_move(direction: Direction) -> Vector2i:
 			return Vector2i(-1, 0)
 	assert(false, "failed to match dir")
 	return Vector2i.ZERO
+	
+func _dir_relative_to_movement_dir(direction: Direction, movement_dir: Direction):
+	if movement_dir == Direction.SOUTH:
+		return direction
+	elif movement_dir == Direction.NORTH:
+		match direction:
+			Direction.NORTH:
+				return Direction.SOUTH
+			Direction.SOUTH:
+				return Direction.NORTH
+			Direction.WEST:
+				return Direction.EAST
+			Direction.EAST:
+				return Direction.WEST
+	elif movement_dir == Direction.EAST:
+		match direction:
+			Direction.NORTH:
+				return Direction.WEST
+			Direction.SOUTH:
+				return Direction.EAST
+			Direction.WEST:
+				return Direction.SOUTH
+			Direction.EAST:
+				return Direction.NORTH
+	elif movement_dir == Direction.WEST:
+		match direction:
+			Direction.NORTH:
+				return Direction.EAST
+			Direction.SOUTH:
+				return Direction.WEST
+			Direction.WEST:
+				return Direction.NORTH
+			Direction.EAST:
+				return Direction.SOUTH
+	return Direction.NORTH
 
 enum FeatureType {
 	NONE,
@@ -185,7 +225,7 @@ class MazeBlock:
 				base_z + HEDGE_LENGTH +  HEDGE_HALF_LENGTH,
 				90)
 				
-func _dir_of_path_of_block(block: MazeBlock):
+func _dir_of_movement_to_block(block: MazeBlock):
 	if block.prev == null:
 		return Direction.SOUTH
 	var curr_x = block.position.x
@@ -207,7 +247,7 @@ func _dir_of_path_of_block(block: MazeBlock):
 	return direction
 				
 func _build_topology_for_block_and_feature(block: MazeBlock, feature: FeatureType) -> Array[Vector2i]:
-	var direction = _dir_of_path_of_block(block)
+	var direction = _dir_of_movement_to_block(block)
 	var base_topology = _feature_topology_relative_to_south_movement(feature)
 	var topology: Array[Vector2i] = []
 	# https://stackoverflow.com/questions/4780119/2d-euclidean-vector-rotations
@@ -248,11 +288,13 @@ func _has_block_at_position(x: int, y: int):
 	var sub_dict = blocks[x]
 	return y in sub_dict
 	
-func _add_block_at_position(block: MazeBlock, x: int, y: int):
+func _add_block_at_position(block: MazeBlock):
+	var x = block.position.x
+	var y = block.position.y
 	if x not in blocks:
 		blocks[x] = {}
 	var sub_dict = blocks[x]
-	assert(y not in sub_dict, "should not overwrite!")
+	# assert(y not in sub_dict, "should not overwrite!")
 	sub_dict[y] = block
 
 func _ready() -> void:
@@ -287,6 +329,7 @@ func generate_maze() -> Vector2i:
 	var curr_y = start_y
 	var start_block: MazeBlock = MazeBlock.new(start_x, start_y)
 	start_block.is_entrance = true
+	_add_block_at_position(start_block)
 	
 	var get_all_blocks = func() -> Array[MazeBlock]:
 		var all_blocks: Array[MazeBlock] = []
@@ -306,12 +349,17 @@ func generate_maze() -> Vector2i:
 		var new_block = last_block.create_sibling(Direction.SOUTH)
 		last_block.next.push_back(new_block)
 		new_block.prev = last_block
+		_add_block_at_position(new_block)
 		last_block = new_block
 		
 	var heads: Array[MazeBlock] = [last_block]
 	var end_block: MazeBlock = null
 	while !heads.is_empty():
-		var head = heads.pop_front()
+		var head: MazeBlock = heads.pop_front()
+		
+		# The head might actually solve the maze -- let's see
+		# TODO
+		
 		var feature_generation_attempts = 0
 		while true:
 			var feature = _choose_random_feature()
@@ -319,7 +367,16 @@ func generate_maze() -> Vector2i:
 			var does_fit = _can_fit_feature(head, feature)
 			if does_fit:
 				# This is a little wasteful, but whatever
-				var topology = _build_topology_for_block_and_feature(head, feature)
+				var directions = _feature_topology_relative_to_south_movement_as_dirs(feature)
+				var head_movement_dir = _dir_of_movement_to_block(head)
+				for direction in directions:
+					var relative_direction = _dir_relative_to_movement_dir(direction, head_movement_dir)
+					var new_block = head.create_sibling(relative_direction)
+					new_block.prev = head
+					head.next.push_back(new_block)
+					_add_block_at_position(new_block)
+					heads.push_back(new_block)
+				break
 				
 			if feature_generation_attempts > 15:
 				break
