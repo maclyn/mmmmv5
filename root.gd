@@ -363,6 +363,7 @@ func _generate_maze() -> Vector2i:
 		last_block = new_block
 		
 	var heads: Array[MazeBlock] = [last_block]
+	var end_block_dist = -1
 	var end_block: MazeBlock = null
 	while !heads.is_empty():
 		var head: MazeBlock = heads.pop_front()
@@ -379,17 +380,20 @@ func _generate_maze() -> Vector2i:
 				break
 				
 			if feature_generation_attempts > 15:
-				# The head might actually solve the maze -- let's see
-		# 		# TODO: Check if on bottom edge; if yes --> is_exit
+				if head.position.y == MAZE_WIDTH_AND_HEIGHT - 1:
+					if head.dist_from_start > end_block_dist && head.dist_from_start < MAX_DIST:
+						end_block_dist = head.dist_from_start
+						end_block = head
 				break
 	
-	# FAILURE -- We didn't build a good path
-	# TODO: Once we setup end blocks, check this
-	# if end_block == null:
-	#	return Vector2i.ZERO
-
-	# SUCCESS -- We have a path
-
+	if end_block == null:
+		# FAILURE -- We didn't build a good path
+		return Vector2i.ZERO
+	else:
+		# SUCCESS -- We have a path
+		end_block.is_exit = true
+		end_block.walls[GridDirection.SOUTH] = false
+		
 	# Place objects in the scene
 	for x in blocks:
 		for y in blocks[x]:
