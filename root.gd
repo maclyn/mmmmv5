@@ -8,66 +8,25 @@ const HEDGE_HALF_LENGTH = 1
 const HEDGE_THICKNESS = 0.2
 const HEDGE_HALF_THICKNESS = 0.1
 const MAZE_BLOCK_SQUARE_SIZE = 4
-const MAZE_WIDTH_AND_HEIGHT = 25
-const LEAD_IN_DIST = 4
+const MAZE_WIDTH_AND_HEIGHT = 75
+const LEAD_IN_DIST = 5
 const MAX_DIST = MAZE_WIDTH_AND_HEIGHT * 4
 
 var blocks: Dictionary = {}
 
-enum Direction {
-	NORTH, # backwards on a path
-	SOUTH, # forwards on a path
-	EAST, # left on a path
-	WEST # right on a path
+enum GridDirection {
+	NORTH, 
+	SOUTH,
+	EAST,
+	WEST
 }
 
-func _dir_to_grid_move(direction: Direction) -> Vector2i:
-	match direction:
-		Direction.NORTH:
-			return Vector2i(0, -1)
-		Direction.SOUTH:
-			return Vector2i(0, 1)
-		Direction.EAST:
-			return Vector2i(1, 0)
-		Direction.WEST:
-			return Vector2i(-1, 0)
-	assert(false, "failed to match dir")
-	return Vector2i.ZERO
-	
-func _dir_relative_to_movement_dir(direction: Direction, movement_dir: Direction):
-	if movement_dir == Direction.SOUTH:
-		return direction
-	elif movement_dir == Direction.NORTH:
-		match direction:
-			Direction.NORTH:
-				return Direction.SOUTH
-			Direction.SOUTH:
-				return Direction.NORTH
-			Direction.WEST:
-				return Direction.EAST
-			Direction.EAST:
-				return Direction.WEST
-	elif movement_dir == Direction.EAST:
-		match direction:
-			Direction.NORTH:
-				return Direction.WEST
-			Direction.SOUTH:
-				return Direction.EAST
-			Direction.WEST:
-				return Direction.SOUTH
-			Direction.EAST:
-				return Direction.NORTH
-	elif movement_dir == Direction.WEST:
-		match direction:
-			Direction.NORTH:
-				return Direction.EAST
-			Direction.SOUTH:
-				return Direction.WEST
-			Direction.WEST:
-				return Direction.NORTH
-			Direction.EAST:
-				return Direction.SOUTH
-	return Direction.NORTH
+enum MovementDirection {
+	FORWARD,
+	BACKWARD,
+	RIGHT,
+	LEFT
+}
 
 enum FeatureType {
 	NONE,
@@ -77,42 +36,82 @@ enum FeatureType {
 	JUNCTION_TWO_WAY_SPLIT_L_FWD,
 	JUNCTION_TWO_WAY_SPLIT_R_FWD
 }
+
+class MovementList:
+	var movements: Array[MovementDirection] = []
 	
-func _feature_topology_relative_to_south_movement_as_dirs(feature: FeatureType) -> Array[Direction]:
+	func _init(movements: Array[MovementDirection]):
+		self.movements = movements
+		
+func _movement_dir_as_xy_when_pointing_north(movement: MovementDirection) -> Vector2i:
+	match movement:
+		MovementDirection.FORWARD:
+			return Vector2i(0, -1)
+		MovementDirection.BACKWARD:
+			return Vector2i(0, 1)
+		MovementDirection.RIGHT:
+			return Vector2i(1, 0)
+		MovementDirection.LEFT:
+			return Vector2i(-1, 0)
+	assert(false, "failed to match feature")
+	return Vector2i.ZERO
+
+func _movement_dir_as_xy_when_pointing_in_dir(movement: MovementDirection, direction: GridDirection) -> Vector2i:
+	var base_xy = _movement_dir_as_xy_when_pointing_north(movement)
+	match direction:
+		GridDirection.NORTH:
+			return base_xy
+		GridDirection.SOUTH:
+			return Vector2i(-base_xy.x, -base_xy.y)
+		GridDirection.EAST:
+			return Vector2i(base_xy.x, -base_xy.y)
+		GridDirection.WEST:
+			return Vector2i(-base_xy.x, base_xy.y)
+	assert(false, "failed to match dir")
+	return Vector2i.ZERO
+	
+func _movement_dir_as_grid_direction_when_pointing_in_dir(movement: MovementDirection, direction: GridDirection) -> GridDirection:
+	var xy = _movement_dir_as_xy_when_pointing_in_dir(movement, direction)
+	match xy:
+		Vector2i(0, 1):
+			return GridDirection.SOUTH
+		Vector2i(0, -1):
+			return GridDirection.NORTH
+		Vector2i(1, 0):
+			return GridDirection.EAST
+		Vector2i(-1, 0):
+			return GridDirection.WEST
+	assert(false, "failed to match dir")
+	return GridDirection.NORTH
+
+func _feature_to_movement_list_array(feature: FeatureType) -> Array[MovementList]:
 	match feature:
 		FeatureType.NONE:
-			return [Direction.SOUTH]
+			return [MovementList.new([MovementDirection.FORWARD])]
 		FeatureType.LEFT_CORNER:
-			return [Direction.EAST]
+			return [MovementList.new([MovementDirection.LEFT])]
 		FeatureType.RIGHT_CORNER:
-			return [Direction.WEST]
+			return [MovementList.new([MovementDirection.RIGHT])]
 		FeatureType.JUNCTION_TWO_WAY_SPLIT_L_R:
-			return [Direction.EAST, Direction.WEST]
+			return [MovementList.new([MovementDirection.LEFT]), MovementList.new([MovementDirection.RIGHT])]
 		FeatureType.JUNCTION_TWO_WAY_SPLIT_L_FWD:
-			return [Direction.SOUTH, Direction.EAST]
+			return [MovementList.new([MovementDirection.LEFT]), MovementList.new([MovementDirection.FORWARD])]
 		FeatureType.JUNCTION_TWO_WAY_SPLIT_R_FWD:
-			return [Direction.SOUTH, Direction.WEST]
+			return [MovementList.new([MovementDirection.RIGHT]), MovementList.new([MovementDirection.FORWARD])]
 	assert(false, "Feature not matched!")
 	return []
 	
-func _feature_topology_relative_to_south_movement(feature: FeatureType) -> Array[Vector2i]:
-	var as_dirs = _feature_topology_relative_to_south_movement_as_dirs(feature)
-	var rval: Array[Vector2i] = []
-	for dir in as_dirs:
-		rval.push_back(_dir_to_grid_move(dir))
-	return rval
-	
 func _choose_random_feature() -> FeatureType:
 	var choice = randi_range(0, 100)
-	if choice < 70:
+	if choice < 40:
 		return FeatureType.NONE
-	if choice < 75:
+	if choice < 50:
 		return FeatureType.LEFT_CORNER
-	if choice < 80:
+	if choice < 60:
 		return FeatureType.RIGHT_CORNER
-	if choice < 87:
+	if choice < 85:
 		return FeatureType.JUNCTION_TWO_WAY_SPLIT_L_FWD
-	if choice < 94:
+	if choice < 95:
 		return FeatureType.JUNCTION_TWO_WAY_SPLIT_R_FWD
 	return FeatureType.JUNCTION_TWO_WAY_SPLIT_L_R
 
@@ -120,10 +119,10 @@ class MazeBlock:
 	var prev: MazeBlock = null
 	var next: Array[MazeBlock] = []
 	var walls = {
-		Direction.NORTH: true,
-		Direction.SOUTH: true,
-		Direction.EAST: true,
-		Direction.WEST: true
+		GridDirection.NORTH: true,
+		GridDirection.SOUTH: true,
+		GridDirection.EAST: true,
+		GridDirection.WEST: true
 	}
 	var position: Vector2i = Vector2i(0, 0)
 	var is_entrance: bool = false
@@ -146,41 +145,63 @@ class MazeBlock:
 		new_hedge.rotation.y = deg_to_rad(y_rotation_deg)
 		root.add_child(new_hedge)
 		
-	func create_sibling(direction: Direction) -> MazeBlock:
+	func create_sibling(direction: GridDirection) -> MazeBlock:
 		var x = 0
 		var y = 0
 		var opposite_wall
 		match direction:
-			Direction.NORTH:
+			GridDirection.NORTH:
 				x = position.x
 				y = position.y - 1
-				opposite_wall = Direction.SOUTH
-			Direction.SOUTH:
+				opposite_wall = GridDirection.SOUTH
+			GridDirection.SOUTH:
 				x = position.x
 				y = position.y + 1
-				opposite_wall = Direction.NORTH
-			Direction.EAST:
+				opposite_wall = GridDirection.NORTH
+			GridDirection.EAST:
 				x = position.x + 1
 				y = position.y
-				opposite_wall = Direction.WEST
-			Direction.WEST:
+				opposite_wall = GridDirection.WEST
+			GridDirection.WEST:
 				x = position.x - 1
 				y = position.y
-				opposite_wall = Direction.EAST
+				opposite_wall = GridDirection.EAST
 		var sibling = MazeBlock.new(x, y)
 		sibling.dist_from_start = dist_from_start + 1
-		if direction == Direction.NORTH || direction == Direction.SOUTH:
+		sibling.prev = self
+		if direction == GridDirection.NORTH || direction == GridDirection.SOUTH:
 			walls[direction] = false
 			sibling.walls[opposite_wall] = false
 		else:
 			walls[opposite_wall] = false
 			sibling.walls[direction] = false
+		self.next.push_back(sibling)
 		return sibling
+				
+	func direction_from_prev() -> GridDirection:
+		if prev == null:
+			return GridDirection.SOUTH
+		var curr_x = position.x
+		var curr_y = position.y
+		var dx = curr_x - prev.position.x
+		var dy = curr_y - prev.position.y
+		var direction = GridDirection.SOUTH
+		if absi(dx) != 0:
+			if dx > 0:
+				direction = GridDirection.EAST
+			else:
+				direction = GridDirection.WEST
+		else:
+			if dy > 0:
+				direction = GridDirection.SOUTH
+			else:
+				direction = GridDirection.NORTH
+		return direction
 		
 	func actualize(scene: PackedScene, root: Node):
 		var base_x = position.x * MAZE_BLOCK_SQUARE_SIZE
 		var base_z = position.y * MAZE_BLOCK_SQUARE_SIZE
-		if walls[Direction.NORTH]:
+		if walls[GridDirection.NORTH]:
 			_add_hedge(
 				scene, root,
 				base_x + HEDGE_HALF_LENGTH,
@@ -191,7 +212,7 @@ class MazeBlock:
 				base_x + HEDGE_LENGTH + HEDGE_HALF_LENGTH,
 				base_z + HEDGE_HALF_THICKNESS,
 				0)
-		if walls[Direction.SOUTH]:
+		if walls[GridDirection.SOUTH]:
 			_add_hedge(
 				scene, root,
 				base_x + HEDGE_HALF_LENGTH,
@@ -202,7 +223,7 @@ class MazeBlock:
 				base_x + HEDGE_LENGTH + HEDGE_HALF_LENGTH,
 				base_z + MAZE_BLOCK_SQUARE_SIZE - HEDGE_HALF_THICKNESS,
 				0)
-		if walls[Direction.EAST]:
+		if walls[GridDirection.EAST]:
 			_add_hedge(
 				scene, root,
 				base_x + HEDGE_HALF_THICKNESS,
@@ -213,7 +234,7 @@ class MazeBlock:
 				base_x + HEDGE_HALF_THICKNESS,
 				base_z + HEDGE_LENGTH +  HEDGE_HALF_LENGTH,
 				90)
-		if walls[Direction.WEST]:
+		if walls[GridDirection.WEST]:
 			_add_hedge(
 				scene, root,
 				base_x + MAZE_BLOCK_SQUARE_SIZE - HEDGE_HALF_THICKNESS,
@@ -224,63 +245,43 @@ class MazeBlock:
 				base_x + MAZE_BLOCK_SQUARE_SIZE - HEDGE_HALF_THICKNESS,
 				base_z + HEDGE_LENGTH +  HEDGE_HALF_LENGTH,
 				90)
-				
-func _dir_of_movement_to_block(block: MazeBlock):
-	if block.prev == null:
-		return Direction.SOUTH
-	var curr_x = block.position.x
-	var curr_y = block.position.y
-	var prev = block.prev
-	var dx = prev.position.x - curr_x
-	var dy = prev.position.y - curr_y
-	var direction = Direction.NORTH
-	if absi(dx) != 0:
-		if dx > 0:
-			direction = Direction.EAST
-		else:
-			direction = Direction.WEST
-	else:
-		if dy > 0:
-			direction = Direction.SOUTH
-		else:
-			direction = Direction.NORTH
-	return direction
-				
-func _build_topology_for_block_and_feature(block: MazeBlock, feature: FeatureType) -> Array[Vector2i]:
-	var direction = _dir_of_movement_to_block(block)
-	var base_topology = _feature_topology_relative_to_south_movement(feature)
-	var topology: Array[Vector2i] = []
-	# https://stackoverflow.com/questions/4780119/2d-euclidean-vector-rotations
-	match direction:
-		Direction.NORTH:
-			for cell in base_topology:
-				topology.push_back(Vector2i(cell.x, -cell.y))
-		Direction.SOUTH:
-			topology.append_array(base_topology)
-		Direction.WEST:
-			for cell in base_topology:
-				topology.push_back(Vector2i(cell.y, -cell.x))
-		Direction.EAST:
-			for cell in base_topology:
-				topology.push_back(Vector2i(-cell.y, cell.x))
-	return topology
 
-func _can_fit_feature(block: MazeBlock, feature: FeatureType) -> bool:
-	var topology = _build_topology_for_block_and_feature(block, feature)
-	if topology.is_empty():
-		return false
-	var curr_x = block.position.x
-	var curr_y = block.position.y
-	for cell in topology:
-		var x = curr_x + cell.x
-		var y = curr_y + cell.y
-		if x < 0 || y < 0:
-			return false
-		if x >= MAZE_WIDTH_AND_HEIGHT || y >= MAZE_WIDTH_AND_HEIGHT:
-			return false
-		if _has_block_at_position(x, y):
-			return false
+func _create_sibling_from_movement(base: MazeBlock, movement: MovementDirection) -> MazeBlock:
+	var dir = _movement_dir_as_grid_direction_when_pointing_in_dir(movement, base.direction_from_prev())
+	return base.create_sibling(dir)
+
+func _can_add_feature_after_block(block: MazeBlock, feature: FeatureType) -> bool:
+	var movement_list_array = _feature_to_movement_list_array(feature)
+	for movement_list in movement_list_array:
+		var curr_x = block.position.x
+		var curr_y = block.position.y
+		var curr_direction = block.direction_from_prev()
+		for movement in movement_list.movements:
+			var dxdy = _movement_dir_as_xy_when_pointing_in_dir(movement, curr_direction)
+			curr_x += dxdy.x
+			curr_y += dxdy.y
+			if curr_x >= MAZE_WIDTH_AND_HEIGHT || curr_y >= MAZE_WIDTH_AND_HEIGHT:
+				return false
+			if curr_x < 0 || curr_y < 0:
+				return false
+			if _has_block_at_position(curr_x, curr_y):
+				return false
+			curr_direction = _movement_dir_as_grid_direction_when_pointing_in_dir(movement, curr_direction)
 	return true
+	
+# This will explode if called *without* first checking if this is possible
+# See _can_add_feature_after_block
+func _add_feature_after_block_and_return_new_heads(block: MazeBlock, feature: FeatureType) -> Array[MazeBlock]:
+	var new_heads: Array[MazeBlock] = []
+	var movement_list_array = _feature_to_movement_list_array(feature)
+	for movement_list in movement_list_array:
+		var curr_head = block
+		for movement in movement_list.movements:
+			curr_head = _create_sibling_from_movement(curr_head, movement)
+			_add_block_at_position(curr_head)
+		new_heads.push_back(curr_head)
+	assert(new_heads.size() > 0, "should have some new heads")
+	return new_heads
 
 func _has_block_at_position(x: int, y: int):
 	if x not in blocks:
@@ -294,13 +295,14 @@ func _add_block_at_position(block: MazeBlock):
 	if x not in blocks:
 		blocks[x] = {}
 	var sub_dict = blocks[x]
-	# assert(y not in sub_dict, "should not overwrite!")
+	assert(y not in sub_dict, "should not add block at existing position")
 	sub_dict[y] = block
 
 func _ready() -> void:
 	var start_position = Vector2i.ZERO
 	while start_position == Vector2i.ZERO:
-		start_position = generate_maze()
+		blocks.clear()
+		start_position = _generate_maze()
 	$Player.position.x = start_position.x
 	$Player.position.z = start_position.y
 	
@@ -319,11 +321,8 @@ func _process(_delta: float) -> void:
 # We could attempt a walk back approach (rewind when hitting a dead end, and
 # try again and again), but (a) this isn't the best approach, and (b) it's 
 # probably faster just to keep trying this
-func generate_maze() -> Vector2i:
-	var maze_width = MAZE_WIDTH_AND_HEIGHT
-	var maze_height = MAZE_WIDTH_AND_HEIGHT
-
-	var start_x = int(maze_width / 2.0)
+func _generate_maze() -> Vector2i:
+	var start_x = int(MAZE_WIDTH_AND_HEIGHT / 2.0)
 	var start_y = -LEAD_IN_DIST / 2
 	var curr_x = start_x
 	var curr_y = start_y
@@ -331,22 +330,12 @@ func generate_maze() -> Vector2i:
 	start_block.is_entrance = true
 	_add_block_at_position(start_block)
 	
-	var get_all_blocks = func() -> Array[MazeBlock]:
-		var all_blocks: Array[MazeBlock] = []
-		var leads: Array[MazeBlock] = [start_block]
-		while !leads.is_empty():
-			var block = leads.pop_front()
-			all_blocks.push_back(block)
-			for next_block in block.next:
-				leads.push_back(next_block)
-		return all_blocks
-	
 	var last_block: MazeBlock = start_block
 	
 	# Create a little start path
 	for _i in range(LEAD_IN_DIST):
 		curr_y += 1
-		var new_block = last_block.create_sibling(Direction.SOUTH)
+		var new_block = last_block.create_sibling(GridDirection.SOUTH)
 		last_block.next.push_back(new_block)
 		new_block.prev = last_block
 		_add_block_at_position(new_block)
@@ -356,42 +345,32 @@ func generate_maze() -> Vector2i:
 	var end_block: MazeBlock = null
 	while !heads.is_empty():
 		var head: MazeBlock = heads.pop_front()
-		
-		# The head might actually solve the maze -- let's see
-		# TODO
-		
 		var feature_generation_attempts = 0
 		while true:
 			var feature = _choose_random_feature()
 			feature_generation_attempts += 1
-			var does_fit = _can_fit_feature(head, feature)
+			var does_fit = _can_add_feature_after_block(head, feature)
 			if does_fit:
-				# This is a little wasteful, but whatever
-				var directions = _feature_topology_relative_to_south_movement_as_dirs(feature)
-				var head_movement_dir = _dir_of_movement_to_block(head)
-				for direction in directions:
-					var relative_direction = _dir_relative_to_movement_dir(direction, head_movement_dir)
-					var new_block = head.create_sibling(relative_direction)
-					new_block.prev = head
-					head.next.push_back(new_block)
-					_add_block_at_position(new_block)
-					heads.push_back(new_block)
+				var new_heads = _add_feature_after_block_and_return_new_heads(head, feature)
+				heads.append_array(new_heads)
 				break
 				
 			if feature_generation_attempts > 15:
+				# The head might actually solve the maze -- let's see
+		# 		# TODO: Check if on bottom edge; if yes --> is_exit
 				break
 	
 	# FAILURE -- We didn't build a good path
-	#if end_block == null:
-	#	blocks.clear()
+	# TODO: Once we setup end blocks, check this
+	# if end_block == null:
 	#	return Vector2i.ZERO
 
 	# SUCCESS -- We have a path
 
 	# Place objects in the scene
-	var all_blocks = get_all_blocks.call()
-	for block in all_blocks:
-		block.actualize(hedge_scene, self)
+	for x in blocks:
+		for y in blocks[x]:
+			blocks[x][y].actualize(hedge_scene, self)
 	
 	return Vector2i(
 		start_x * MAZE_BLOCK_SQUARE_SIZE + HEDGE_LENGTH,
