@@ -8,7 +8,7 @@ const HEDGE_HALF_LENGTH = 1
 const HEDGE_THICKNESS = 0.2
 const HEDGE_HALF_THICKNESS = 0.1
 const MAZE_BLOCK_SQUARE_SIZE = 4
-const MAZE_WIDTH_AND_HEIGHT = 75
+const MAZE_WIDTH_AND_HEIGHT = 25
 const LEAD_IN_DIST = 5
 const MAX_DIST = MAZE_WIDTH_AND_HEIGHT * 4
 
@@ -34,7 +34,10 @@ enum FeatureType {
 	RIGHT_CORNER,
 	JUNCTION_TWO_WAY_SPLIT_L_R,
 	JUNCTION_TWO_WAY_SPLIT_L_FWD,
-	JUNCTION_TWO_WAY_SPLIT_R_FWD
+	JUNCTION_TWO_WAY_SPLIT_R_FWD,
+	JUNCTION_THREE_WAY_SPLIT_L_R_FWD,
+	LEFT_S_SHAPE,
+	RIGHT_S_SHAPE
 }
 
 class MovementList:
@@ -64,9 +67,9 @@ func _movement_dir_as_xy_when_pointing_in_dir(movement: MovementDirection, direc
 		GridDirection.SOUTH:
 			return Vector2i(-base_xy.x, -base_xy.y)
 		GridDirection.EAST:
-			return Vector2i(base_xy.x, -base_xy.y)
+			return Vector2i(-base_xy.y, base_xy.x)
 		GridDirection.WEST:
-			return Vector2i(-base_xy.x, base_xy.y)
+			return Vector2i(base_xy.y, -base_xy.x)
 	assert(false, "failed to match dir")
 	return Vector2i.ZERO
 	
@@ -98,22 +101,38 @@ func _feature_to_movement_list_array(feature: FeatureType) -> Array[MovementList
 			return [MovementList.new([MovementDirection.LEFT]), MovementList.new([MovementDirection.FORWARD])]
 		FeatureType.JUNCTION_TWO_WAY_SPLIT_R_FWD:
 			return [MovementList.new([MovementDirection.RIGHT]), MovementList.new([MovementDirection.FORWARD])]
+		FeatureType.JUNCTION_THREE_WAY_SPLIT_L_R_FWD:
+			return [MovementList.new([MovementDirection.LEFT]), MovementList.new([MovementDirection.RIGHT]), MovementList.new([MovementDirection.FORWARD])]
+		FeatureType.LEFT_S_SHAPE:
+			return [MovementList.new([MovementDirection.FORWARD, MovementDirection.LEFT, MovementDirection.LEFT, MovementDirection.RIGHT, MovementDirection.RIGHT])]
+		FeatureType.RIGHT_S_SHAPE:
+			return [MovementList.new([MovementDirection.FORWARD, MovementDirection.RIGHT, MovementDirection.RIGHT, MovementDirection.LEFT, MovementDirection.LEFT])]
 	assert(false, "Feature not matched!")
 	return []
 	
 func _choose_random_feature() -> FeatureType:
 	var choice = randi_range(0, 100)
-	if choice < 40:
+	if choice < 30:
 		return FeatureType.NONE
-	if choice < 50:
+	if choice < 40:
 		return FeatureType.LEFT_CORNER
-	if choice < 60:
+	if choice < 50:
 		return FeatureType.RIGHT_CORNER
-	if choice < 85:
+	if choice < 65:
 		return FeatureType.JUNCTION_TWO_WAY_SPLIT_L_FWD
-	if choice < 95:
+	if choice < 75:
 		return FeatureType.JUNCTION_TWO_WAY_SPLIT_R_FWD
+	if choice < 80:
+		return FeatureType.JUNCTION_THREE_WAY_SPLIT_L_R_FWD
+	if choice < 90:
+		return FeatureType.LEFT_S_SHAPE
+	if choice < 95:
+		return FeatureType.RIGHT_S_SHAPE
 	return FeatureType.JUNCTION_TWO_WAY_SPLIT_L_R
+	##
+	#if choice < 50:
+		#return FeatureType.NONE
+	#return FeatureType.JUNCTION_THREE_WAY_SPLIT_L_R_FWD
 
 class MazeBlock:
 	var prev: MazeBlock = null
@@ -280,6 +299,8 @@ func _add_feature_after_block_and_return_new_heads(block: MazeBlock, feature: Fe
 			curr_head = _create_sibling_from_movement(curr_head, movement)
 			_add_block_at_position(curr_head)
 		new_heads.push_back(curr_head)
+	if feature != FeatureType.NONE:
+		print("generated a " + str(feature))
 	assert(new_heads.size() > 0, "should have some new heads")
 	return new_heads
 
@@ -349,6 +370,8 @@ func _generate_maze() -> Vector2i:
 		while true:
 			var feature = _choose_random_feature()
 			feature_generation_attempts += 1
+			if feature != FeatureType.NONE:
+				print("not none")
 			var does_fit = _can_add_feature_after_block(head, feature)
 			if does_fit:
 				var new_heads = _add_feature_after_block_and_return_new_heads(head, feature)
@@ -375,3 +398,9 @@ func _generate_maze() -> Vector2i:
 	return Vector2i(
 		start_x * MAZE_BLOCK_SQUARE_SIZE + HEDGE_LENGTH,
 		start_y * MAZE_BLOCK_SQUARE_SIZE + HEDGE_LENGTH)
+
+
+func _on_player_look_direction_changed(position: Vector3, rotation: Vector3) -> void:
+	$DebugOverheadCamera.position.x = position.x
+	$DebugOverheadCamera.position.z = position.z + MAZE_WIDTH_AND_HEIGHT
+	$DebugOverheadCamera.position.y = MAZE_WIDTH_AND_HEIGHT * 3
