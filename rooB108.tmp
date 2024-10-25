@@ -39,6 +39,5 @@ shadow_enabled = true
 
 [node name="DebugOverheadCamera" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 25, 50, 12.5)
-current = true
 
 [connection signal="look_direction_changed" from="Player" to="." method="_on_player_look_direction_changed"]

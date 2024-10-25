@@ -1,6 +1,6 @@
 extends Node
 
-@export var hedge_scene: PackedScene
+@export var maze_block_scene: PackedScene
 
 const HEDGE_HEIGHT = 4
 const HEDGE_LENGTH = 2
@@ -153,17 +153,6 @@ class MazeBlock:
 		position.x = x
 		position.y = y
 		
-	func _add_hedge(scene: PackedScene, root: Node, x: float = 0, y: float = 0, y_rotation_deg: int = 0):
-		var new_hedge = scene.instantiate()
-		new_hedge.position.x = x
-		new_hedge.position.y = HEDGE_HEIGHT / 2.0
-		new_hedge.position.z = y
-		# Flip upside down to provide a little variation in texture looks
-		new_hedge.rotation.z = (0.0 if randi_range(0, 1) == 0 else PI)
-		# Rotate around y axis 
-		new_hedge.rotation.y = deg_to_rad(y_rotation_deg)
-		root.add_child(new_hedge)
-		
 	func create_sibling(direction: GridDirection) -> MazeBlock:
 		var x = 0
 		var y = 0
@@ -218,52 +207,19 @@ class MazeBlock:
 		return direction
 		
 	func actualize(scene: PackedScene, root: Node):
-		var base_x = position.x * MAZE_BLOCK_SQUARE_SIZE
-		var base_z = position.y * MAZE_BLOCK_SQUARE_SIZE
-		if walls[GridDirection.NORTH]:
-			_add_hedge(
-				scene, root,
-				base_x + HEDGE_HALF_LENGTH,
-				base_z + HEDGE_HALF_THICKNESS,
-				0)
-			_add_hedge(
-				scene, root,
-				base_x + HEDGE_LENGTH + HEDGE_HALF_LENGTH,
-				base_z + HEDGE_HALF_THICKNESS,
-				0)
-		if walls[GridDirection.SOUTH]:
-			_add_hedge(
-				scene, root,
-				base_x + HEDGE_HALF_LENGTH,
-				base_z + MAZE_BLOCK_SQUARE_SIZE - HEDGE_HALF_THICKNESS,
-				0)
-			_add_hedge(
-				scene, root,
-				base_x + HEDGE_LENGTH + HEDGE_HALF_LENGTH,
-				base_z + MAZE_BLOCK_SQUARE_SIZE - HEDGE_HALF_THICKNESS,
-				0)
-		if walls[GridDirection.EAST]:
-			_add_hedge(
-				scene, root,
-				base_x + HEDGE_HALF_THICKNESS,
-				base_z + HEDGE_HALF_LENGTH,
-				90)
-			_add_hedge(
-				scene, root,
-				base_x + HEDGE_HALF_THICKNESS,
-				base_z + HEDGE_LENGTH +  HEDGE_HALF_LENGTH,
-				90)
-		if walls[GridDirection.WEST]:
-			_add_hedge(
-				scene, root,
-				base_x + MAZE_BLOCK_SQUARE_SIZE - HEDGE_HALF_THICKNESS,
-				base_z + HEDGE_HALF_LENGTH,
-				90)
-			_add_hedge(
-				scene, root,
-				base_x + MAZE_BLOCK_SQUARE_SIZE - HEDGE_HALF_THICKNESS,
-				base_z + HEDGE_LENGTH +  HEDGE_HALF_LENGTH,
-				90)
+		var x = position.x * MAZE_BLOCK_SQUARE_SIZE
+		var y = position.y * MAZE_BLOCK_SQUARE_SIZE
+		var maze_block = scene.instantiate()
+		maze_block.configure_walls(
+			walls[GridDirection.NORTH],
+			walls[GridDirection.EAST],
+			walls[GridDirection.SOUTH],
+			walls[GridDirection.WEST]
+		)
+		maze_block.position.x = x + HEDGE_LENGTH
+		maze_block.position.y = HEDGE_HEIGHT / 2.0
+		maze_block.position.z = y + HEDGE_LENGTH
+		root.add_child(maze_block)
 
 func _create_sibling_from_movement(base: MazeBlock, movement: MovementDirection) -> MazeBlock:
 	var dir = _movement_dir_as_grid_direction_when_pointing_in_dir(movement, base.direction_from_prev())
@@ -326,12 +282,6 @@ func _ready() -> void:
 		start_position = _generate_maze()
 	$Player.position.x = start_position.x
 	$Player.position.z = start_position.y
-	
-	# TODO: Fix z-fighting and clipped corners
-	# var first = MazeBlock.new(0, 0)
-	# var second = first.create_sibling(Direction.EAST)
-	#first.actualize(hedge_scene, self)
-	#second.actualize(hedge_scene, self)
 
 func _process(_delta: float) -> void:
 	pass
@@ -397,7 +347,7 @@ func _generate_maze() -> Vector2i:
 	# Place objects in the scene
 	for x in blocks:
 		for y in blocks[x]:
-			blocks[x][y].actualize(hedge_scene, self)
+			blocks[x][y].actualize(maze_block_scene, self)
 	
 	return Vector2i(
 		start_x * MAZE_BLOCK_SQUARE_SIZE + HEDGE_LENGTH,
