@@ -34,6 +34,14 @@ func _physics_process(delta: float) -> void:
 		velocity.x = move_toward(velocity.x, 0, speed)
 		velocity.z = move_toward(velocity.z, 0, speed)
 
+	# Debug purposes only
+	var debug_dir := Input.get_vector("debug_east", "debug_west", "debug_south", "debug_north")
+	if debug_dir.length() > 0:
+		var debug_direction := (transform.basis * Vector3(debug_dir.x, 0, debug_dir.y)).normalized()
+		speed = RUN_SPEED * 2
+		velocity.x = debug_direction.x * speed
+		velocity.z = debug_direction.z * speed
+
 	move_and_slide()
 	
 	var angular_velocity = get_platform_angular_velocity()
@@ -42,6 +50,7 @@ func _physics_process(delta: float) -> void:
 	
 	look_direction_changed.emit(position, rotation)
 	
+
 	
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:

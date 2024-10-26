@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://c5cq4nt0yl43t"]
+[gd_scene load_steps=9 format=3 uid="uid://c5cq4nt0yl43t"]
 
 [ext_resource type="Script" path="res://root.gd" id="1_b1y3i"]
 [ext_resource type="Texture2D" uid="uid://qbont3rna5ge" path="res://textures/grass.png" id="1_fgsnn"]
@@ -16,6 +16,8 @@ texture_filter = 0
 [sub_resource type="PlaneMesh" id="PlaneMesh_ls18c"]
 material = SubResource("StandardMaterial3D_tjh0m")
 size = Vector2(5000, 5000)
+
+[sub_resource type="TorusMesh" id="TorusMesh_v22o2"]
 
 [node name="Root" type="Node"]
 script = ExtResource("1_b1y3i")
@@ -40,5 +42,9 @@ shadow_enabled = true
 [node name="DebugOverheadCamera" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 25, 50, 12.5)
 current = true
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 9.37486, -13.9552)
+mesh = SubResource("TorusMesh_v22o2")
 
 [connection signal="look_direction_changed" from="Player" to="." method="_on_player_look_direction_changed"]

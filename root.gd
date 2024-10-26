@@ -177,12 +177,8 @@ class MazeBlock:
 		var sibling = MazeBlock.new(x, y)
 		sibling.dist_from_start = dist_from_start + 1
 		sibling.prev = self
-		if direction == GridDirection.NORTH || direction == GridDirection.SOUTH:
-			walls[direction] = false
-			sibling.walls[opposite_wall] = false
-		else:
-			walls[opposite_wall] = false
-			sibling.walls[direction] = false
+		walls[direction] = false
+		sibling.walls[opposite_wall] = false
 		self.next.push_back(sibling)
 		return sibling
 				
