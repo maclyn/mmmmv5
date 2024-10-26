@@ -12,11 +12,17 @@ sky_horizon_color = Color(1, 1, 1, 1)
 
 [sub_resource type="Sky" id="Sky_24qyn"]
 sky_material = SubResource("ProceduralSkyMaterial_n5kh7")
+radiance_size = 5
 
 [sub_resource type="Environment" id="Environment_xx10y"]
 background_mode = 2
 background_color = Color(1, 0.0929085, 0.554627, 1)
+background_camera_feed_id = 2
 sky = SubResource("Sky_24qyn")
+fog_enabled = true
+fog_mode = 1
+fog_density = 1.0
+fog_sky_affect = 0.1
 
 [node name="Player" type="CharacterBody3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
@@ -29,12 +35,12 @@ shape = SubResource("CapsuleShape3D_kqxx0")
 
 [node name="DemoMesh" type="MeshInstance3D" parent="."]
 layers = 524288
+cast_shadow = 0
 mesh = SubResource("BoxMesh_5fti7")
 
 [node name="PlayerCamera" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.860144, 0)
 cull_mask = 524287
 environment = SubResource("Environment_xx10y")
-far = 750.0
 
 [node name="Pivot" type="Node3D" parent="."]

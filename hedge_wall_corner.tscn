@@ -1,13 +1,13 @@
 [gd_scene load_steps=5 format=4 uid="uid://8ggdbjul8d5x"]
 
-[ext_resource type="Texture2D" uid="uid://bj3ab7rm0l0i2" path="res://models/hedge_wall_corner/Cube2_auv.png" id="1_joi3p"]
+[ext_resource type="Texture2D" uid="uid://dcshq8m0t2pql" path="res://models/hedge_wall_corner/Cube2_auv.png" id="1_joi3p"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fppq1"]
 resource_name = "Cube2_auv"
+diffuse_mode = 2
+specular_mode = 2
 albedo_texture = ExtResource("1_joi3p")
-metallic = 0.19
 texture_filter = 0
-texture_repeat = false
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_mkpfj"]
 _surfaces = [{
@@ -23,7 +23,6 @@ _surfaces = [{
 "vertex_count": 24,
 "vertex_data": PackedByteArray("//8AAAAA4ugAAAAAAADi6P//AAD//4f2AAAAAP//h/YAAP////+WsQAAAAD//5axAAD//wAAQNwAAAAAAABA3P//AAD//z+oAAAAAP//P6j///////8/qAAA/////z+o/////wAA4ugAAP//AADi6P//AAAAAOLoAAAAAAAA4uj///////8/qAAA/////z+o/////wAAk+EAAP//AACT4f////8AAEDc//8AAAAAQNz///////+Wsf//AAD//5ax5ooyLTKtGPV8l2NhYuGC6PCXzLnNOQ3ojaCXzpdOcd8aL2I9nEIZr2K95VDk0JzCzFLmChh1zNLmijItMq0Y9WK95VDk0JzCTdhfdF70sKdnsY0gcV9nMTHG8RcOaDJG")
 }]
-blend_shape_mode = 0
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_lrh3x"]
 size = Vector3(0.2, 4, 0.2)

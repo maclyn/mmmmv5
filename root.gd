@@ -251,8 +251,6 @@ func _add_feature_after_block_and_return_new_heads(block: MazeBlock, feature: Fe
 			curr_head = _create_sibling_from_movement(curr_head, movement)
 			_add_block_at_position(curr_head)
 		new_heads.push_back(curr_head)
-	if feature != FeatureType.NONE:
-		print("generated a " + str(feature))
 	assert(new_heads.size() > 0, "should have some new heads")
 	return new_heads
 
@@ -317,8 +315,6 @@ func _generate_maze() -> Vector2i:
 		while true:
 			var feature = _choose_random_feature()
 			feature_generation_attempts += 1
-			if feature != FeatureType.NONE:
-				print("not none")
 			var does_fit = _can_add_feature_after_block(head, feature)
 			if does_fit:
 				var new_heads = _add_feature_after_block_and_return_new_heads(head, feature)

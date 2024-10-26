@@ -1,0 +1,11 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3 uid="uid://dcq6bexd1bs82"]
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_vlm63"]
+load_path = "res://.godot/imported/Cube2_auv.png-77763099f9a807c5e202d5813a4b6ade.s3tc.ctex"
+
+[resource]
+resource_name = "Cube2_auv"
+diffuse_mode = 2
+specular_mode = 2
+albedo_texture = SubResource("CompressedTexture2D_vlm63")
+texture_filter = 0

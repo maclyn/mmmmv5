@@ -1,13 +1,6 @@
-[gd_scene load_steps=5 format=4 uid="uid://8jlfvxcekk5b"]
+[gd_scene load_steps=4 format=4 uid="uid://8jlfvxcekk5b"]
 
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_vlm63"]
-load_path = "res://.godot/imported/Cube2_auv.png-77763099f9a807c5e202d5813a4b6ade.s3tc.ctex"
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qrck0"]
-resource_name = "Cube2_auv"
-albedo_texture = SubResource("CompressedTexture2D_vlm63")
-metallic = 0.19
-texture_filter = 0
+[ext_resource type="Material" uid="uid://dcq6bexd1bs82" path="res://hedge_wall.tres" id="2_0lysj"]
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_m5cfb"]
 _surfaces = [{
@@ -16,14 +9,13 @@ _surfaces = [{
 "format": 34896613399,
 "index_count": 36,
 "index_data": PackedByteArray("AAABAAIAAgABAAMABAAFAAYABgAFAAcACAAJAAoACgAJAAsADAANAA4ADgANAA8AEAARABIAEgARABMAFAAVABYAFgAVABcA"),
-"material": SubResource("StandardMaterial3D_qrck0"),
+"material": ExtResource("2_0lysj"),
 "name": "Cube2_auv",
 "primitive": 3,
 "uv_scale": Vector4(1.9962, 2.00091, 0, 0),
 "vertex_count": 24,
 "vertex_data": PackedByteArray("//8AAAAA4ugAAAAAAADi6P//AAD//4f2AAAAAP//h/YAAP////+WsQAAAAD//5axAAD//wAAQNwAAAAAAABA3P//AAD//z+oAAAAAP//P6j///////8/qAAA/////z+o/////wAA4ugAAP//AADi6P//AAAAAOLoAAAAAAAA4uj///////8/qAAA/////z+o/////wAAk+EAAP//AACT4f////8AAEDc//8AAAAAQNz///////+Wsf//AAD//5ax5ooyLTKtGPV8l2NhYuGC6PCXzLnNOQ3ojaCXzpdOcd8aL2I9nEIZr2K95VDk0JzCzFLmChh1zNLmijItMq0Y9WK95VDk0JzCTdhfdF70sKdnsY0gcV9nMTHG8RcOaDJG")
 }]
-blend_shape_mode = 0
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_jisk3"]
 size = Vector3(3.6, 4, 0.2)
