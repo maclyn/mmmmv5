@@ -1,12 +1,12 @@
 [gd_scene load_steps=5 format=4 uid="uid://8ggdbjul8d5x"]
 
-[ext_resource type="Texture2D" uid="uid://dcshq8m0t2pql" path="res://models/hedge_wall_corner/Cube2_auv.png" id="1_joi3p"]
+[ext_resource type="Texture2D" uid="uid://dha17jlku16hv" path="res://textures/Hedge_wall.png" id="1_gpoga"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fppq1"]
 resource_name = "Cube2_auv"
 diffuse_mode = 2
 specular_mode = 2
-albedo_texture = ExtResource("1_joi3p")
+albedo_texture = ExtResource("1_gpoga")
 texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_mkpfj"]
