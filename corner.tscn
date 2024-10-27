@@ -1,0 +1,37 @@
+[gd_scene load_steps=5 format=4 uid="uid://8ggdbjul8d5x"]
+
+[ext_resource type="Texture2D" uid="uid://cfvxkcnfqydr8" path="res://textures/hedge_wall.png" id="1_28dkf"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7ew11"]
+diffuse_mode = 2
+specular_mode = 2
+albedo_texture = ExtResource("1_28dkf")
+texture_filter = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_dhmhu"]
+_surfaces = [{
+"aabb": AABB(-0.1, -2, -0.1, 0.2, 4, 0.2),
+"attribute_data": PackedByteArray("uwtAP533/z0R/Ec/rtj/PcsPQD+S5h8+KQZIP64OID5U/I8+3QfAPVT8jz4r+k8/pRCAPt0HwD3VJIA+K/pPPzTZ/z0f9U8/uXDAPSHlTz9rDgA+JjnAPfJfwD3qPsA9NUVAPgNBwD0/O2A+A0HAPTklQD6A7k8/SPtfPoDuTz9Z+yc/YMcfPpARID9c5x8+YAUoPz4gAD55ByA/PiAAPlabfz3ieL499gmAPXzzTz8TgP88n8m+PeF+AD18808/"),
+"format": 34359742487,
+"index_count": 36,
+"index_data": PackedByteArray("AAABAAIAAgABAAMABAAFAAYABgAFAAcACAAJAAoACgAJAAsADAANAA4ADgANAA8AEAARABIAEgARABMAFAAVABYAFgAVABcA"),
+"material": SubResource("StandardMaterial3D_7ew11"),
+"name": "Cube2_auv",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 24,
+"vertex_data": PackedByteArray("zczMPQAAAMDNzMy9zczMvQAAAMDNzMy9zczMPQAAAMDNzMw9zczMvQAAAMDNzMw9zczMvQAAAEDNzMw9zczMvQAAAMDNzMw9zczMvQAAAEDNzMy9zczMvQAAAMDNzMy9zczMPQAAAMDNzMw9zczMvQAAAMDNzMw9zczMPQAAAEDNzMw9zczMvQAAAEDNzMw9zczMPQAAAEDNzMy9zczMvQAAAEDNzMy9zczMPQAAAMDNzMy9zczMvQAAAMDNzMy9zczMPQAAAEDNzMw9zczMvQAAAEDNzMw9zczMPQAAAEDNzMy9zczMvQAAAEDNzMy9zczMPQAAAEDNzMy9zczMPQAAAMDNzMy9zczMPQAAAEDNzMw9zczMPQAAAMDNzMw9VNWqKhgg/p+qKqoqAUAI0KmqVVUBQPWvVVVVVcUfAOBVVamqAKD+r1VVVVUAoP/PqipU1f5f/8+qKqoq/l/+r6mqVVWq3wDgVVVVVf2/J7Cpqqmq/N/+n1VVqar9v/3PVNVU1QAgAOCqKlTVAUD+r1TVqioAIP6fqiqqKgFA/8+pqqmqzd/+n1VVqar9v/PPVNVU1f2/CrCqKlTV/t8A4FTVVNU1IOWPVNWqKv8f/e+pqqmqMeDk76mqVVX+3/+P")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_lrh3x"]
+size = Vector3(0.2, 4, 0.2)
+
+[node name="HedgeWall" type="StaticBody3D"]
+collision_mask = 0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("ArrayMesh_dhmhu")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_lrh3x")

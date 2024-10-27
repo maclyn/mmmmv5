@@ -2,17 +2,20 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dha17jlku16hv"
-path.s3tc="res://.godot/imported/Hedge_wall.png-4e2a799e967909b4869427a4d37fa1ad.s3tc.ctex"
+uid="uid://cfvxkcnfqydr8"
+path.s3tc="res://.godot/imported/hedge_wall.png-805e498639de97645c705d0437536162.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
 }
+generator_parameters={
+"md5": "81c89ca3365c251374f65dc3672a7d24"
+}
 
 [deps]
 
-source_file="res://textures/Hedge_wall.png"
-dest_files=["res://.godot/imported/Hedge_wall.png-4e2a799e967909b4869427a4d37fa1ad.s3tc.ctex"]
+source_file="res://textures/hedge_wall.png"
+dest_files=["res://.godot/imported/hedge_wall.png-805e498639de97645c705d0437536162.s3tc.ctex"]
 
 [params]
 

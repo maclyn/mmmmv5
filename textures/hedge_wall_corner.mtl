@@ -1,0 +1,12 @@
+# Blender 4.3.0 Beta MTL File: 'hedge_wall_corner.blend'
+# www.blender.org
+
+newmtl Cube2_auv
+Ns 19.999990
+Ka 1.000000 1.000000 1.000000
+Ks 0.190000 0.190000 0.190000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd Hedge_wall.png

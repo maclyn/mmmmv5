@@ -1,9 +1,12 @@
-[gd_scene load_steps=5 format=3 uid="uid://iqpu81bv1kub"]
+[gd_scene load_steps=5 format=3 uid="uid://cqwwhhonvo0qw"]
 
-[ext_resource type="Texture2D" uid="uid://dha17jlku16hv" path="res://textures/Hedge_wall.png" id="1_yicbp"]
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_odjtv"]
+load_path = "res://.godot/imported/Hedge_wall.png-2f3c87c44d5dc1e7d460e40d4d7d63ee.s3tc.ctex"
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fjhcd"]
-albedo_texture = ExtResource("1_yicbp")
+diffuse_mode = 2
+specular_mode = 2
+albedo_texture = SubResource("CompressedTexture2D_odjtv")
 uv1_scale = Vector3(1, 1.5, 0.5)
 uv1_triplanar_sharpness = 1.18921
 texture_filter = 0
