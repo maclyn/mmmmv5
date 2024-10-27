@@ -1,8 +1,16 @@
-[gd_scene load_steps=4 format=3 uid="uid://dkpdan17o8x1l"]
+[gd_scene load_steps=8 format=3 uid="uid://dkpdan17o8x1l"]
 
 [ext_resource type="Script" path="res://maze_block.gd" id="1_4ffp3"]
 [ext_resource type="PackedScene" uid="uid://8ggdbjul8d5x" path="res://corner.tscn" id="1_lfmuq"]
 [ext_resource type="PackedScene" uid="uid://8jlfvxcekk5b" path="res://hedge_wall.tscn" id="2_1rctd"]
+[ext_resource type="PackedScene" uid="uid://q02dpd40m6mt" path="res://models/key_derived.tscn" id="4_q0bqj"]
+[ext_resource type="PackedScene" uid="uid://bcsrvtdgrd7ao" path="res://models/keyhole_derived.tscn" id="5_khmdt"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_d768j"]
+size = Vector3(0.463318, 1, 1.22662)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_agrt0"]
+size = Vector3(0.673706, 3.30914, 3.54346)
 
 [node name="MazeBlock" type="Node3D"]
 script = ExtResource("1_4ffp3")
@@ -30,3 +38,29 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 1.9, 0
 
 [node name="HedgeWallW" parent="." instance=ExtResource("2_1rctd")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.9, 0, 0)
+
+[node name="KeyRoot" type="StaticBody3D" parent="." groups=["key_group"]]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, -0.136383, 0)
+visible = false
+collision_layer = 4
+collision_mask = 0
+
+[node name="KeyCollider" type="CollisionShape3D" parent="KeyRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0384216, 0, 0.113312)
+shape = SubResource("BoxShape3D_d768j")
+disabled = true
+
+[node name="Key" parent="KeyRoot" instance=ExtResource("4_q0bqj")]
+
+[node name="ExitRoot" type="StaticBody3D" parent="." groups=["exit_group"]]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 0, -0.19, -1.69948)
+visible = false
+collision_layer = 4
+collision_mask = 0
+
+[node name="ExitCollider" type="CollisionShape3D" parent="ExitRoot" groups=["exit_group"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.163147, -0.0978088, -0.00708008)
+shape = SubResource("BoxShape3D_agrt0")
+disabled = true
+
+[node name="KeyHoleMesh" parent="ExitRoot" instance=ExtResource("5_khmdt")]

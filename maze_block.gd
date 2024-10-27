@@ -1,9 +1,5 @@
 extends Node3D
 
-func _init():
-	# TODO
-	pass
-
 func _ready():
 	$HedgeWallN.rotate_z(PI if randi_range(0, 1) == 0 else 0.0)
 	$HedgeWallE.rotate_z(PI if randi_range(0, 1) == 0 else 0.0)
@@ -18,7 +14,6 @@ func _ready():
 	$HedgeCornerNW.rotate_z(PI if randi_range(0, 1) == 0 else 0.0)
 	$HedgeCornerNW.rotate_y((PI / 2) * randi_range(0, 4))
 
-
 func configure_walls(north: bool, east: bool, south: bool, west: bool):
 	#north = false
 	#east = false
@@ -32,3 +27,15 @@ func configure_walls(north: bool, east: bool, south: bool, west: bool):
 	$HedgeWallS.get_node("CollisionShape3D").disabled = !south
 	$HedgeWallW.visible = west
 	$HedgeWallW.get_node("CollisionShape3D").disabled = !west
+
+func add_key():
+	$KeyRoot.visible = true
+	$KeyRoot/KeyCollider.disabled = false
+	
+func hide_key():
+	$KeyRoot.visible = false
+	$KeyRoot/KeyCollider.disabled = true
+
+func add_exit():
+	$ExitRoot.visible = true
+	$ExitRoot/ExitCollider.disabled = false

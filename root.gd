@@ -13,6 +13,7 @@ const LEAD_IN_DIST = 5
 const MAX_DIST = MAZE_WIDTH_AND_HEIGHT * 4
 
 var blocks: Dictionary = {}
+var exit_block: MazeBlock = null
 
 enum GridDirection {
 	NORTH, 
@@ -148,6 +149,7 @@ class MazeBlock:
 	var is_exit: bool = false
 	var in_solution_path: bool = false
 	var dist_from_start: int = 0
+	var instance: Node = null
 	
 	func _init(x: int, y: int):
 		position.x = x
@@ -212,10 +214,18 @@ class MazeBlock:
 			walls[GridDirection.SOUTH],
 			walls[GridDirection.WEST]
 		)
+		if is_exit:
+			maze_block.add_key()
+		if is_entrance:
+			maze_block.add_exit()
 		maze_block.position.x = x + HEDGE_LENGTH
 		maze_block.position.y = HEDGE_HEIGHT / 2.0
 		maze_block.position.z = y + HEDGE_LENGTH
 		root.add_child(maze_block)
+		instance = maze_block
+		
+	func hide_key():
+		instance.hide_key()
 
 func _create_sibling_from_movement(base: MazeBlock, movement: MovementDirection) -> MazeBlock:
 	var dir = _movement_dir_as_grid_direction_when_pointing_in_dir(movement, base.direction_from_prev())
@@ -334,19 +344,37 @@ func _generate_maze() -> Vector2i:
 	else:
 		# SUCCESS -- We have a path
 		end_block.is_exit = true
-		end_block.walls[GridDirection.SOUTH] = false
+		exit_block = end_block
 		
 	# Place objects in the scene
 	for x in blocks:
 		for y in blocks[x]:
 			blocks[x][y].actualize(maze_block_scene, self)
 	
+	return _maze_block_position_to_center_in_scene_space(start_x, start_y)
+		
+func _maze_block_position_to_center_in_scene_space(x: int, y: int) -> Vector2i:
 	return Vector2i(
-		start_x * MAZE_BLOCK_SQUARE_SIZE + HEDGE_LENGTH,
-		start_y * MAZE_BLOCK_SQUARE_SIZE + HEDGE_LENGTH)
+		x * MAZE_BLOCK_SQUARE_SIZE + HEDGE_LENGTH,
+		y * MAZE_BLOCK_SQUARE_SIZE + HEDGE_LENGTH)
 
 
 func _on_player_look_direction_changed(position: Vector3, rotation: Vector3) -> void:
 	$DebugOverheadCamera.position.x = position.x
 	$DebugOverheadCamera.position.z = position.z + MAZE_WIDTH_AND_HEIGHT
 	$DebugOverheadCamera.position.y = MAZE_WIDTH_AND_HEIGHT * 3
+
+
+func _on_player_at_exit() -> void:
+	pass # Replace with function body.
+
+
+func _on_player_at_key() -> void:
+	exit_block.hide_key()
+	# TODO: Start timer back
+	# TODO: Start ghost back to the start
+
+func _on_player_cheat() -> void:
+	var real_pos = _maze_block_position_to_center_in_scene_space(exit_block.position.x, exit_block.position.y)
+	$Player.position.x = real_pos.x + 1
+	$Player.position.z = real_pos.y + 1

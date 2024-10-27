@@ -42,4 +42,7 @@ directional_shadow_max_distance = 250.0
 [node name="DebugOverheadCamera" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 25, 50, 12.5)
 
+[connection signal="at_exit" from="Player" to="." method="_on_player_at_exit"]
+[connection signal="at_key" from="Player" to="." method="_on_player_at_key"]
+[connection signal="cheat" from="Player" to="." method="_on_player_cheat"]
 [connection signal="look_direction_changed" from="Player" to="." method="_on_player_look_direction_changed"]

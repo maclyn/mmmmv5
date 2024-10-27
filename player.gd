@@ -1,5 +1,8 @@
 extends CharacterBody3D
 
+signal at_exit()
+signal at_key()
+signal cheat()
 signal look_direction_changed(position: Vector3, rotation: Vector3)
 
 @export var sensitivity = 0.005
@@ -44,13 +47,22 @@ func _physics_process(delta: float) -> void:
 
 	move_and_slide()
 	
+	for collision_idx in range(get_slide_collision_count()):
+		var collision = get_slide_collision(collision_idx)
+		if collision.get_collider() == null:
+			continue
+		print("I collided with ", collision.get_collider().name)
+		if collision.get_collider().is_in_group("exit_group"):
+			at_exit.emit()
+		if collision.get_collider().is_in_group("key_group"):
+			at_key.emit()
+			
+	
 	var angular_velocity = get_platform_angular_velocity()
 	look_rotation.y += angular_velocity.y * delta
 	rotation.y = look_rotation.y
 	
 	look_direction_changed.emit(position, rotation)
-	
-
 	
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
@@ -64,3 +76,5 @@ func _unhandled_input(_event: InputEvent) -> void:
 	if Input.is_action_just_pressed("wireframe_mode"):
 		var rs = get_viewport()
 		rs.debug_draw = (rs.debug_draw + 1) % 5
+	if Input.is_action_pressed("cheat"):
+		cheat.emit()
