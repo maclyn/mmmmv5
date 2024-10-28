@@ -11,9 +11,13 @@ const MAZE_BLOCK_SQUARE_SIZE = 4
 const MAZE_WIDTH_AND_HEIGHT = 25
 const LEAD_IN_DIST = 5
 const MAX_DIST = MAZE_WIDTH_AND_HEIGHT * 4
+const MS_PER_BLOCK_FOR_RETURN_TRIP = 700.0
 
 var blocks: Dictionary = {}
 var exit_block: MazeBlock = null
+var path_from_exit_to_entrance: Array[MazeBlock] = []
+var game_state: GameState = GameState.GOING_TO_KEY
+var last_game_state_transition_time = Time.get_ticks_msec()
 
 enum GridDirection {
 	NORTH, 
@@ -39,6 +43,12 @@ enum FeatureType {
 	JUNCTION_THREE_WAY_SPLIT_L_R_FWD,
 	LEFT_S_SHAPE,
 	RIGHT_S_SHAPE
+}
+
+enum GameState {
+	NOT_STARTED,
+	GOING_TO_KEY,
+	RETURNING_TO_LOCK
 }
 
 class MovementList:
@@ -207,7 +217,10 @@ class MazeBlock:
 	func actualize(scene: PackedScene, root: Node):
 		var x = position.x * MAZE_BLOCK_SQUARE_SIZE
 		var y = position.y * MAZE_BLOCK_SQUARE_SIZE
+		var prev = direction_from_prev()
 		var maze_block = scene.instantiate()
+		instance = maze_block
+		instance.init_scene(prev == GridDirection.NORTH || prev == GridDirection.SOUTH)
 		maze_block.configure_walls(
 			walls[GridDirection.NORTH],
 			walls[GridDirection.EAST],
@@ -216,16 +229,30 @@ class MazeBlock:
 		)
 		if is_exit:
 			maze_block.add_key()
+			match direction_from_prev():
+				GridDirection.NORTH:
+					instance.rotate_key_y(PI)
+				GridDirection.SOUTH:
+					instance.rotate_key_y(PI * 1.5)
+				GridDirection.EAST:
+					instance.rotate_key_y(0)
+				GridDirection.WEST:
+					instance.rotate_key_y(PI / 2)
 		if is_entrance:
 			maze_block.add_exit()
 		maze_block.position.x = x + HEDGE_LENGTH
 		maze_block.position.y = HEDGE_HEIGHT / 2.0
 		maze_block.position.z = y + HEDGE_LENGTH
 		root.add_child(maze_block)
-		instance = maze_block
 		
 	func hide_key():
 		instance.hide_key()
+		
+	func get_key_position() -> Vector3:
+		return instance.get_key_position()
+		
+	func snekify():
+		instance.snekify()
 
 func _create_sibling_from_movement(base: MazeBlock, movement: MovementDirection) -> MazeBlock:
 	var dir = _movement_dir_as_grid_direction_when_pointing_in_dir(movement, base.direction_from_prev())
@@ -288,7 +315,45 @@ func _ready() -> void:
 	$Player.position.z = start_position.y
 
 func _process(_delta: float) -> void:
-	pass
+	match game_state:
+		GameState.NOT_STARTED:
+			pass
+		GameState.GOING_TO_KEY:
+			pass
+		GameState.RETURNING_TO_LOCK:
+			# LERP exit follow mesh back
+			# Assume each block takes ~1 second to traverse
+			var elapsed = Time.get_ticks_msec() - last_game_state_transition_time
+			var segment_count = path_from_exit_to_entrance.size() - 1
+			var total_time_ms = MS_PER_BLOCK_FOR_RETURN_TRIP * segment_count
+			var pct_complete = elapsed / total_time_ms
+			# print(str(pct_complete) + " " +  str(segment_count))
+			if pct_complete > 1.0:
+				# TODO: Game over
+				pass
+			elif pct_complete > 0.0:
+				var segment_idx = lerpf(0.0, segment_count, pct_complete)
+				# Segment 0 -> between idx 0 and idx 1
+				# Segment 1 -> between idx 1 and idx 2
+				# Etc.
+				var start_idx = floori(segment_idx)
+				var pct_in_segment = segment_idx - start_idx
+				var start_block = path_from_exit_to_entrance[start_idx]
+				var end_block = path_from_exit_to_entrance[start_idx + 1]
+				var start_pos = _maze_block_position_to_center_in_scene_space(
+					start_block.position.x, start_block.position.y)
+				var end_pos = _maze_block_position_to_center_in_scene_space(
+					end_block.position.x, end_block.position.y)
+				$ExitFollowMesh.position = Vector3(
+					lerpf(start_pos.x, end_pos.x, pct_in_segment),
+					$ExitFollowMesh.position.y,
+					lerpf(start_pos.y, end_pos.y, pct_in_segment))
+				print(str(segment_idx))
+			else:
+				print("bad condition; returning to lock but " + str(pct_complete))
+			
+			var player_pos = $Player.global_position
+			$ExitFollowMesh.look_at(Vector3(player_pos.x, $ExitFollowMesh.position.y, player_pos.z), Vector3.UP, true)
 
 # Generate the maze, and return the center of the maze entrance in world space
 # or ZERO if it failed to generate a valid maze, which is (theoretically) 
@@ -345,6 +410,10 @@ func _generate_maze() -> Vector2i:
 		# SUCCESS -- We have a path
 		end_block.is_exit = true
 		exit_block = end_block
+		var node = exit_block
+		while node != null:
+			path_from_exit_to_entrance.push_back(node)
+			node = node.prev
 		
 	# Place objects in the scene
 	for x in blocks:
@@ -358,21 +427,29 @@ func _maze_block_position_to_center_in_scene_space(x: int, y: int) -> Vector2i:
 		x * MAZE_BLOCK_SQUARE_SIZE + HEDGE_LENGTH,
 		y * MAZE_BLOCK_SQUARE_SIZE + HEDGE_LENGTH)
 
-
 func _on_player_look_direction_changed(position: Vector3, rotation: Vector3) -> void:
 	$DebugOverheadCamera.position.x = position.x
 	$DebugOverheadCamera.position.z = position.z + MAZE_WIDTH_AND_HEIGHT
 	$DebugOverheadCamera.position.y = MAZE_WIDTH_AND_HEIGHT * 3
 
-
 func _on_player_at_exit() -> void:
 	pass # Replace with function body.
 
-
 func _on_player_at_key() -> void:
+	game_state = GameState.RETURNING_TO_LOCK
+	var key_pos = exit_block.get_key_position()
 	exit_block.hide_key()
+	$ExitFollowMesh.visible = true
+	$ExitFollowMesh.position = key_pos
+	var prev_block = _maze_block_position_to_center_in_scene_space(
+		exit_block.prev.position.x,
+		exit_block.prev.position.y)
+	$Player.look_at(Vector3(prev_block.x, $Player.global_position.y, prev_block.y), Vector3.UP, true)
+	for x in blocks:
+		for y in blocks[x]:
+			var block = blocks[x][y]
+			block.snekify()
 	# TODO: Start timer back
-	# TODO: Start ghost back to the start
 
 func _on_player_cheat() -> void:
 	var real_pos = _maze_block_position_to_center_in_scene_space(exit_block.position.x, exit_block.position.y)

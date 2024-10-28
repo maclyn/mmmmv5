@@ -1,9 +1,10 @@
-[gd_scene load_steps=8 format=3 uid="uid://c5cq4nt0yl43t"]
+[gd_scene load_steps=11 format=3 uid="uid://c5cq4nt0yl43t"]
 
 [ext_resource type="Script" path="res://root.gd" id="1_b1y3i"]
 [ext_resource type="Texture2D" uid="uid://qbont3rna5ge" path="res://textures/grass.png" id="1_fgsnn"]
 [ext_resource type="PackedScene" uid="uid://dkpdan17o8x1l" path="res://maze_block.tscn" id="2_0unmp"]
 [ext_resource type="PackedScene" uid="uid://3mh0fvm1jcci" path="res://player.tscn" id="2_mi2nb"]
+[ext_resource type="FontFile" uid="uid://b88ckwrmql0l8" path="res://assets/Flexi_IBM_VGA_False_437.ttf" id="5_faan6"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_hlfi2"]
 size = Vector3(5000, 0.1, 5000)
@@ -16,6 +17,22 @@ texture_filter = 0
 [sub_resource type="PlaneMesh" id="PlaneMesh_ls18c"]
 material = SubResource("StandardMaterial3D_tjh0m")
 size = Vector2(5000, 5000)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_b04mf"]
+shading_mode = 2
+diffuse_mode = 1
+specular_mode = 2
+emission_enabled = true
+emission = Color(1, 1, 1, 1)
+texture_filter = 0
+texture_repeat = false
+
+[sub_resource type="TextMesh" id="TextMesh_b6fxs"]
+material = SubResource("StandardMaterial3D_b04mf")
+text = "Follow me out!"
+font = ExtResource("5_faan6")
+font_size = 20
+depth = 0.0
 
 [node name="Root" type="Node"]
 script = ExtResource("1_b1y3i")
@@ -41,6 +58,11 @@ directional_shadow_max_distance = 250.0
 
 [node name="DebugOverheadCamera" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 25, 50, 12.5)
+
+[node name="ExitFollowMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.06647, 1, 0)
+cast_shadow = 0
+mesh = SubResource("TextMesh_b6fxs")
 
 [connection signal="at_exit" from="Player" to="." method="_on_player_at_exit"]
 [connection signal="at_key" from="Player" to="." method="_on_player_at_key"]

@@ -51,12 +51,10 @@ func _physics_process(delta: float) -> void:
 		var collision = get_slide_collision(collision_idx)
 		if collision.get_collider() == null:
 			continue
-		print("I collided with ", collision.get_collider().name)
 		if collision.get_collider().is_in_group("exit_group"):
 			at_exit.emit()
 		if collision.get_collider().is_in_group("key_group"):
 			at_key.emit()
-			
 	
 	var angular_velocity = get_platform_angular_velocity()
 	look_rotation.y += angular_velocity.y * delta
