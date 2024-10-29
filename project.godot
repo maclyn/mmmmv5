@@ -28,6 +28,10 @@ key_group=""
 exit_group=""
 enemy_group=""
 
+[gui]
+
+theme/custom_font="res://assets/Flexi_IBM_VGA_False_437.ttf"
+
 [input]
 
 forward={

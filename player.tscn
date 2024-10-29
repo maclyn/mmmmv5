@@ -1,36 +1,19 @@
-[gd_scene load_steps=7 format=3 uid="uid://3mh0fvm1jcci"]
+[gd_scene load_steps=6 format=3 uid="uid://3mh0fvm1jcci"]
 
 [ext_resource type="Script" path="res://player.gd" id="1_an2rx"]
+[ext_resource type="PackedScene" uid="uid://fysapkwmvqjd" path="res://player_camera_sun.tscn" id="2_qvkrj"]
+[ext_resource type="PackedScene" uid="uid://d3ckrhqrld737" path="res://player_camera_moon.tscn" id="3_6r23q"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_kqxx0"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_5fti7"]
 
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_n5kh7"]
-sky_top_color = Color(0.0406199, 0.153452, 1, 1)
-sky_horizon_color = Color(1, 1, 1, 1)
-use_debanding = false
-
-[sub_resource type="Sky" id="Sky_24qyn"]
-sky_material = SubResource("ProceduralSkyMaterial_n5kh7")
-radiance_size = 4
-
-[sub_resource type="Environment" id="Environment_xx10y"]
-background_mode = 2
-background_color = Color(1, 0.0929085, 0.554627, 1)
-background_camera_feed_id = 2
-sky = SubResource("Sky_24qyn")
-fog_enabled = true
-fog_mode = 1
-fog_density = 1.0
-fog_sky_affect = 0.1
-fog_depth_begin = 7.5
-fog_depth_end = 35.0
-
 [node name="Player" type="CharacterBody3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 collision_mask = 13
 script = ExtResource("1_an2rx")
+camera_sun = ExtResource("2_qvkrj")
+camera_moon = ExtResource("3_6r23q")
 
 [node name="Collider" type="CollisionShape3D" parent="."]
 shape = SubResource("CapsuleShape3D_kqxx0")
@@ -40,9 +23,7 @@ layers = 524288
 cast_shadow = 0
 mesh = SubResource("BoxMesh_5fti7")
 
-[node name="PlayerCamera" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.860144, 0)
-cull_mask = 524287
-environment = SubResource("Environment_xx10y")
-
 [node name="Pivot" type="Node3D" parent="."]
+
+[node name="CameraRoot" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.86, 0)

@@ -1,0 +1,73 @@
+[gd_scene load_steps=6 format=3 uid="uid://dtsi5rjl4d3mi"]
+
+[ext_resource type="Script" path="res://main_menu.gd" id="1_1efbp"]
+[ext_resource type="Texture2D" uid="uid://dghtc8eovy3xq" path="res://textures/splash.png" id="1_wbcnh"]
+[ext_resource type="Theme" uid="uid://chke2i30au63p" path="res://main_menu.tres" id="2_eh4l0"]
+
+[sub_resource type="Gradient" id="Gradient_7omxu"]
+colors = PackedColorArray(0.495404, 0.588465, 0.905882, 1, 1, 1, 1, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_l74hv"]
+gradient = SubResource("Gradient_7omxu")
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_1efbp")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 0
+offset_right = 1280.0
+offset_bottom = 720.0
+texture = SubResource("GradientTexture1D_l74hv")
+
+[node name="Logo" type="TextureRect" parent="."]
+texture_filter = 2
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -606.0
+offset_top = -294.0
+offset_right = 601.0
+offset_bottom = 190.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_wbcnh")
+expand_mode = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 34.0
+offset_top = 575.0
+offset_right = 1241.0
+offset_bottom = 706.0
+alignment = 1
+
+[node name="EasyButton" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("2_eh4l0")
+text = "(E)ASY"
+
+[node name="NormalButton" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("2_eh4l0")
+text = "(N)ORMAL"
+
+[node name="SpookyButton" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("2_eh4l0")
+text = "(S)POOKY"
+
+[connection signal="pressed" from="HBoxContainer/EasyButton" to="." method="_on_easy_button_pressed"]
+[connection signal="pressed" from="HBoxContainer/NormalButton" to="." method="_on_normal_button_pressed"]
+[connection signal="pressed" from="HBoxContainer/SpookyButton" to="." method="_on_spooky_button_pressed"]

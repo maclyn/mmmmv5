@@ -13,7 +13,6 @@ const MAZE_WIDTH_AND_HEIGHT = 25
 const MAZE_DIMENS_IN_SCENE_SPACE = MAZE_BLOCK_SQUARE_SIZE * MAZE_WIDTH_AND_HEIGHT
 const LEAD_IN_DIST = 5
 const MAX_DIST = MAZE_WIDTH_AND_HEIGHT * 4
-const MS_PER_BLOCK_FOR_RETURN_TRIP = 625.0
 
 const SNAKE_LENGTH = 2.2 # units
 const SNAKE_WIDTH = 0.2 # units
@@ -24,12 +23,13 @@ const WEST_SNAKE_EDGE = -SNAKE_LENGTH * 3
 const SOUTH_SNAKE_EDGE = (MAZE_DIMENS_IN_SCENE_SPACE) + (SNAKE_LENGTH * 3)
 const NORTH_SNAKE_EDGE = (-LEAD_IN_DIST * MAZE_BLOCK_SQUARE_SIZE) + (SNAKE_LENGTH * -3)
 
+# All game state
 var blocks: Dictionary = {}
-
 var snakes: Array[Node] = []
 var exit_block: MazeBlock = null
 var path_from_exit_to_entrance: Array[MazeBlock] = []
-var game_state: GameState = GameState.GOING_TO_KEY
+var game_state: GameState = GameState.NOT_STARTED
+var curr_difficulty: GameDifficulty = GameDifficulty.NORMAL
 var last_game_state_transition_time = Time.get_ticks_msec()
 
 enum GridDirection {
@@ -56,6 +56,12 @@ enum FeatureType {
 	JUNCTION_THREE_WAY_SPLIT_L_R_FWD,
 	LEFT_S_SHAPE,
 	RIGHT_S_SHAPE
+}
+
+enum GameDifficulty {
+	EASY,
+	NORMAL,
+	SPOOKY
 }
 
 enum GameState {
@@ -317,19 +323,14 @@ func _add_block_at_position(block: MazeBlock):
 	var sub_dict = blocks[x]
 	assert(y not in sub_dict, "should not add block at existing position")
 	sub_dict[y] = block
-
-func _ready() -> void:
-	var start_position = Vector2i.ZERO
-	while start_position == Vector2i.ZERO:
-		blocks.clear()
-		start_position = _generate_maze()
-	$Player.position.x = start_position.x
-	$Player.position.z = start_position.y
-	print("E " + str(EAST_SNAKE_EDGE) + " W " + str(WEST_SNAKE_EDGE) + " S " + str(SOUTH_SNAKE_EDGE) + " N " + str(NORTH_SNAKE_EDGE))
+	
+func _ready():
+	_show_main_menu()
 
 func _process(_delta: float) -> void:
 	match game_state:
 		GameState.NOT_STARTED:
+			# In Menu
 			pass
 		GameState.GOING_TO_KEY:
 			_format_label_to_remaining_timer()
@@ -339,7 +340,7 @@ func _process(_delta: float) -> void:
 			# Assume each block takes ~1 second to traverse
 			var elapsed = Time.get_ticks_msec() - last_game_state_transition_time
 			var segment_count = path_from_exit_to_entrance.size() - 1
-			var total_time_ms = MS_PER_BLOCK_FOR_RETURN_TRIP * segment_count
+			var total_time_ms = _ms_per_block_when_exiting() * segment_count
 			var pct_complete = elapsed / total_time_ms
 			# print(str(pct_complete) + " " +  str(segment_count))
 			if pct_complete > 1.0:
@@ -447,24 +448,6 @@ func _on_player_look_direction_changed(position: Vector3, rotation: Vector3) -> 
 	#$DebugOverheadCamera.position.y = MAZE_WIDTH_AND_HEIGHT * 3
 	pass
 
-func _on_player_at_exit() -> void:
-	pass # Replace with function body.
-
-func _on_player_at_key() -> void:
-	game_state = GameState.RETURNING_TO_LOCK
-	last_game_state_transition_time = Time.get_ticks_msec()
-	$GameTimer.stop()
-	$GameTimer.start(MS_PER_BLOCK_FOR_RETURN_TRIP * 0.001 * path_from_exit_to_entrance.size())
-	var key_pos = exit_block.get_key_position()
-	exit_block.hide_key()
-	$ExitFollowMesh.visible = true
-	$ExitFollowMesh.position = key_pos
-	var prev_block = _maze_block_position_to_center_in_scene_space(
-		exit_block.prev.position.x,
-		exit_block.prev.position.y)
-	$Player.look_at(Vector3(prev_block.x, $Player.global_position.y, prev_block.y), Vector3.UP, true)
-	_add_snakes()
-
 func _add_snakes():
 	# New snake, who this
 	for x in MAZE_WIDTH_AND_HEIGHT:
@@ -505,10 +488,28 @@ func _on_player_cheat() -> void:
 	$Player.position.x = real_pos.x + 1
 	$Player.position.z = real_pos.y + 1
 
-
 func _on_player_at_enemy() -> void:
 	$Player.die()
-	pass # Replace with function body.
+	_game_over(false)
+	
+func _on_player_at_exit() -> void:
+	if game_state == GameState.RETURNING_TO_LOCK:
+		_game_over(true)
+
+func _on_player_at_key() -> void:
+	game_state = GameState.RETURNING_TO_LOCK
+	last_game_state_transition_time = Time.get_ticks_msec()
+	$GameTimer.stop()
+	$GameTimer.start(_ms_per_block_when_exiting() * 0.001 * path_from_exit_to_entrance.size())
+	var key_pos = exit_block.get_key_position()
+	exit_block.hide_key()
+	$ExitFollowMesh.visible = true
+	$ExitFollowMesh.position = key_pos
+	var prev_block = _maze_block_position_to_center_in_scene_space(
+		exit_block.prev.position.x,
+		exit_block.prev.position.y)
+	$Player.look_at(Vector3(prev_block.x, $Player.global_position.y, prev_block.y), Vector3.UP, true)
+	_add_snakes()
 
 func _format_label_to_remaining_timer():
 	var time_left = $GameTimer.time_left
@@ -516,3 +517,77 @@ func _format_label_to_remaining_timer():
 	var seconds = floor(time_left - (minutes * 60))
 	var milliseconds = (time_left - (minutes * 60) - (seconds)) * 10
 	$HUD/TimerLabel.text = "%01d:%02d:%01.1d" % [minutes, seconds, milliseconds]
+
+func _ms_per_block_when_exiting() -> float:
+	match curr_difficulty:
+		GameDifficulty.EASY:
+			return 800.0
+		GameDifficulty.NORMAL:
+			return 625.0
+		GameDifficulty.SPOOKY:
+			return 600.0
+	return 500.0
+
+func _on_main_menu_start_easy_game() -> void:
+	_start_new_game(GameDifficulty.EASY)
+
+func _on_main_menu_start_normal_game() -> void:
+	_start_new_game(GameDifficulty.NORMAL)
+
+func _on_main_menu_start_spooky_game() -> void:
+	_start_new_game(GameDifficulty.SPOOKY)
+
+func _start_new_game(difficulty: GameDifficulty) -> void:
+	_hide_main_menu()
+	var start_position = Vector2i.ZERO
+	while start_position == Vector2i.ZERO:
+		blocks.clear()
+		start_position = _generate_maze()
+	$Player.position.x = start_position.x
+	$Player.position.z = start_position.y
+	$Player.respawn()
+	game_state = GameState.GOING_TO_KEY
+	curr_difficulty = difficulty
+	last_game_state_transition_time = Time.get_ticks_msec()
+	
+	var multiplier = 1.0
+	var has_sun = true
+	var has_moon = false
+	match difficulty:
+		GameDifficulty.EASY:
+			multiplier = 4.0
+		GameDifficulty.NORMAL:
+			multiplier = 3.0
+		GameDifficulty.SPOOKY:
+			multiplier = 2.5
+			has_sun = false
+			has_moon = true
+	$Sun.visible = has_sun
+	$Moon.visible = has_moon
+	$Player.set_camera(has_sun, has_moon)
+	
+	$GameTimer.start(path_from_exit_to_entrance.size() * multiplier)
+
+func _game_over(did_win: bool) -> void:
+	# TODO: win/lose splash
+	# TODO: await get_tree().create_timer(5).timeout
+	for x in blocks:
+		for y in blocks[x]:
+			remove_child(blocks[x][y].instance)
+	blocks = {}
+	for snake in snakes:
+		remove_child(snake)
+	exit_block = null
+	path_from_exit_to_entrance.clear()
+	game_state = GameState.NOT_STARTED
+	last_game_state_transition_time = Time.get_ticks_msec()
+	$GameTimer.stop()
+	_show_main_menu()
+	
+func _hide_main_menu():
+	$MainMenu.visible = false
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+func _show_main_menu():
+	$MainMenu.visible = true
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE

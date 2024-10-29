@@ -6,6 +6,8 @@ signal at_enemy()
 signal cheat()
 signal look_direction_changed(position: Vector3, rotation: Vector3)
 
+@export var camera_sun: PackedScene
+@export var camera_moon: PackedScene
 @export var sensitivity = 0.005
 @export var min_angle = -PI / 2
 @export var max_angle = PI / 2
@@ -85,5 +87,16 @@ func _unhandled_input(_event: InputEvent) -> void:
 	if Input.is_action_pressed("cheat"):
 		cheat.emit()
 		
+func set_camera(sun: bool, moon: bool):
+	while $CameraRoot.get_child_count() > 0:
+		$CameraRoot.remove_child($CameraRoot.get_child(0))
+	if sun:
+		$CameraRoot.add_child(camera_sun.instantiate())
+	elif moon:
+		$CameraRoot.add_child(camera_moon.instantiate())
+
+func respawn():
+	is_dead = false
+
 func die():
 	is_dead = true
