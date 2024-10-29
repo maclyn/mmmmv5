@@ -1,7 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://cqwwhhonvo0qw"]
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_odjtv"]
-load_path = "res://.godot/imported/Hedge_wall.png-2f3c87c44d5dc1e7d460e40d4d7d63ee.s3tc.ctex"
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fjhcd"]
 diffuse_mode = 2

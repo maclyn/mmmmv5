@@ -1,6 +1,7 @@
 extends Node
 
 @export var maze_block_scene: PackedScene
+@export var snake_scene: PackedScene
 
 const HEDGE_HEIGHT = 4
 const HEDGE_LENGTH = 2
@@ -9,11 +10,23 @@ const HEDGE_THICKNESS = 0.2
 const HEDGE_HALF_THICKNESS = 0.1
 const MAZE_BLOCK_SQUARE_SIZE = 4
 const MAZE_WIDTH_AND_HEIGHT = 25
+const MAZE_DIMENS_IN_SCENE_SPACE = MAZE_BLOCK_SQUARE_SIZE * MAZE_WIDTH_AND_HEIGHT
 const LEAD_IN_DIST = 5
 const MAX_DIST = MAZE_WIDTH_AND_HEIGHT * 4
 const MS_PER_BLOCK_FOR_RETURN_TRIP = 700.0
 
+const SNAKE_LENGTH = 2.2 # units
+const SNAKE_WIDTH = 0.2 # units
+const SNAKE_SPAWN_PER_COL_ROW_PROB = 0.75 # most rows/columns get a snake
+
+const EAST_SNAKE_EDGE = (MAZE_DIMENS_IN_SCENE_SPACE) + (SNAKE_LENGTH * 3)
+const WEST_SNAKE_EDGE = -SNAKE_LENGTH * 3
+const SOUTH_SNAKE_EDGE = (MAZE_DIMENS_IN_SCENE_SPACE) + (SNAKE_LENGTH * 3)
+const NORTH_SNAKE_EDGE = (-LEAD_IN_DIST * MAZE_BLOCK_SQUARE_SIZE) + (SNAKE_LENGTH * -3)
+
 var blocks: Dictionary = {}
+
+var snakes: Array[Node] = []
 var exit_block: MazeBlock = null
 var path_from_exit_to_entrance: Array[MazeBlock] = []
 var game_state: GameState = GameState.GOING_TO_KEY
@@ -220,7 +233,6 @@ class MazeBlock:
 		var prev = direction_from_prev()
 		var maze_block = scene.instantiate()
 		instance = maze_block
-		instance.init_scene(prev == GridDirection.NORTH || prev == GridDirection.SOUTH)
 		maze_block.configure_walls(
 			walls[GridDirection.NORTH],
 			walls[GridDirection.EAST],
@@ -313,6 +325,7 @@ func _ready() -> void:
 		start_position = _generate_maze()
 	$Player.position.x = start_position.x
 	$Player.position.z = start_position.y
+	print("E " + str(EAST_SNAKE_EDGE) + " W " + str(WEST_SNAKE_EDGE) + " S " + str(SOUTH_SNAKE_EDGE) + " N " + str(NORTH_SNAKE_EDGE))
 
 func _process(_delta: float) -> void:
 	match game_state:
@@ -428,9 +441,10 @@ func _maze_block_position_to_center_in_scene_space(x: int, y: int) -> Vector2i:
 		y * MAZE_BLOCK_SQUARE_SIZE + HEDGE_LENGTH)
 
 func _on_player_look_direction_changed(position: Vector3, rotation: Vector3) -> void:
-	$DebugOverheadCamera.position.x = position.x
-	$DebugOverheadCamera.position.z = position.z + MAZE_WIDTH_AND_HEIGHT
-	$DebugOverheadCamera.position.y = MAZE_WIDTH_AND_HEIGHT * 3
+	#$DebugOverheadCamera.position.x = position.x
+	#$DebugOverheadCamera.position.z = position.z + MAZE_WIDTH_AND_HEIGHT
+	#$DebugOverheadCamera.position.y = MAZE_WIDTH_AND_HEIGHT * 3
+	pass
 
 func _on_player_at_exit() -> void:
 	pass # Replace with function body.
@@ -445,11 +459,42 @@ func _on_player_at_key() -> void:
 		exit_block.prev.position.x,
 		exit_block.prev.position.y)
 	$Player.look_at(Vector3(prev_block.x, $Player.global_position.y, prev_block.y), Vector3.UP, true)
-	for x in blocks:
-		for y in blocks[x]:
-			var block = blocks[x][y]
-			block.snekify()
-	# TODO: Start timer back
+	_add_snakes()
+
+func _add_snakes():
+	# New snake, who this
+	for x in MAZE_WIDTH_AND_HEIGHT:
+		var should_snake = randf_range(0.0, 1.0) <= SNAKE_SPAWN_PER_COL_ROW_PROB
+		if !should_snake:
+			continue
+		var north_to_south = randf_range(0.0, 1.0) > 0.5
+		var dx = 0
+		var dy = 1 if north_to_south else -1
+		var x_pos = _maze_block_position_to_center_in_scene_space(x, 0).x - (SNAKE_WIDTH / 2.0)
+		var y_pos = NORTH_SNAKE_EDGE if north_to_south else SOUTH_SNAKE_EDGE
+		y_pos += ((1 if north_to_south else -1) * randf_range(0.0, MAZE_DIMENS_IN_SCENE_SPACE * 0.5))
+		_new_snake(dx, dy, x_pos, y_pos, 90.0 if north_to_south else 270.0)
+	for y in MAZE_WIDTH_AND_HEIGHT:
+		var should_snake = randf_range(0.0, 1.0) <= SNAKE_SPAWN_PER_COL_ROW_PROB
+		if !should_snake:
+			continue
+		var west_to_east = randf_range(0.0, 1.0) > 0.5
+		var dx = 1 if west_to_east else -1
+		var dy = 0
+		var x_pos = WEST_SNAKE_EDGE if west_to_east else EAST_SNAKE_EDGE
+		x_pos += ((1 if west_to_east else -1) * randf_range(0.0, MAZE_DIMENS_IN_SCENE_SPACE * 0.5))
+		var y_pos = _maze_block_position_to_center_in_scene_space(0, y).y - (SNAKE_WIDTH / 2.0)
+		_new_snake(dx, dy, x_pos, y_pos, 180.0 if west_to_east else 0.0)
+
+
+func _new_snake(dx: int, dy: int, start_x_pos: float, start_y_pos: float, snake_rot_deg: float = 0.0):
+	var snake = snake_scene.instantiate()
+	snake.position.x = start_x_pos
+	snake.position.z = start_y_pos
+	snake.rotation.y = deg_to_rad(snake_rot_deg)
+	snake.init_snek(dx, dy, WEST_SNAKE_EDGE, EAST_SNAKE_EDGE, NORTH_SNAKE_EDGE, SOUTH_SNAKE_EDGE)
+	self.add_child(snake)
+	snakes.push_back(snake)
 
 func _on_player_cheat() -> void:
 	var real_pos = _maze_block_position_to_center_in_scene_space(exit_block.position.x, exit_block.position.y)
