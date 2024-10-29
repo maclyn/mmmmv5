@@ -3,6 +3,8 @@ extends Node
 @export var maze_block_scene: PackedScene
 @export var snake_scene: PackedScene
 
+const DEBUG = false
+
 const HEDGE_HEIGHT = 4
 const HEDGE_LENGTH = 2
 const HEDGE_HALF_LENGTH = 1
@@ -326,6 +328,10 @@ func _add_block_at_position(block: MazeBlock):
 	
 func _ready():
 	_show_main_menu()
+	# TODO: Switch to this over project settings scaling when
+	# nearest neighbor 3D scaling is added to Godot
+	# get_tree().root.scaling_3d_mode = Viewport.SCALING_3D_MODE_BILINEAR
+	# get_tree().root.scaling_3d_scale = 0.333
 
 func _process(_delta: float) -> void:
 	match game_state:
@@ -565,6 +571,9 @@ func _start_new_game(difficulty: GameDifficulty) -> void:
 	$Sun.visible = has_sun
 	$Moon.visible = has_moon
 	$Player.set_camera(has_sun, has_moon)
+	
+	if DEBUG:
+		$DebugOverheadCamera.make_current()
 	
 	$GameTimer.start(path_from_exit_to_entrance.size() * multiplier)
 
