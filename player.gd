@@ -2,6 +2,7 @@ extends CharacterBody3D
 
 signal at_exit()
 signal at_key()
+signal at_enemy()
 signal cheat()
 signal look_direction_changed(position: Vector3, rotation: Vector3)
 
@@ -14,11 +15,15 @@ const RUN_SPEED = SPEED * 2
 const JUMP_VELOCITY = 3
 
 var look_rotation = Vector2(0, PI)
+var is_dead = false
 
 func _ready():
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
 func _physics_process(delta: float) -> void:
+	if is_dead:
+		return
+	
 	# Add the gravity.
 	if not is_on_floor():
 		velocity += get_gravity() * delta
@@ -49,12 +54,15 @@ func _physics_process(delta: float) -> void:
 	
 	for collision_idx in range(get_slide_collision_count()):
 		var collision = get_slide_collision(collision_idx)
-		if collision.get_collider() == null:
+		var collider = collision.get_collider()
+		if collider == null:
 			continue
-		if collision.get_collider().is_in_group("exit_group"):
+		if collider.is_in_group("exit_group"):
 			at_exit.emit()
-		if collision.get_collider().is_in_group("key_group"):
+		if collider.is_in_group("key_group"):
 			at_key.emit()
+		if collider.is_in_group("enemy_group"):
+			at_enemy.emit()
 	
 	var angular_velocity = get_platform_angular_velocity()
 	look_rotation.y += angular_velocity.y * delta
@@ -76,3 +84,6 @@ func _unhandled_input(_event: InputEvent) -> void:
 		rs.debug_draw = (rs.debug_draw + 1) % 5
 	if Input.is_action_pressed("cheat"):
 		cheat.emit()
+		
+func die():
+	is_dead = true

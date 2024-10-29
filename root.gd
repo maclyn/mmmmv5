@@ -13,7 +13,7 @@ const MAZE_WIDTH_AND_HEIGHT = 25
 const MAZE_DIMENS_IN_SCENE_SPACE = MAZE_BLOCK_SQUARE_SIZE * MAZE_WIDTH_AND_HEIGHT
 const LEAD_IN_DIST = 5
 const MAX_DIST = MAZE_WIDTH_AND_HEIGHT * 4
-const MS_PER_BLOCK_FOR_RETURN_TRIP = 700.0
+const MS_PER_BLOCK_FOR_RETURN_TRIP = 625.0
 
 const SNAKE_LENGTH = 2.2 # units
 const SNAKE_WIDTH = 0.2 # units
@@ -332,8 +332,9 @@ func _process(_delta: float) -> void:
 		GameState.NOT_STARTED:
 			pass
 		GameState.GOING_TO_KEY:
-			pass
+			_format_label_to_remaining_timer()
 		GameState.RETURNING_TO_LOCK:
+			_format_label_to_remaining_timer()
 			# LERP exit follow mesh back
 			# Assume each block takes ~1 second to traverse
 			var elapsed = Time.get_ticks_msec() - last_game_state_transition_time
@@ -451,6 +452,9 @@ func _on_player_at_exit() -> void:
 
 func _on_player_at_key() -> void:
 	game_state = GameState.RETURNING_TO_LOCK
+	last_game_state_transition_time = Time.get_ticks_msec()
+	$GameTimer.stop()
+	$GameTimer.start(MS_PER_BLOCK_FOR_RETURN_TRIP * 0.001 * path_from_exit_to_entrance.size())
 	var key_pos = exit_block.get_key_position()
 	exit_block.hide_key()
 	$ExitFollowMesh.visible = true
@@ -500,3 +504,15 @@ func _on_player_cheat() -> void:
 	var real_pos = _maze_block_position_to_center_in_scene_space(exit_block.position.x, exit_block.position.y)
 	$Player.position.x = real_pos.x + 1
 	$Player.position.z = real_pos.y + 1
+
+
+func _on_player_at_enemy() -> void:
+	$Player.die()
+	pass # Replace with function body.
+
+func _format_label_to_remaining_timer():
+	var time_left = $GameTimer.time_left
+	var minutes = floor(time_left / 60)
+	var seconds = floor(time_left - (minutes * 60))
+	var milliseconds = (time_left - (minutes * 60) - (seconds)) * 10
+	$HUD/TimerLabel.text = "%01d:%02d:%01.1d" % [minutes, seconds, milliseconds]

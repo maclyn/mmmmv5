@@ -66,6 +66,33 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.06647, 1, 0)
 cast_shadow = 0
 mesh = SubResource("TextMesh_b6fxs")
 
+[node name="GameTimer" type="Timer" parent="."]
+wait_time = 120.0
+one_shot = true
+autostart = true
+
+[node name="HUD" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1280.0
+offset_bottom = 720.0
+
+[node name="TimerLabel" type="Label" parent="HUD"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -54.0
+offset_right = 54.0
+offset_bottom = 80.0
+grow_horizontal = 2
+theme_override_fonts/font = ExtResource("5_faan6")
+theme_override_font_sizes/font_size = 48
+text = "0:00"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[connection signal="at_enemy" from="Player" to="." method="_on_player_at_enemy"]
 [connection signal="at_exit" from="Player" to="." method="_on_player_at_exit"]
 [connection signal="at_key" from="Player" to="." method="_on_player_at_key"]
 [connection signal="cheat" from="Player" to="." method="_on_player_cheat"]

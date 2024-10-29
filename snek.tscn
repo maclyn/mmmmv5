@@ -6,7 +6,7 @@
 [sub_resource type="BoxShape3D" id="BoxShape3D_ftojm"]
 size = Vector3(2.62314, 0.117279, 0.147339)
 
-[node name="Snek" type="AnimatableBody3D"]
+[node name="Snek" type="AnimatableBody3D" groups=["enemy_group"]]
 collision_layer = 8
 collision_mask = 0
 script = ExtResource("1_glx8t")
