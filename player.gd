@@ -17,13 +17,10 @@ const RUN_SPEED = SPEED * 2
 const JUMP_VELOCITY = 3
 
 var look_rotation = Vector2(0, PI)
-var is_dead = false
-
-func _ready():
-	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+var cannot_move = false
 
 func _physics_process(delta: float) -> void:
-	if is_dead:
+	if cannot_move:
 		return
 	
 	# Add the gravity.
@@ -96,7 +93,7 @@ func set_camera(sun: bool, moon: bool):
 		$CameraRoot.add_child(camera_moon.instantiate())
 
 func respawn():
-	is_dead = false
+	cannot_move = false
 
 func die():
-	is_dead = true
+	cannot_move = true

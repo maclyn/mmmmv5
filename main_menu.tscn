@@ -74,6 +74,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme = ExtResource("2_eh4l0")
 shortcut = SubResource("Shortcut_ewu6a")
+shortcut_in_tooltip = false
 text = "(E)ASY"
 
 [node name="NormalButton" type="Button" parent="HBoxContainer"]
@@ -81,6 +82,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme = ExtResource("2_eh4l0")
 shortcut = SubResource("Shortcut_65fy5")
+shortcut_in_tooltip = false
 text = "(N)ORMAL"
 
 [node name="SpookyButton" type="Button" parent="HBoxContainer"]
@@ -88,6 +90,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme = ExtResource("2_eh4l0")
 shortcut = SubResource("Shortcut_5t60t")
+shortcut_in_tooltip = false
 text = "(S)POOKY"
 
 [connection signal="pressed" from="HBoxContainer/EasyButton" to="." method="_on_easy_button_pressed"]
