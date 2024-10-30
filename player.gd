@@ -92,6 +92,11 @@ func set_camera(sun: bool, moon: bool):
 	elif moon:
 		$CameraRoot.add_child(camera_moon.instantiate())
 
+func restore_camera():
+	var camera = $CameraRoot.get_child(0)
+	if camera is Camera3D:
+		camera.make_current()
+
 func respawn():
 	cannot_move = false
 

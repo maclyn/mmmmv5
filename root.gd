@@ -31,6 +31,7 @@ var snakes: Array[Node] = []
 var exit_block: MazeBlock = null
 var path_from_exit_to_entrance: Array[MazeBlock] = []
 var game_state: GameState = GameState.NOT_STARTED
+var is_showing_map: bool = true
 var curr_difficulty: GameDifficulty = GameDifficulty.NORMAL
 var last_game_state_transition_time = Time.get_ticks_msec()
 
@@ -336,6 +337,15 @@ func _ready():
 	# get_tree().root.scaling_3d_scale = 0.333
 
 func _process(_delta: float) -> void:
+	if is_showing_map:
+		pass
+		# $DebugOverheadCamera.make_current()
+		# await RenderingServer.frame_post_draw
+		var img = $MapViewport.get_texture()
+		var mat: Material = $DebugMap.get_active_material(0)
+		# var tex_2d: ViewportTexture = mat.get("albedo_texture")
+		mat.set("albedo_texture", img)
+		#tex
 	match game_state:
 		GameState.NOT_STARTED:
 			pass
@@ -345,6 +355,7 @@ func _process(_delta: float) -> void:
 			$Player.rotation.x = deg_to_rad($GameOver.pct_faded_in() * 45)
 			pass
 		GameState.GOING_TO_KEY:
+
 			_format_label_to_remaining_timer()
 		GameState.RETURNING_TO_LOCK:
 			_format_label_to_remaining_timer()
@@ -562,7 +573,15 @@ func _start_new_game(difficulty: GameDifficulty) -> void:
 	$Player.position.x = start_position.x
 	$Player.position.z = start_position.y
 	$Player.rotation.x = 0
+	$DebugMap.position.x = start_position.x
+	$DebugMap.position.z = start_position.y + 10
+	$DebugMap.position.y = 2
+	$Player.rotation.x = 0
 	$Player.respawn()
+	$MapViewport/MapViewportCamera.position.x = MAZE_DIMENS_IN_SCENE_SPACE / 2.0
+	$MapViewport/MapViewportCamera.position.y = MAZE_DIMENS_IN_SCENE_SPACE / 2.0
+	$MapViewport/MapViewportCamera.position.z = MAZE_DIMENS_IN_SCENE_SPACE / 2.0
+
 	game_state = GameState.GOING_TO_KEY
 	curr_difficulty = difficulty
 	last_game_state_transition_time = Time.get_ticks_msec()

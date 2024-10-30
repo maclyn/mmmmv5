@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://c5cq4nt0yl43t"]
+[gd_scene load_steps=17 format=3 uid="uid://c5cq4nt0yl43t"]
 
 [ext_resource type="Script" path="res://root.gd" id="1_b1y3i"]
 [ext_resource type="Texture2D" uid="uid://qbont3rna5ge" path="res://textures/grass.png" id="1_fgsnn"]
@@ -36,6 +36,16 @@ text = "Follow me out!"
 font = ExtResource("5_faan6")
 font_size = 20
 depth = 0.0
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_64lda"]
+viewport_path = NodePath("MapViewport")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4di44"]
+resource_local_to_scene = true
+albedo_texture = SubResource("ViewportTexture_64lda")
+
+[sub_resource type="QuadMesh" id="QuadMesh_i31ch"]
+material = SubResource("StandardMaterial3D_4di44")
 
 [node name="Root" type="Node"]
 script = ExtResource("1_b1y3i")
@@ -103,6 +113,21 @@ vertical_alignment = 1
 scale = Vector2(0.334, 0.334)
 
 [node name="GameOver" parent="." instance=ExtResource("8_0gjb2")]
+
+[node name="DebugMap" type="MeshInstance3D" parent="."]
+transform = Transform3D(-2, 0, -1.74846e-07, 0, 2, 0, 1.74846e-07, 0, -2, 0, 10, 0)
+mesh = SubResource("QuadMesh_i31ch")
+
+[node name="MapViewport" type="SubViewport" parent="."]
+msaa_3d = 1
+use_debanding = true
+size = Vector2i(1024, 1024)
+
+[node name="MapViewportCamera" type="Camera3D" parent="MapViewport"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 50, 80, 50)
+projection = 1
+size = 110.0
+far = 100.0
 
 [connection signal="at_enemy" from="Player" to="." method="_on_player_at_enemy"]
 [connection signal="at_exit" from="Player" to="." method="_on_player_at_exit"]
