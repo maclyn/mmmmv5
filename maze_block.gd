@@ -1,10 +1,10 @@
 extends Node3D
 
 func _ready():
-	$HedgeWallN.rotate_z(PI if randi_range(0, 1) == 0 else 0.0)
-	$HedgeWallE.rotate_z(PI if randi_range(0, 1) == 0 else 0.0)
-	$HedgeWallS.rotate_z(PI if randi_range(0, 1) == 0 else 0.0)
-	$HedgeWallW.rotate_z(PI if randi_range(0, 1) == 0 else 0.0)
+	$HedgeWallN.rotate_mesh(PI if randi_range(0, 1) == 0 else 0.0)
+	$HedgeWallE.rotate_mesh(PI if randi_range(0, 1) == 0 else 0.0)
+	$HedgeWallS.rotate_mesh(PI if randi_range(0, 1) == 0 else 0.0)
+	$HedgeWallW.rotate_mesh(PI if randi_range(0, 1) == 0 else 0.0)
 	$HedgeCornerNE.rotate_z(PI if randi_range(0, 1) == 0 else 0.0)
 	$HedgeCornerNE.rotate_y((PI / 2) * randi_range(0, 4))
 	$HedgeCornerSE.rotate_z(PI if randi_range(0, 1) == 0 else 0.0)
@@ -27,6 +27,9 @@ func configure_walls(north: bool, east: bool, south: bool, west: bool):
 	$HedgeWallS.get_node("CollisionShape3D").disabled = !south
 	$HedgeWallW.visible = west
 	$HedgeWallW.get_node("CollisionShape3D").disabled = !west
+	
+func get_south_wall() -> Node3D:
+	return $HedgeWallS
 
 func rotate_key_y(amount_in_rads: float):
 	$KeyRoot.rotate_y(amount_in_rads)

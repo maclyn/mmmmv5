@@ -2,6 +2,7 @@ extends Node
 
 @export var maze_block_scene: PackedScene
 @export var snake_scene: PackedScene
+@export var map_scene: PackedScene
 
 const DEBUG = false
 
@@ -28,10 +29,10 @@ const NORTH_SNAKE_EDGE = (-LEAD_IN_DIST * MAZE_BLOCK_SQUARE_SIZE) + (SNAKE_LENGT
 # All game state
 var blocks: Dictionary = {}
 var snakes: Array[Node] = []
+var entrance_block: MazeBlock = null
 var exit_block: MazeBlock = null
 var path_from_exit_to_entrance: Array[MazeBlock] = []
 var game_state: GameState = GameState.NOT_STARTED
-var is_showing_map: bool = true
 var curr_difficulty: GameDifficulty = GameDifficulty.NORMAL
 var last_game_state_transition_time = Time.get_ticks_msec()
 
@@ -147,9 +148,9 @@ func _feature_to_movement_list_array(feature: FeatureType) -> Array[MovementList
 	
 func _choose_random_feature() -> FeatureType:
 	var choice = randi_range(0, 100)
-	if choice < 30:
+	if choice < 20:
 		return FeatureType.NONE
-	if choice < 40:
+	if choice < 35:
 		return FeatureType.LEFT_CORNER
 	if choice < 50:
 		return FeatureType.RIGHT_CORNER
@@ -335,17 +336,8 @@ func _ready():
 	# nearest neighbor 3D scaling is added to Godot
 	# get_tree().root.scaling_3d_mode = Viewport.SCALING_3D_MODE_BILINEAR
 	# get_tree().root.scaling_3d_scale = 0.333
-
+	
 func _process(_delta: float) -> void:
-	if is_showing_map:
-		pass
-		# $DebugOverheadCamera.make_current()
-		# await RenderingServer.frame_post_draw
-		var img = $MapViewport.get_texture()
-		var mat: Material = $DebugMap.get_active_material(0)
-		# var tex_2d: ViewportTexture = mat.get("albedo_texture")
-		mat.set("albedo_texture", img)
-		#tex
 	match game_state:
 		GameState.NOT_STARTED:
 			pass
@@ -401,6 +393,7 @@ func _generate_maze() -> Vector2i:
 	var start_block: MazeBlock = MazeBlock.new(start_x, start_y)
 	start_block.is_entrance = true
 	_add_block_at_position(start_block)
+	entrance_block = start_block
 	
 	var last_block: MazeBlock = start_block
 	
@@ -447,11 +440,15 @@ func _generate_maze() -> Vector2i:
 			path_from_exit_to_entrance.push_back(node)
 			node = node.prev
 		
-	# Place objects in the scene
+	# Place objects in the scene, along with maps
 	for x in blocks:
 		for y in blocks[x]:
 			blocks[x][y].actualize(maze_block_scene, self)
-	
+			if curr_difficulty == GameDifficulty.EASY && y % 3 == 0 && x % 3 == 0:
+				blocks[x][y].instance.get_south_wall().add_map($MapViewport.get_texture())
+			elif curr_difficulty == GameDifficulty.NORMAL && y % 5 == 0 && x % 5 == 0:
+				blocks[x][y].instance.get_south_wall().add_map($MapViewport.get_texture())
+				
 	return _maze_block_position_to_center_in_scene_space(start_x, start_y)
 		
 func _maze_block_position_to_center_in_scene_space(x: int, y: int) -> Vector2i:
@@ -565,6 +562,7 @@ func _on_main_menu_start_spooky_game() -> void:
 	_start_new_game(GameDifficulty.SPOOKY)
 
 func _start_new_game(difficulty: GameDifficulty) -> void:
+	curr_difficulty = difficulty
 	_hide_main_menu()
 	var start_position = Vector2i.ZERO
 	while start_position == Vector2i.ZERO:
@@ -573,9 +571,6 @@ func _start_new_game(difficulty: GameDifficulty) -> void:
 	$Player.position.x = start_position.x
 	$Player.position.z = start_position.y
 	$Player.rotation.x = 0
-	$DebugMap.position.x = start_position.x
-	$DebugMap.position.z = start_position.y + 10
-	$DebugMap.position.y = 2
 	$Player.rotation.x = 0
 	$Player.respawn()
 	$MapViewport/MapViewportCamera.position.x = MAZE_DIMENS_IN_SCENE_SPACE / 2.0
@@ -583,7 +578,6 @@ func _start_new_game(difficulty: GameDifficulty) -> void:
 	$MapViewport/MapViewportCamera.position.z = MAZE_DIMENS_IN_SCENE_SPACE / 2.0
 
 	game_state = GameState.GOING_TO_KEY
-	curr_difficulty = difficulty
 	last_game_state_transition_time = Time.get_ticks_msec()
 	
 	var multiplier = 1.0

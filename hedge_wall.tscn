@@ -1,6 +1,8 @@
-[gd_scene load_steps=5 format=4 uid="uid://8jlfvxcekk5b"]
+[gd_scene load_steps=7 format=4 uid="uid://8jlfvxcekk5b"]
 
 [ext_resource type="Texture2D" uid="uid://cfvxkcnfqydr8" path="res://textures/hedge_wall.png" id="1_44spc"]
+[ext_resource type="Script" path="res://hedge_wall.gd" id="1_b1m0m"]
+[ext_resource type="PackedScene" uid="uid://dryg3y1f6logi" path="res://map_frame.tscn" id="2_xxu40"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_l0lar"]
 resource_name = "Cube2_auv"
@@ -30,9 +32,14 @@ size = Vector3(3.6, 4, 0.2)
 
 [node name="HedgeWall" type="StaticBody3D"]
 collision_mask = 0
+script = ExtResource("1_b1m0m")
+map_scene = ExtResource("2_xxu40")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("ArrayMesh_n5yt2")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("BoxShape3D_jisk3")
+
+[node name="MapContainer" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.143847)
