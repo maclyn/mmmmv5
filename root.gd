@@ -35,6 +35,8 @@ var path_from_exit_to_entrance: Array[MazeBlock] = []
 var game_state: GameState = GameState.NOT_STARTED
 var curr_difficulty: GameDifficulty = GameDifficulty.NORMAL
 var last_game_state_transition_time = Time.get_ticks_msec()
+var time_to_key = -1
+var time_to_return = -1
 
 enum GridDirection {
 	NORTH, 
@@ -347,7 +349,6 @@ func _process(_delta: float) -> void:
 			$Player.rotation.x = deg_to_rad($GameOver.pct_faded_in() * 45)
 			pass
 		GameState.GOING_TO_KEY:
-
 			_format_label_to_remaining_timer()
 		GameState.RETURNING_TO_LOCK:
 			_format_label_to_remaining_timer()
@@ -355,7 +356,7 @@ func _process(_delta: float) -> void:
 			# Assume each block takes ~1 second to traverse
 			var elapsed = Time.get_ticks_msec() - last_game_state_transition_time
 			var segment_count = path_from_exit_to_entrance.size() - 1
-			var total_time_ms = _ms_per_block_when_exiting() * segment_count
+			var total_time_ms = _max_time_to_key_ms()
 			var pct_complete = elapsed / total_time_ms
 			if pct_complete > 0.0 && pct_complete < 1.0:
 				var segment_idx = lerpf(0.0, segment_count, pct_complete)
@@ -517,9 +518,10 @@ func _on_player_at_exit() -> void:
 
 func _on_player_at_key() -> void:
 	game_state = GameState.RETURNING_TO_LOCK
+	time_to_key = Time.get_ticks_msec() - last_game_state_transition_time
 	last_game_state_transition_time = Time.get_ticks_msec()
 	$GameTimer.stop()
-	$GameTimer.start(_ms_per_block_when_exiting() * 0.001 * path_from_exit_to_entrance.size())
+	$GameTimer.start(_max_time_to_return_s())
 	var key_pos = exit_block.get_key_position()
 	exit_block.hide_key()
 	$ExitFollowMesh.visible = true
@@ -540,7 +542,7 @@ func _format_label_to_remaining_timer():
 	var milliseconds = (time_left - (minutes * 60) - (seconds)) * 10
 	$HUD/TimerLabel.text = "%01d:%02d:%01.1d" % [minutes, seconds, milliseconds]
 
-func _ms_per_block_when_exiting() -> float:
+func _ms_per_block() -> float:
 	match curr_difficulty:
 		GameDifficulty.EASY:
 			return 800.0
@@ -550,6 +552,20 @@ func _ms_per_block_when_exiting() -> float:
 			return 600.0
 	return 500.0
 
+func _max_time_to_key_ms() -> float:
+	var multiplier = 1.0
+	match curr_difficulty:
+		GameDifficulty.EASY:
+			multiplier = 4.0
+		GameDifficulty.NORMAL:
+			multiplier = 3.0
+		GameDifficulty.SPOOKY:
+			multiplier = 2.5
+	return multiplier * (path_from_exit_to_entrance.size() - 1) * 1000
+	
+func _max_time_to_return_s() -> float:
+	return _ms_per_block() * 0.001 * path_from_exit_to_entrance.size()
+	
 func _on_main_menu_start_easy_game() -> void:
 	_start_new_game(GameDifficulty.EASY)
 
@@ -581,33 +597,26 @@ func _start_new_game(difficulty: GameDifficulty) -> void:
 	game_state = GameState.GOING_TO_KEY
 	last_game_state_transition_time = Time.get_ticks_msec()
 	
-	var multiplier = 1.0
-	var has_sun = true
-	var has_moon = false
-	match difficulty:
-		GameDifficulty.EASY:
-			multiplier = 4.0
-		GameDifficulty.NORMAL:
-			multiplier = 3.0
-		GameDifficulty.SPOOKY:
-			multiplier = 2.5
-			has_sun = false
-			has_moon = true
-	$Sun.visible = has_sun
-	$Moon.visible = has_moon
-	$Player.set_camera(has_sun, has_moon)
+	$Player.set_camera(
+		difficulty != GameDifficulty.SPOOKY,
+		difficulty == GameDifficulty.SPOOKY)
+	$Sun.visible = difficulty != GameDifficulty.SPOOKY
+	$Moon.visible = difficulty == GameDifficulty.SPOOKY
 	
 	if DEBUG:
 		$DebugOverheadCamera.make_current()
 	
-	$GameTimer.start(path_from_exit_to_entrance.size() * multiplier)
+	$GameTimer.start(_max_time_to_key_ms() / 1000.0)
 
 func _game_over(did_win: bool) -> void:
 	game_state = GameState.GAME_OVER_WIN if did_win else GameState.GAME_OVER_LOSS
+	if did_win:
+		time_to_return = Time.get_ticks_msec() - last_game_state_transition_time
 	last_game_state_transition_time = Time.get_ticks_msec()
 	$GameTimer.stop()
 	if did_win:
-		$GameOver.win()
+		var score = _calculate_score()
+		$GameOver.win(score, _compare_to_last_high_score_and_maybe_update(score))
 	else:
 		$GameOver.lose()
 	$GameOver.visible = true
@@ -622,6 +631,15 @@ func _game_over(did_win: bool) -> void:
 	exit_block = null
 	path_from_exit_to_entrance.clear()
 	_show_main_menu()
+	
+func _calculate_score() -> int:
+	# Score is based on what % you did better than the expected time
+	var pct_better_to_key = 1.0 - (time_to_key / _max_time_to_key_ms())
+	var pct_better_to_return = 1.0 - (time_to_return / 1000.0 / (_max_time_to_return_s()))
+	return floori((pct_better_to_key * 1000) + (pct_better_to_return * 500))
+	
+func _compare_to_last_high_score_and_maybe_update(score: int) -> bool:
+	return true
 	
 func _hide_main_menu():
 	$MainMenu.visible = false

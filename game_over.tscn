@@ -30,6 +30,7 @@ grow_vertical = 2
 script = ExtResource("1_kvdhk")
 
 [node name="LoseState" type="Control" parent="."]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -84,22 +85,31 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = SubResource("GradientTexture2D_gowq0")
 
-[node name="WinLabel" type="Label" parent="WinState"]
+[node name="Container" type="VBoxContainer" parent="WinState"]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -108.0
-offset_top = -24.0
-offset_right = 108.0
-offset_bottom = 24.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+alignment = 1
+
+[node name="WinLabel" type="Label" parent="WinState/Container"]
+layout_mode = 2
+size_flags_horizontal = 6
 theme = ExtResource("1_uic5f")
 theme_override_font_sizes/font_size = 48
 text = "You Win!"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ScoreLabel" type="Label" parent="WinState/Container"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme = ExtResource("1_uic5f")
+theme_override_font_sizes/font_size = 20
+text = "Score: 34234 (New High Score)"
+horizontal_alignment = 1
 
 [node name="Timer" type="Timer" parent="."]
 wait_time = 4.0

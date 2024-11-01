@@ -11,9 +11,12 @@ func _process(delta: float):
 	else:
 		modulate.a = 1.0
 
-func win():
+func win(score: int, is_new_high_score: bool):
 	$WinState.visible = true
 	$LoseState.visible = false
+	$WinState/Container/ScoreLabel.text = "%d Points" % [score]
+	if is_new_high_score:
+		$WinState/Container/ScoreLabel.text += " (New high score!)"
 	_start_timer()
 	
 func lose():

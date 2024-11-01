@@ -74,13 +74,11 @@ mesh = SubResource("PlaneMesh_ls18c")
 
 [node name="Sun" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.258819, 0.965926, 0, -0.965926, 0.258819, 0, 100, 25)
-visible = false
 shadow_enabled = true
 directional_shadow_max_distance = 250.0
 
 [node name="Moon" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.258819, 0.965926, 0, -0.965926, 0.258819, 0, 300, 25)
-visible = false
 light_energy = 0.001
 shadow_enabled = true
 directional_shadow_mode = 1
