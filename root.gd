@@ -457,9 +457,7 @@ func _maze_block_position_to_center_in_scene_space(x: int, y: int) -> Vector2i:
 		y * MAZE_BLOCK_SQUARE_SIZE + HEDGE_LENGTH)
 
 func _on_player_look_direction_changed(position: Vector3, rotation: Vector3) -> void:
-	#$DebugOverheadCamera.position.x = position.x
-	#$DebugOverheadCamera.position.z = position.z + MAZE_WIDTH_AND_HEIGHT
-	#$DebugOverheadCamera.position.y = MAZE_WIDTH_AND_HEIGHT * 3
+	$MapViewport/MapViewportCamera/PlayerMarker.global_position = Vector3(position.x, 4, position.z)
 	pass
 
 func _add_snakes():
@@ -576,6 +574,9 @@ func _start_new_game(difficulty: GameDifficulty) -> void:
 	$MapViewport/MapViewportCamera.position.x = MAZE_DIMENS_IN_SCENE_SPACE / 2.0
 	$MapViewport/MapViewportCamera.position.y = MAZE_DIMENS_IN_SCENE_SPACE / 2.0
 	$MapViewport/MapViewportCamera.position.z = MAZE_DIMENS_IN_SCENE_SPACE / 2.0
+	var exit_position = exit_block.instance.global_position
+	$MapViewport/MapViewportCamera/EndMarker.global_position = Vector3(exit_position.x, 4, exit_position.z)
+
 
 	game_state = GameState.GOING_TO_KEY
 	last_game_state_transition_time = Time.get_ticks_msec()
