@@ -19,6 +19,22 @@ const JUMP_VELOCITY = 3
 var look_rotation = Vector2(0, PI)
 var cannot_move = false
 
+func restore_camera():
+	var camera = $CameraRoot.get_child(0)
+	if camera is Camera3D:
+		camera.make_current()
+
+func respawn():
+	cannot_move = false
+
+func die():
+	cannot_move = true
+	
+func external_x_movement(delta_x: float):
+	look_rotation.y -= (delta_x * sensitivity)
+	look_rotation.x -= delta_x * sensitivity
+	look_rotation.x = clamp(look_rotation.x, min_angle, max_angle)
+
 func _physics_process(delta: float) -> void:
 	if cannot_move:
 		return
@@ -70,7 +86,7 @@ func _physics_process(delta: float) -> void:
 	look_direction_changed.emit(position, rotation)
 	
 func _input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion:
+	if event is InputEventMouseMotion and !Globals.is_mobile():
 		look_rotation.y -= (event.relative.x * sensitivity)
 		look_rotation.x -= (event.relative.x * sensitivity)
 		look_rotation.x = clamp(look_rotation.x, min_angle, max_angle)
@@ -91,14 +107,3 @@ func set_camera(sun: bool, moon: bool):
 		$CameraRoot.add_child(camera_sun.instantiate())
 	elif moon:
 		$CameraRoot.add_child(camera_moon.instantiate())
-
-func restore_camera():
-	var camera = $CameraRoot.get_child(0)
-	if camera is Camera3D:
-		camera.make_current()
-
-func respawn():
-	cannot_move = false
-
-func die():
-	cannot_move = true

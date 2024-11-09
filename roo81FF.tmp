@@ -1,0 +1,167 @@
+[gd_scene load_steps=20 format=3 uid="uid://c5cq4nt0yl43t"]
+
+[ext_resource type="Script" path="res://root.gd" id="1_b1y3i"]
+[ext_resource type="Texture2D" uid="uid://qbont3rna5ge" path="res://textures/grass.png" id="1_fgsnn"]
+[ext_resource type="PackedScene" uid="uid://dkpdan17o8x1l" path="res://maze_block.tscn" id="2_0unmp"]
+[ext_resource type="PackedScene" uid="uid://3mh0fvm1jcci" path="res://player.tscn" id="2_mi2nb"]
+[ext_resource type="PackedScene" uid="uid://bd2uh8l2mcb1g" path="res://snek.tscn" id="3_eik2n"]
+[ext_resource type="PackedScene" uid="uid://dryg3y1f6logi" path="res://map_frame.tscn" id="4_uajmm"]
+[ext_resource type="FontFile" uid="uid://b88ckwrmql0l8" path="res://assets/Flexi_IBM_VGA_False_437.ttf" id="5_faan6"]
+[ext_resource type="PackedScene" uid="uid://dtsi5rjl4d3mi" path="res://main_menu.tscn" id="7_lvl7v"]
+[ext_resource type="PackedScene" uid="uid://dvaw2npxvr5ig" path="res://game_over.tscn" id="8_0gjb2"]
+[ext_resource type="PackedScene" uid="uid://bcbm4lb2vq0x6" path="res://mobile_controls.tscn" id="10_4dlrt"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_hlfi2"]
+size = Vector3(5000, 0.1, 5000)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tjh0m"]
+albedo_texture = ExtResource("1_fgsnn")
+uv1_scale = Vector3(500, 500, 500)
+texture_filter = 0
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ls18c"]
+material = SubResource("StandardMaterial3D_tjh0m")
+size = Vector2(5000, 5000)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_b04mf"]
+shading_mode = 2
+diffuse_mode = 1
+specular_mode = 2
+emission_enabled = true
+emission = Color(1, 1, 1, 1)
+texture_filter = 0
+texture_repeat = false
+
+[sub_resource type="TextMesh" id="TextMesh_b6fxs"]
+material = SubResource("StandardMaterial3D_b04mf")
+text = "Follow me out!"
+font = ExtResource("5_faan6")
+font_size = 20
+depth = 0.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2qw1y"]
+albedo_color = Color(1, 0.686252, 0.0195702, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_vm2r4"]
+material = SubResource("StandardMaterial3D_2qw1y")
+top_radius = 1.5
+bottom_radius = 1.5
+height = 0.5
+radial_segments = 16
+rings = 2
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qy3p8"]
+albedo_color = Color(0, 0.0583906, 1, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_xpf27"]
+material = SubResource("StandardMaterial3D_qy3p8")
+size = Vector3(2, 0.5, 2)
+
+[node name="Root" type="Node"]
+script = ExtResource("1_b1y3i")
+maze_block_scene = ExtResource("2_0unmp")
+snake_scene = ExtResource("3_eik2n")
+map_scene = ExtResource("4_uajmm")
+
+[node name="Ground" type="StaticBody3D" parent="."]
+
+[node name="GroundCollider" type="CollisionShape3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0)
+shape = SubResource("BoxShape3D_hlfi2")
+
+[node name="GroundMesh" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.876257, -0.0332108, -0.201639)
+mesh = SubResource("PlaneMesh_ls18c")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.258819, 0.965926, 0, -0.965926, 0.258819, 0, 100, 25)
+visible = false
+shadow_enabled = true
+directional_shadow_max_distance = 250.0
+
+[node name="Moon" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.258819, 0.965926, 0, -0.965926, 0.258819, 0, 300, 25)
+visible = false
+light_energy = 0.001
+shadow_enabled = true
+directional_shadow_mode = 1
+directional_shadow_max_distance = 250.0
+
+[node name="Player" parent="." instance=ExtResource("2_mi2nb")]
+
+[node name="DebugOverheadCamera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 50, 80, 50)
+
+[node name="ExitFollowMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.06647, 1, 0)
+cast_shadow = 0
+mesh = SubResource("TextMesh_b6fxs")
+
+[node name="GameTimer" type="Timer" parent="."]
+wait_time = 120.0
+one_shot = true
+
+[node name="HUD" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1280.0
+offset_bottom = 720.0
+scale = Vector2(0.5, 0.5)
+
+[node name="TimerLabel" type="Label" parent="HUD"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -54.0
+offset_right = 54.0
+offset_bottom = 80.0
+grow_horizontal = 2
+theme_override_fonts/font = ExtResource("5_faan6")
+theme_override_font_sizes/font_size = 48
+text = "0:00"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MainMenu" parent="." instance=ExtResource("7_lvl7v")]
+scale = Vector2(0.5, 0.5)
+
+[node name="GameOver" parent="." instance=ExtResource("8_0gjb2")]
+
+[node name="MobileControls" parent="." instance=ExtResource("10_4dlrt")]
+
+[node name="MapViewport" type="SubViewport" parent="."]
+msaa_3d = 1
+use_debanding = true
+positional_shadow_atlas_size = 0
+size = Vector2i(1024, 1024)
+
+[node name="MapViewportCamera" type="Camera3D" parent="MapViewport"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 50, 80, 50)
+projection = 1
+size = 110.0
+far = 100.0
+
+[node name="EndMarker" type="MeshInstance3D" parent="MapViewport/MapViewportCamera"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
+layers = 524288
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_vm2r4")
+skeleton = NodePath("../..")
+
+[node name="PlayerMarker" type="MeshInstance3D" parent="MapViewport/MapViewportCamera"]
+transform = Transform3D(1.91069e-15, 4.37114e-08, 1, 1, -4.37114e-08, 0, 4.37114e-08, 1, -4.37114e-08, 0, 0, 0)
+layers = 524288
+mesh = SubResource("BoxMesh_xpf27")
+skeleton = NodePath("../..")
+
+[connection signal="at_enemy" from="Player" to="." method="_on_player_at_enemy"]
+[connection signal="at_exit" from="Player" to="." method="_on_player_at_exit"]
+[connection signal="at_key" from="Player" to="." method="_on_player_at_key"]
+[connection signal="cheat" from="Player" to="." method="_on_player_cheat"]
+[connection signal="look_direction_changed" from="Player" to="." method="_on_player_look_direction_changed"]
+[connection signal="timeout" from="GameTimer" to="." method="_on_game_timer_timeout"]
+[connection signal="start_easy_game" from="MainMenu" to="." method="_on_main_menu_start_easy_game"]
+[connection signal="start_normal_game" from="MainMenu" to="." method="_on_main_menu_start_normal_game"]
+[connection signal="start_spooky_game" from="MainMenu" to="." method="_on_main_menu_start_spooky_game"]
+[connection signal="jump" from="MobileControls" to="." method="_on_mobile_controls_jump"]

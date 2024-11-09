@@ -1,0 +1,41 @@
+[gd_scene load_steps=5 format=3 uid="uid://bcbm4lb2vq0x6"]
+
+[ext_resource type="Script" path="res://mobile_controls.gd" id="1_0lbg5"]
+[ext_resource type="Texture2D" uid="uid://bdyyc27dqty24" path="res://textures/joystick.png" id="2_ejhvl"]
+[ext_resource type="Texture2D" uid="uid://qhvouxcgdt0i" path="res://textures/jump_button.png" id="3_hlwhy"]
+[ext_resource type="Texture2D" uid="uid://dt1e60ujdvoum" path="res://textures/quit_game.png" id="4_6r2yb"]
+
+[node name="MobileControls" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_0lbg5")
+
+[node name="JoystickRect" type="TextureRect" parent="."]
+texture_filter = 1
+texture_repeat = 1
+layout_mode = 0
+offset_left = 59.0
+offset_top = 398.0
+offset_right = 333.0
+offset_bottom = 672.0
+texture = ExtResource("2_ejhvl")
+
+[node name="JumpRect" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 1045.0
+offset_top = 456.0
+offset_right = 1232.0
+offset_bottom = 643.0
+texture = ExtResource("3_hlwhy")
+
+[node name="QuitRect" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 23.0
+offset_top = 20.0
+offset_right = 123.0
+offset_bottom = 120.0
+texture = ExtResource("4_6r2yb")

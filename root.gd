@@ -580,6 +580,7 @@ func _on_main_menu_start_spooky_game() -> void:
 func _start_new_game(difficulty: GameDifficulty) -> void:
 	curr_difficulty = difficulty
 	_hide_main_menu()
+	$MobileControls.visible = Globals.is_mobile()
 	var start_position = Vector2i.ZERO
 	while start_position == Vector2i.ZERO:
 		blocks.clear()
@@ -610,20 +611,21 @@ func _start_new_game(difficulty: GameDifficulty) -> void:
 	
 	$GameTimer.start(_max_time_to_key_ms() / 1000.0)
 
-func _game_over(did_win: bool) -> void:
+func _game_over(did_win: bool, skip_anim: bool = false) -> void:
 	game_state = GameState.GAME_OVER_WIN if did_win else GameState.GAME_OVER_LOSS
 	if did_win:
 		time_to_return = Time.get_ticks_msec() - last_game_state_transition_time
 	last_game_state_transition_time = Time.get_ticks_msec()
 	$GameTimer.stop()
-	if did_win:
-		var score = _calculate_score()
-		$GameOver.win(score, _compare_to_last_high_score_and_maybe_update(score))
-	else:
-		$GameOver.lose()
-	$GameOver.visible = true
 	$Player.die()
-	await get_tree().create_timer($GameOver.get_show_time_s()).timeout
+	if !skip_anim:
+		if did_win:
+			var score = _calculate_score()
+			$GameOver.win(score, _compare_to_last_high_score_and_maybe_update(score))
+		else:
+			$GameOver.lose()
+		$GameOver.visible = true
+		await get_tree().create_timer($GameOver.get_show_time_s()).timeout
 	for x in blocks:
 		for y in blocks[x]:
 			remove_child(blocks[x][y].instance)
@@ -678,9 +680,17 @@ func _create_new_save(score: int):
 	
 func _hide_main_menu():
 	$MainMenu.visible = false
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	if !Globals.is_mobile():
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func _show_main_menu():
 	$MainMenu.visible = true
-	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	$MobileControls.visible = false
 	$GameOver.visible = false
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+func _on_mobile_controls_h_swipe(delta_x: float) -> void:
+	$Player.external_x_movement(delta_x)
+
+func _on_mobile_controls_main_menu() -> void:
+	_game_over(false, true)
