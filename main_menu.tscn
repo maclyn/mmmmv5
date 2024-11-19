@@ -93,6 +93,19 @@ shortcut = SubResource("Shortcut_5t60t")
 shortcut_in_tooltip = false
 text = "(S)POOKY"
 
+[node name="Button" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.034
+anchor_bottom = 0.033
+offset_left = 1120.0
+offset_top = 27.0
+offset_right = 1206.48
+offset_bottom = 83.24
+theme = ExtResource("2_eh4l0")
+text = "Mute"
+
 [connection signal="pressed" from="HBoxContainer/EasyButton" to="." method="_on_easy_button_pressed"]
 [connection signal="pressed" from="HBoxContainer/NormalButton" to="." method="_on_normal_button_pressed"]
 [connection signal="pressed" from="HBoxContainer/SpookyButton" to="." method="_on_spooky_button_pressed"]
+[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]

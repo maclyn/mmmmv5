@@ -12,3 +12,6 @@ func _on_normal_button_pressed() -> void:
 
 func _on_spooky_button_pressed() -> void:
 	start_spooky_game.emit()
+
+func _on_button_pressed() -> void:
+	AudioServer.set_bus_mute(0, !AudioServer.is_bus_mute(0))
