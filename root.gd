@@ -530,6 +530,7 @@ func _on_player_at_exit() -> void:
 
 func _on_player_at_key() -> void:
 	game_state = GameState.RETURNING_TO_LOCK
+	$Music/KeyHitPlayer.play()
 	time_to_key = Time.get_ticks_msec() - last_game_state_transition_time
 	last_game_state_transition_time = Time.get_ticks_msec()
 	$GameTimer.stop()
@@ -618,6 +619,11 @@ func _start_new_game(difficulty: GameDifficulty) -> void:
 	
 	if DEBUG:
 		$DebugOverheadCamera.make_current()
+		
+	if difficulty != GameDifficulty.SPOOKY:
+		$Music/NormalMusicPlayer.play()
+	else:
+		$Music/SpookyMusicPlayer.play()
 	
 	$GameTimer.start(_max_time_to_key_ms() / 1000.0)
 
@@ -627,7 +633,13 @@ func _game_over(did_win: bool, skip_anim: bool = false) -> void:
 		time_to_return = Time.get_ticks_msec() - last_game_state_transition_time
 	last_game_state_transition_time = Time.get_ticks_msec()
 	$GameTimer.stop()
+	$Music/SpookyMusicPlayer.stop()
+	$Music/NormalMusicPlayer.stop()
 	$Player.die()
+	if did_win:
+		$Music/WinPlayer.play()
+	else:
+		$Music/LosePlayer.play()
 	if !skip_anim:
 		if did_win:
 			var score = _calculate_score()
@@ -692,11 +704,13 @@ func _create_new_save(score: int):
 	
 func _hide_main_menu():
 	$MainMenu.visible = false
+	$Music/MainMusicPlayer.stop()
 	if !Globals.is_mobile():
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func _show_main_menu():
 	$MainMenu.visible = true
+	$Music/MainMusicPlayer.play()
 	$MobileControls.visible = false
 	$GameOver.visible = false
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE

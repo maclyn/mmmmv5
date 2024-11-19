@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://c5cq4nt0yl43t"]
+[gd_scene load_steps=26 format=3 uid="uid://c5cq4nt0yl43t"]
 
 [ext_resource type="Script" path="res://root.gd" id="1_b1y3i"]
 [ext_resource type="Texture2D" uid="uid://qbont3rna5ge" path="res://textures/grass.png" id="1_fgsnn"]
@@ -10,6 +10,12 @@
 [ext_resource type="PackedScene" uid="uid://dtsi5rjl4d3mi" path="res://main_menu.tscn" id="7_lvl7v"]
 [ext_resource type="PackedScene" uid="uid://dvaw2npxvr5ig" path="res://game_over.tscn" id="8_0gjb2"]
 [ext_resource type="PackedScene" uid="uid://bcbm4lb2vq0x6" path="res://mobile_controls.tscn" id="10_4dlrt"]
+[ext_resource type="AudioStream" uid="uid://bywbd1vyeavte" path="res://sounds/main_menu.wav" id="11_b1f4w"]
+[ext_resource type="AudioStream" uid="uid://x1ak4jiyioge" path="res://sounds/normal_music.wav" id="12_avx1u"]
+[ext_resource type="AudioStream" uid="uid://blfwbscvqconq" path="res://sounds/spooky_music.wav" id="13_tyji3"]
+[ext_resource type="AudioStream" uid="uid://be6cp3rm468km" path="res://sounds/win.wav" id="14_1xhgv"]
+[ext_resource type="AudioStream" uid="uid://v18r4ijoell7" path="res://sounds/game_over.wav" id="15_3wh30"]
+[ext_resource type="AudioStream" uid="uid://daglhrwcvln5r" path="res://sounds/key_pickup.mp3" id="16_givbr"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_hlfi2"]
 size = Vector3(5000, 0.1, 5000)
@@ -156,6 +162,26 @@ transform = Transform3D(1.91069e-15, 4.37114e-08, 1, 1, -4.37114e-08, 0, 4.37114
 layers = 524288
 mesh = SubResource("BoxMesh_xpf27")
 skeleton = NodePath("../..")
+
+[node name="Music" type="Node" parent="."]
+
+[node name="MainMusicPlayer" type="AudioStreamPlayer" parent="Music"]
+stream = ExtResource("11_b1f4w")
+
+[node name="NormalMusicPlayer" type="AudioStreamPlayer" parent="Music"]
+stream = ExtResource("12_avx1u")
+
+[node name="SpookyMusicPlayer" type="AudioStreamPlayer" parent="Music"]
+stream = ExtResource("13_tyji3")
+
+[node name="WinPlayer" type="AudioStreamPlayer" parent="Music"]
+stream = ExtResource("14_1xhgv")
+
+[node name="LosePlayer" type="AudioStreamPlayer" parent="Music"]
+stream = ExtResource("15_3wh30")
+
+[node name="KeyHitPlayer" type="AudioStreamPlayer" parent="Music"]
+stream = ExtResource("16_givbr")
 
 [connection signal="at_enemy" from="Player" to="." method="_on_player_at_enemy"]
 [connection signal="at_exit" from="Player" to="." method="_on_player_at_exit"]
