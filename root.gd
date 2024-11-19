@@ -28,6 +28,12 @@ const NORTH_SNAKE_EDGE = (-LEAD_IN_DIST * MAZE_BLOCK_SQUARE_SIZE) + (SNAKE_LENGT
 
 const SAVE_FILE = "user://score.save"
 
+# Workaround for (what seems like) a bug in ViewportTexture
+# https://github.com/godotengine/godot/issues/81928#issuecomment-2337645721
+# draw_list_bind_uniform_set: Attempted to use the same texture in framebuffer attachment and a uniform (set: 3, binding: 1), this is not allowed.
+var viewport_texture: ViewportTexture
+var image_texture: ImageTexture
+
 # All game state
 var blocks: Dictionary = {}
 var snakes: Array[Node] = []
@@ -336,6 +342,8 @@ func _add_block_at_position(block: MazeBlock):
 	
 func _ready():
 	_show_main_menu()
+	viewport_texture = $MapViewport.get_texture()
+	image_texture = ImageTexture.create_from_image(viewport_texture.get_image())
 	# TODO: Switch to this over project settings scaling when
 	# nearest neighbor 3D scaling is added to Godot
 	# get_tree().root.scaling_3d_mode = Viewport.SCALING_3D_MODE_BILINEAR
@@ -352,8 +360,10 @@ func _process(_delta: float) -> void:
 			pass
 		GameState.GOING_TO_KEY:
 			_format_label_to_remaining_timer()
+			image_texture.update(viewport_texture.get_image())
 		GameState.RETURNING_TO_LOCK:
 			_format_label_to_remaining_timer()
+			image_texture.update(viewport_texture.get_image())
 			# LERP exit follow mesh back
 			# Assume each block takes ~1 second to traverse
 			var elapsed = Time.get_ticks_msec() - last_game_state_transition_time
@@ -448,9 +458,9 @@ func _generate_maze() -> Vector2i:
 		for y in blocks[x]:
 			blocks[x][y].actualize(maze_block_scene, self)
 			if curr_difficulty == GameDifficulty.EASY && y % 3 == 0 && x % 3 == 0:
-				blocks[x][y].instance.get_south_wall().add_map($MapViewport.get_texture())
+				blocks[x][y].instance.get_south_wall().add_map(image_texture)
 			elif curr_difficulty == GameDifficulty.NORMAL && y % 5 == 0 && x % 5 == 0:
-				blocks[x][y].instance.get_south_wall().add_map($MapViewport.get_texture())
+				blocks[x][y].instance.get_south_wall().add_map(image_texture)
 				
 	return _maze_block_position_to_center_in_scene_space(start_x, start_y)
 		
@@ -632,7 +642,9 @@ func _game_over(did_win: bool, skip_anim: bool = false) -> void:
 	blocks = {}
 	for snake in snakes:
 		remove_child(snake)
-	exit_block = null
+	exit_block = null 
+	  
+	
 	path_from_exit_to_entrance.clear()
 	_show_main_menu()
 	

@@ -9,8 +9,8 @@ cull_mode = 2
 albedo_color = Color(0.548346, 0.3076, 0.0997338, 1)
 roughness = 0.613636
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4ryv7"]
-resource_name = "Render_To_Mat"
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_udpb6"]
+resource_local_to_scene = true
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_2oeql"]
 _surfaces = [{
@@ -57,7 +57,7 @@ _surfaces = [{
 "format": 34896613399,
 "index_count": 6,
 "index_data": PackedByteArray("AQACAAAAAQADAAIA"),
-"material": SubResource("StandardMaterial3D_4ryv7"),
+"material": SubResource("StandardMaterial3D_udpb6"),
 "name": "Render_To_Mat",
 "primitive": 3,
 "uv_scale": Vector4(0, 0, 0, 0),
