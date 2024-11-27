@@ -267,11 +267,11 @@ class MazeBlock:
 				GridDirection.NORTH:
 					instance.rotate_key_y(PI)
 				GridDirection.SOUTH:
-					instance.rotate_key_y(PI * 1.5)
-				GridDirection.EAST:
 					instance.rotate_key_y(0)
+				GridDirection.EAST:
+					instance.rotate_key_y(PI * 1.5)
 				GridDirection.WEST:
-					instance.rotate_key_y(PI / 2)
+					instance.rotate_key_y(PI * 0.5)
 		if is_entrance:
 			maze_block.add_exit()
 		maze_block.position.x = x + HEDGE_LENGTH
