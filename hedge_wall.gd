@@ -3,7 +3,7 @@ extends StaticBody3D
 @export var map_scene: PackedScene
 
 func rotate_mesh(rotation_rad: float):
-	$MeshInstance3D.rotation.z = rotation_rad
+	$hedge_wall.rotation.z = rotation_rad
 
 func add_map(tex: Texture2D):
 	var new_map = map_scene.instantiate()
