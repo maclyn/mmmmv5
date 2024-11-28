@@ -1,8 +1,9 @@
-[gd_scene load_steps=12 format=3 uid="uid://dtsi5rjl4d3mi"]
+[gd_scene load_steps=13 format=3 uid="uid://dtsi5rjl4d3mi"]
 
 [ext_resource type="Script" path="res://main_menu.gd" id="1_1efbp"]
 [ext_resource type="Texture2D" uid="uid://dghtc8eovy3xq" path="res://textures/splash.png" id="1_wbcnh"]
 [ext_resource type="Theme" uid="uid://chke2i30au63p" path="res://main_menu.tres" id="2_eh4l0"]
+[ext_resource type="AudioStream" uid="uid://bywbd1vyeavte" path="res://sounds/main_menu.wav" id="4_lgns7"]
 
 [sub_resource type="Gradient" id="Gradient_7omxu"]
 colors = PackedColorArray(0.391928, 0.52284, 1, 1, 1, 1, 1, 1)
@@ -104,6 +105,9 @@ offset_right = 1206.48
 offset_bottom = 83.24
 theme = ExtResource("2_eh4l0")
 text = "Mute"
+
+[node name="Music" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("4_lgns7")
 
 [connection signal="pressed" from="HBoxContainer/EasyButton" to="." method="_on_easy_button_pressed"]
 [connection signal="pressed" from="HBoxContainer/NormalButton" to="." method="_on_normal_button_pressed"]

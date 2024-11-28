@@ -4,6 +4,12 @@ signal start_easy_game()
 signal start_normal_game()
 signal start_spooky_game()
 
+func show_main_menu():
+	$Music.play()
+	
+func hide_main_menu():
+	$Music.stop()
+
 func _on_easy_button_pressed() -> void:
 	start_easy_game.emit()
 
