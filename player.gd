@@ -92,12 +92,7 @@ func _input(event: InputEvent) -> void:
 		look_rotation.x = clamp(look_rotation.x, min_angle, max_angle)
 
 func _unhandled_input(_event: InputEvent) -> void:
-	if Input.is_action_just_pressed("ui_cancel"):
-		get_tree().quit()
-	if Input.is_action_just_pressed("wireframe_mode"):
-		var rs = get_viewport()
-		rs.debug_draw = (rs.debug_draw + 1) % 5
-	if Input.is_action_pressed("cheat"):
+	if Input.is_action_just_pressed("cheat"):
 		cheat.emit()
 		
 func set_camera(sun: bool, moon: bool):

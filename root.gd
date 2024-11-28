@@ -4,6 +4,18 @@ extends Node3D
 func _ready() -> void:
 	_show_main_menu()
 	
+func _unhandled_input(_event: InputEvent) -> void:
+	if Input.is_action_just_pressed("ui_cancel"):
+		get_tree().quit()
+	if Input.is_action_just_pressed("wireframe_mode"):
+		var rs = get_viewport()
+		rs.debug_draw = (rs.debug_draw + 1) % 5
+	if Input.is_action_just_pressed("fullscreen"):
+		if get_window().mode == Window.MODE_WINDOWED:
+			get_window().mode = Window.MODE_FULLSCREEN
+		else:
+			get_window().mode = Window.MODE_WINDOWED
+	
 func _show_main_menu():
 	$MainMenu.show_main_menu()
 	$MainMenu.visible = true
