@@ -11,6 +11,9 @@ var last_game_state_transition_time = Time.get_ticks_msec()
 var time_to_key = -1
 var time_to_return = -1
 
+var minimap_viewport_texture: ViewportTexture
+var minimap_image_texture: ImageTexture
+
 enum GameDifficulty {
 	EASY,
 	NORMAL,
@@ -36,7 +39,9 @@ func start_spooky_game() -> void:
 	
 func _ready():
 	$GameOver.visible = false
-	
+	minimap_viewport_texture = $MiniMapViewport.get_texture()
+	minimap_image_texture = ImageTexture.create_from_image(minimap_viewport_texture.get_image())
+	$HUD/MiniMap.texture = minimap_image_texture
 	# TODO: Switch to this over project settings scaling when
 	# nearest neighbor 3D scaling is added to Godot
 	# get_tree().root.scaling_3d_mode = Viewport.SCALING_3D_MODE_BILINEAR
@@ -54,14 +59,22 @@ func _process(_delta: float) -> void:
 		GameState.GOING_TO_KEY:
 			_format_label_to_remaining_timer()
 			$Maze.update_maps()
+			_update_minimap()
 		GameState.RETURNING_TO_LOCK:
 			_format_label_to_remaining_timer()
 			$Maze.update_maps()
+			_update_minimap()
 			var elapsed = Time.get_ticks_msec() - last_game_state_transition_time
 			var segment_count = $Maze.path_block_count() - 1
 			var total_time_ms = _max_time_to_key_ms()
 			var pct_complete = elapsed / total_time_ms
 			$Maze.update_follow_me_mesh(pct_complete, $Player.global_position)
+			
+func _update_minimap():
+	var player_pos = $Player.global_position
+	$MiniMapViewport/MiniMapCamera.global_position.x = player_pos.x
+	$MiniMapViewport/MiniMapCamera.global_position.z = player_pos.z
+	minimap_image_texture.update(minimap_viewport_texture.get_image())
 
 func _on_player_look_direction_changed(position: Vector3, rotation: Vector3) -> void:
 	$Maze.update_player_marker(position.x, position.z)
