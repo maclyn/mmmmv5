@@ -21,6 +21,16 @@ font = ExtResource("2_ciabl")
 font_size = 20
 depth = 0.0
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_elldp"]
+albedo_color = Color(1, 0, 0, 1)
+disable_receive_shadows = true
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_immoj"]
+material = SubResource("StandardMaterial3D_elldp")
+top_radius = 1.5
+bottom_radius = 1.5
+height = 0.5
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2qw1y"]
 albedo_color = Color(1, 0.686252, 0.0195702, 1)
 
@@ -31,13 +41,6 @@ bottom_radius = 1.5
 height = 0.5
 radial_segments = 16
 rings = 2
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qy3p8"]
-albedo_color = Color(0, 0.0583906, 1, 1)
-
-[sub_resource type="BoxMesh" id="BoxMesh_aeb1c"]
-material = SubResource("StandardMaterial3D_qy3p8")
-size = Vector3(2, 0.5, 2)
 
 [node name="Maze" type="Node3D"]
 script = ExtResource("1_tra7k")
@@ -52,6 +55,20 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.06647, 1, 0)
 cast_shadow = 0
 mesh = SubResource("TextMesh_obf4p")
 
+[node name="PlayerMarker" type="MeshInstance3D" parent="."]
+transform = Transform3D(1.91069e-15, 4.37114e-08, 1, 0, 1, -4.37114e-08, -1, 0, 1.91069e-15, 50, 80, 50)
+layers = 262144
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_immoj")
+skeleton = NodePath("../MapViewport")
+
+[node name="EndMarker" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 80, 50)
+layers = 524288
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_5a24f")
+skeleton = NodePath("../MapViewport")
+
 [node name="MapViewport" type="SubViewport" parent="."]
 msaa_3d = 1
 use_debanding = true
@@ -61,19 +78,7 @@ render_target_update_mode = 3
 
 [node name="MapViewportCamera" type="Camera3D" parent="MapViewport"]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 50, 80, 50)
+cull_mask = 786431
 projection = 1
 size = 110.0
 far = 100.0
-
-[node name="EndMarker" type="MeshInstance3D" parent="MapViewport/MapViewportCamera"]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
-layers = 524288
-cast_shadow = 0
-mesh = SubResource("CylinderMesh_5a24f")
-skeleton = NodePath("../..")
-
-[node name="PlayerMarker" type="MeshInstance3D" parent="MapViewport/MapViewportCamera"]
-transform = Transform3D(1.91069e-15, 4.37114e-08, 1, 1, -4.37114e-08, 0, 4.37114e-08, 1, -4.37114e-08, 0, 0, 0)
-layers = 524288
-mesh = SubResource("BoxMesh_aeb1c")
-skeleton = NodePath("../..")

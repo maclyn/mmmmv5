@@ -45,7 +45,7 @@ fog_depth_begin = 5.0
 fog_depth_end = 30.0
 
 [node name="PlayerCameraMoon" type="Camera3D"]
-cull_mask = 524287
+cull_mask = 262143
 environment = SubResource("Environment_xx10y")
 current = true
 

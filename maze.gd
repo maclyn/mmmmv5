@@ -66,8 +66,8 @@ enum FeatureType {
 class MovementList:
 	var movements: Array[MovementDirection] = []
 	
-	func _init(movements: Array[MovementDirection]):
-		self.movements = movements
+	func _init(movements_list: Array[MovementDirection]):
+		self.movements = movements_list
 	
 class MazeBlock:
 	var prev: MazeBlock = null
@@ -141,7 +141,6 @@ class MazeBlock:
 	func actualize(scene: PackedScene, root: Node):
 		var x = position.x * MAZE_BLOCK_SQUARE_SIZE
 		var y = position.y * MAZE_BLOCK_SQUARE_SIZE
-		var prev = direction_from_prev()
 		var maze_block = scene.instantiate()
 		instance = maze_block
 		maze_block.configure_walls(
@@ -186,7 +185,7 @@ func build_new_maze() -> Vector2i:
 	$MapViewport/MapViewportCamera.position.y = MAZE_DIMENS_IN_SCENE_SPACE / 2.0
 	$MapViewport/MapViewportCamera.position.z = MAZE_DIMENS_IN_SCENE_SPACE / 2.0
 	var exit_position = exit_block.instance.global_position
-	$MapViewport/MapViewportCamera/EndMarker.global_position = Vector3(exit_position.x, 4, exit_position.z)
+	$EndMarker.global_position = Vector3(exit_position.x, 4, exit_position.z)
 	if DEBUG:
 		$DebugOverheadCamera.make_current()
 	return start_position
@@ -238,8 +237,8 @@ func update_follow_me_mesh(pct_complete: float, player_pos: Vector3) -> void:
 	
 	$ExitFollowMesh.look_at(Vector3(player_pos.x, $ExitFollowMesh.position.y, player_pos.z), Vector3.UP, true)
 	
-func update_player_marker(x: int, z: int):
-	$MapViewport/MapViewportCamera/PlayerMarker.global_position = Vector3(x, 4, z)
+func update_player_marker(x: float, z: float):
+	$PlayerMarker.global_position = Vector3(x, 4, z)
 
 func end_block_position_in_scene_space() -> Vector2i:
 	return _maze_block_position_to_center_in_scene_space(exit_block.position.x, exit_block.position.y)
@@ -259,9 +258,6 @@ func path_block_count() -> int:
 func _ready() -> void:
 	viewport_texture = $MapViewport.get_texture()
 	image_texture = ImageTexture.create_from_image(viewport_texture.get_image())
-
-func _process(delta: float) -> void:
-	pass
 
 func _movement_dir_as_xy_when_pointing_in_dir(movement: MovementDirection, direction: GridDirection) -> Vector2i:
 	var base_xy = _movement_dir_as_xy_when_pointing_north(movement)
@@ -411,9 +407,7 @@ func _add_block_at_position(block: MazeBlock):
 # probably faster just to keep trying this
 func _generate_maze() -> Vector2i:
 	var start_x = int(MAZE_WIDTH_AND_HEIGHT / 2.0)
-	var start_y = -LEAD_IN_DIST / 2
-	var curr_x = start_x
-	var curr_y = start_y
+	var start_y = int(-LEAD_IN_DIST / 2.0)
 	var start_block: MazeBlock = MazeBlock.new(start_x, start_y)
 	start_block.is_entrance = true
 	_add_block_at_position(start_block)
@@ -423,7 +417,6 @@ func _generate_maze() -> Vector2i:
 	
 	# Create a little start path
 	for _i in range(LEAD_IN_DIST):
-		curr_y += 1
 		var new_block = last_block.create_sibling(GridDirection.SOUTH)
 		last_block.next.push_back(new_block)
 		new_block.prev = last_block
