@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://c5cq4nt0yl43t"]
+[gd_scene load_steps=19 format=3 uid="uid://c5cq4nt0yl43t"]
 
 [ext_resource type="Script" path="res://playfield.gd" id="1_de1dc"]
 [ext_resource type="Environment" uid="uid://cgibf3lqeqjis" path="res://map_environment_dark_scene.tres" id="3_g75ud"]
@@ -26,6 +26,18 @@ texture_filter = 0
 [sub_resource type="PlaneMesh" id="PlaneMesh_ls18c"]
 material = SubResource("StandardMaterial3D_tjh0m")
 size = Vector2(5000, 5000)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rgj6w"]
+border_width_left = 16
+border_width_top = 16
+border_width_right = 16
+border_width_bottom = 16
+border_color = Color(3.36915e-07, 0.221838, 0, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+corner_detail = 16
 
 [node name="Playfield" type="Node"]
 script = ExtResource("1_de1dc")
@@ -74,16 +86,18 @@ text = "0:00"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="MiniMap" type="TextureRect" parent="HUD"]
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -280.0
-offset_top = 24.0
-offset_right = -24.0
-offset_bottom = 280.0
-grow_horizontal = 0
+[node name="MiniMapContainer" type="PanelContainer" parent="HUD"]
+clip_children = 2
+clip_contents = true
+layout_mode = 0
+offset_left = 1000.0
+offset_top = 14.0
+offset_right = 1256.0
+offset_bottom = 270.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_rgj6w")
+
+[node name="MiniMap" type="TextureRect" parent="HUD/MiniMapContainer"]
+layout_mode = 2
 expand_mode = 5
 
 [node name="GameOver" parent="." instance=ExtResource("9_gsmfs")]

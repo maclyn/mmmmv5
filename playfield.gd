@@ -44,7 +44,7 @@ func _ready():
 	$GameOver.visible = false
 	minimap_viewport_texture = $MiniMapViewport.get_texture()
 	minimap_image_texture = ImageTexture.create_from_image(minimap_viewport_texture.get_image())
-	$HUD/MiniMap.texture = minimap_image_texture
+	$HUD/MiniMapContainer/MiniMap.texture = minimap_image_texture
 	# TODO: Switch to this over project settings scaling when
 	# nearest neighbor 3D scaling is added to Godot
 	# get_tree().root.scaling_3d_mode = Viewport.SCALING_3D_MODE_BILINEAR
