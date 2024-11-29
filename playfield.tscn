@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://c5cq4nt0yl43t"]
+[gd_scene load_steps=17 format=3 uid="uid://c5cq4nt0yl43t"]
 
 [ext_resource type="Script" path="res://playfield.gd" id="1_de1dc"]
 [ext_resource type="Texture2D" uid="uid://qbont3rna5ge" path="res://textures/grass.png" id="5_4c4o8"]
@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://bcbm4lb2vq0x6" path="res://mobile_controls.tscn" id="10_8lkyr"]
 [ext_resource type="AudioStream" uid="uid://x1ak4jiyioge" path="res://sounds/normal_music.wav" id="12_noj5f"]
 [ext_resource type="AudioStream" uid="uid://blfwbscvqconq" path="res://sounds/spooky_music.wav" id="13_3c3to"]
+[ext_resource type="Environment" uid="uid://dpfnmv1x4cv2d" path="res://map_environments.tres" id="13_03e11"]
 [ext_resource type="AudioStream" uid="uid://be6cp3rm468km" path="res://sounds/win.wav" id="14_i02uq"]
 [ext_resource type="AudioStream" uid="uid://v18r4ijoell7" path="res://sounds/game_over.wav" id="15_a2rsm"]
 [ext_resource type="AudioStream" uid="uid://daglhrwcvln5r" path="res://sounds/key_pickup.mp3" id="16_5rnqv"]
@@ -36,25 +37,13 @@ shape = SubResource("BoxShape3D_hlfi2")
 
 [node name="GroundMesh" type="MeshInstance3D" parent="Ground"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.876257, -0.0332108, -0.201639)
+layers = 131072
 mesh = SubResource("PlaneMesh_ls18c")
 
 [node name="Maze" parent="." instance=ExtResource("6_cy60q")]
 
-[node name="Sun" type="DirectionalLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.258819, 0.965926, 0, -0.965926, 0.258819, 0, 100, 25)
-visible = false
-shadow_enabled = true
-directional_shadow_max_distance = 250.0
-
-[node name="Moon" type="DirectionalLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.258819, 0.965926, 0, -0.965926, 0.258819, 0, 300, 25)
-visible = false
-light_energy = 0.001
-shadow_enabled = true
-directional_shadow_mode = 1
-directional_shadow_max_distance = 250.0
-
 [node name="Player" parent="." instance=ExtResource("6_qmkiw")]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 1, 0)
 
 [node name="GameTimer" type="Timer" parent="."]
 wait_time = 120.0
@@ -119,14 +108,16 @@ stream = ExtResource("15_a2rsm")
 stream = ExtResource("16_5rnqv")
 
 [node name="MiniMapViewport" type="SubViewport" parent="."]
-msaa_3d = 2
+msaa_3d = 3
 scaling_3d_scale = 2.0
+size = Vector2i(256, 256)
 render_target_update_mode = 4
 
 [node name="MiniMapCamera" type="Camera3D" parent="MiniMapViewport"]
 transform = Transform3D(-1, 8.74228e-08, 3.82137e-15, 0, -4.37114e-08, 1, 8.74228e-08, 1, 4.37114e-08, 0, 10, 0)
+environment = ExtResource("13_03e11")
 projection = 1
-size = 50.0
+size = 40.0
 far = 200.0
 
 [connection signal="at_enemy" from="Player" to="." method="_on_player_at_enemy"]

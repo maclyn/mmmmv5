@@ -1,3 +1,4 @@
+@tool
 extends CharacterBody3D
 
 signal at_exit()
@@ -23,6 +24,14 @@ func restore_camera():
 	var camera = $CameraRoot.get_child(0)
 	if camera is Camera3D:
 		camera.make_current()
+		
+func set_camera(sun: bool, moon: bool):
+	while $CameraRoot.get_child_count() > 0:
+		$CameraRoot.remove_child($CameraRoot.get_child(0))
+	if sun:
+		$CameraRoot.add_child(camera_sun.instantiate())
+	elif moon:
+		$CameraRoot.add_child(camera_moon.instantiate())
 
 func respawn():
 	cannot_move = false
@@ -35,8 +44,12 @@ func external_x_movement(delta_x: float):
 	look_rotation.x -= delta_x * sensitivity
 	look_rotation.x = clamp(look_rotation.x, min_angle, max_angle)
 
+func _ready():
+	if Engine.is_editor_hint():
+		set_camera(true, false)
+
 func _physics_process(delta: float) -> void:
-	if cannot_move:
+	if cannot_move or Engine.is_editor_hint():
 		return
 	
 	# Add the gravity.
@@ -86,19 +99,16 @@ func _physics_process(delta: float) -> void:
 	look_direction_changed.emit(position, rotation)
 	
 func _input(event: InputEvent) -> void:
+	if Engine.is_editor_hint():
+		return
 	if event is InputEventMouseMotion and !Globals.is_mobile():
 		look_rotation.y -= (event.relative.x * sensitivity)
 		look_rotation.x -= (event.relative.x * sensitivity)
 		look_rotation.x = clamp(look_rotation.x, min_angle, max_angle)
 
 func _unhandled_input(_event: InputEvent) -> void:
+	if Engine.is_editor_hint():
+		return
 	if Input.is_action_just_pressed("cheat"):
 		cheat.emit()
 		
-func set_camera(sun: bool, moon: bool):
-	while $CameraRoot.get_child_count() > 0:
-		$CameraRoot.remove_child($CameraRoot.get_child(0))
-	if sun:
-		$CameraRoot.add_child(camera_sun.instantiate())
-	elif moon:
-		$CameraRoot.add_child(camera_moon.instantiate())

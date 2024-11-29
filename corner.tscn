@@ -1,9 +1,48 @@
-[gd_scene load_steps=3 format=3 uid="uid://8ggdbjul8d5x"]
+[gd_scene load_steps=7 format=4 uid="uid://8ggdbjul8d5x"]
 
 [ext_resource type="PackedScene" uid="uid://ri4yqdh5wvda" path="res://models/corner/corner.glb" id="1_upwqp"]
+[ext_resource type="Texture2D" uid="uid://de0wya7b36aog" path="res://models/corner/corner_Hedge_wall.png" id="2_0h3kf"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_lrh3x"]
 size = Vector3(0.2, 4, 0.2)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1l4ya"]
+resource_name = "Cube2_auv"
+cull_mode = 2
+albedo_texture = ExtResource("2_0h3kf")
+texture_filter = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_l6o1p"]
+_surfaces = [{
+"aabb": AABB(-0.1, -0.1, -2, 0.2, 0.2, 4),
+"format": 34896613377,
+"index_count": 36,
+"index_data": PackedByteArray("AAAFAAQAAAABAAUAAQACAAMAAQAAAAIAAQAHAAUAAQADAAcAAgAEAAYAAgAAAAQAAwAGAAcAAwACAAYABAAHAAYABAAFAAcA"),
+"name": "Cube2_auv",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 8,
+"vertex_data": PackedByteArray("AAAAAP//AAAAAP////8AAAAAAAAAAAAAAAD//wAAAAD//wAA//8AAP///////wAA//8AAAAAAAD/////AAAAAA==")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_so887"]
+resource_name = "corner_Cube2"
+_surfaces = [{
+"aabb": AABB(-0.1, -0.1, -2, 0.2, 0.2, 4),
+"attribute_data": PackedByteArray("+8f6H/437c8SQPnPBcgDKA0Y5M/9R/nPBqAHIA44CBgIQAAYEKD5JwsYBxj9RwAYCsD+Hwkw7c8BEPLPD8D5J/sf9M8HCPLPBKgHIBEwCBj5D88X+qfxJwMgBxj7B9kX"),
+"format": 34896613399,
+"index_count": 36,
+"index_data": PackedByteArray("AAAPAAwAAAADAA8ABQAIAAsABQACAAgABAAWABAABAAKABYABwANABMABwABAA0ACQASABUACQAGABIADgAXABQADgARABcA"),
+"material": SubResource("StandardMaterial3D_1l4ya"),
+"name": "Cube2_auv",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 24,
+"vertex_data": PackedByteArray("AAAAAP//7/8AAAAA/////wAAAAD//1TVAAD/////zP8AAP//////vwAA/////1TVAAAAAAAA//8AAAAAAAD//wAAAAAAAFTVAAD//wAA//8AAP//AAD/vwAA//8AAFTV//8AAP//6////wAA////////AAD//1XV////////7///////////v////////1TV//8AAAAA/////wAAAAD/////AAAAAG7V/////wAA////////AAD/v/////8AAG3V/3//f/9//z9U1VTV/3//f5T/KX9U1VTV////f/9//z9U1VTV3v8fgPT/BIBU1VTV//////9//z+qqlVV/3//f5D/In+qqlRV3v8fgP9//z+5qnRVvv9AgPz/AIC5qnNV")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_l6o1p")
 
 [node name="HedgeWall" type="StaticBody3D"]
 collision_mask = 0
@@ -12,3 +51,8 @@ collision_mask = 0
 shape = SubResource("BoxShape3D_lrh3x")
 
 [node name="corner" parent="." instance=ExtResource("1_upwqp")]
+
+[node name="Cube2" parent="corner" index="0"]
+mesh = SubResource("ArrayMesh_so887")
+
+[editable path="corner"]

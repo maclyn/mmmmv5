@@ -1,8 +1,49 @@
-[gd_scene load_steps=5 format=3 uid="uid://8jlfvxcekk5b"]
+[gd_scene load_steps=9 format=4 uid="uid://8jlfvxcekk5b"]
 
 [ext_resource type="Script" path="res://hedge_wall.gd" id="1_b1m0m"]
 [ext_resource type="PackedScene" uid="uid://dryg3y1f6logi" path="res://map_frame.tscn" id="2_xxu40"]
 [ext_resource type="PackedScene" uid="uid://bnaev4n1m6mwa" path="res://models/hedge_wall/hedge_wall.glb" id="3_s56yf"]
+[ext_resource type="Texture2D" uid="uid://jg3ym8is1e51" path="res://models/hedge_wall/hedge_wall_Hedge_wall.png" id="4_iprly"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_k7ovi"]
+resource_name = "Cube2_auv"
+cull_mode = 2
+albedo_texture = ExtResource("4_iprly")
+roughness = 0.858579
+texture_filter = 0
+texture_repeat = false
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_xqlux"]
+_surfaces = [{
+"aabb": AABB(-1.8, -0.1, -2, 3.6, 0.2, 4),
+"format": 34896613377,
+"index_count": 36,
+"index_data": PackedByteArray("AAAFAAQAAAABAAUAAQACAAMAAQAAAAIAAQAHAAUAAQADAAcAAgAEAAYAAgAAAAQAAwAGAAcAAwACAAYABAAHAAYABAAFAAcA"),
+"name": "Cube2_auv",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 8,
+"vertex_data": PackedByteArray("AAAAAP//AAAAAP////8AAAAAAAAAAAAAAAD//wAAAAD//wAA//8AAP///////wAA//8AAAAAAAD/////AAAAAA==")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_g4erd"]
+resource_name = "hedge_wall_Cube2"
+_surfaces = [{
+"aabb": AABB(-1.8, -0.1, -2, 3.6, 0.2, 4),
+"attribute_data": PackedByteArray("BPAHQP/9+f0TQPenDPAQSAEC/P/6R+2nCF70L/79BWAVQPwPCF7/NxIC91/7R/wPDGDtPwRwA/7+N/qnDGD+R/iP9v8KMPWn+e30LwVw9V8EOO4P/+3/NwGQAWAKMO4P"),
+"format": 34896613399,
+"index_count": 36,
+"index_data": PackedByteArray("AAAPAAwAAAADAA8ABQAIAAsABQACAAgABAAWABAABAAKABYABwANABMABwABAA0ACQASABUACQAGABIADgAXABQADgARABcA"),
+"material": SubResource("StandardMaterial3D_k7ovi"),
+"name": "Cube2_auv",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 24,
+"vertex_data": PackedByteArray("AAAAAP//+f8AAAAA/////wAAAAD//zXVAAD/////+f8AAP//////vwAA/////zbVAAAAAAAA//8AAAAAAAD//wAAAAAAAFPVAAD//wAA//8AAP//AAD/vwAA//8AAFTV//8AAP//9////wAA////////AAD//0XV////////9///////////v////////0XV//8AAAAA/////wAAAAD/////AAAAAFTV/////wAA////////AAD/v/////8AAFTV/3//f/+///8u1WfV/3//f/7//n8v1WbV////f/9//z9T1VXV////f/r/9n9U1VTV/3//f/9//z+gqkJV/3//f/n/AoCgqkJV////f/1/AECqqlRV////f/3//X+pqlRV")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_xqlux")
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_jisk3"]
 size = Vector3(3.6, 4, 0.2)
@@ -14,8 +55,13 @@ map_scene = ExtResource("2_xxu40")
 
 [node name="hedge_wall" parent="." instance=ExtResource("3_s56yf")]
 
+[node name="Cube2" parent="hedge_wall" index="0"]
+mesh = SubResource("ArrayMesh_g4erd")
+
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("BoxShape3D_jisk3")
 
 [node name="MapContainer" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.143847)
+
+[editable path="hedge_wall"]

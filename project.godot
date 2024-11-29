@@ -101,6 +101,7 @@ fullscreen={
 
 [layer_names]
 
+3d_render/layer_18="maze_layer"
 3d_render/layer_19="player_marker_layer"
 3d_render/layer_20="end_marker_layer"
 3d_physics/layer_1="world"

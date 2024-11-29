@@ -157,8 +157,6 @@ func _start_new_game(difficulty: GameDifficulty) -> void:
 	$Player.set_camera(
 		difficulty != GameDifficulty.SPOOKY,
 		difficulty == GameDifficulty.SPOOKY)
-	$Sun.visible = difficulty != GameDifficulty.SPOOKY
-	$Moon.visible = difficulty == GameDifficulty.SPOOKY
 		
 	if difficulty != GameDifficulty.SPOOKY:
 		$Music/NormalMusicPlayer.play()
