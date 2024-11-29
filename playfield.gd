@@ -1,5 +1,8 @@
 extends Node
 
+@export var default_map_env: Resource
+@export var dark_map_env: Resource
+
 signal game_over()
 
 const SAVE_FILE = "user://score.save"
@@ -157,11 +160,15 @@ func _start_new_game(difficulty: GameDifficulty) -> void:
 	$Player.set_camera(
 		difficulty != GameDifficulty.SPOOKY,
 		difficulty == GameDifficulty.SPOOKY)
+	$Sun.visible = difficulty != GameDifficulty.SPOOKY
 		
 	if difficulty != GameDifficulty.SPOOKY:
 		$Music/NormalMusicPlayer.play()
+		$MiniMapViewport/MiniMapCamera.environment = default_map_env
 	else:
 		$Music/SpookyMusicPlayer.play()
+		$MiniMapViewport/MiniMapCamera.environment = dark_map_env
+	$Maze.set_map_env($MiniMapViewport/MiniMapCamera.environment)
 	
 	$GameTimer.start(_max_time_to_key_ms() / 1000.0)
 

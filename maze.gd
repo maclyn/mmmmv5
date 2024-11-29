@@ -254,6 +254,9 @@ func before_end_block_position_in_scene_space() -> Vector2i:
 
 func path_block_count() -> int:
 	return path_from_exit_to_entrance.size()
+	
+func set_map_env(env: Environment):
+	$MapViewport/MapViewportCamera.environment = env
 
 func _ready() -> void:
 	viewport_texture = $MapViewport.get_texture()

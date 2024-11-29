@@ -3,8 +3,6 @@
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_n5kh7"]
 sky_top_color = Color(0.0406199, 0.153452, 1, 1)
 sky_horizon_color = Color(1, 1, 1, 1)
-sun_angle_max = 90.0
-use_debanding = false
 
 [sub_resource type="Sky" id="Sky_24qyn"]
 sky_material = SubResource("ProceduralSkyMaterial_n5kh7")
@@ -17,6 +15,7 @@ sky = SubResource("Sky_24qyn")
 ambient_light_source = 3
 ambient_light_color = Color(1, 1, 1, 1)
 ambient_light_sky_contribution = 0.5
+reflected_light_source = 2
 fog_enabled = true
 fog_mode = 1
 fog_density = 1.0

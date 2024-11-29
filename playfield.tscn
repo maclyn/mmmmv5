@@ -1,6 +1,7 @@
-[gd_scene load_steps=17 format=3 uid="uid://c5cq4nt0yl43t"]
+[gd_scene load_steps=18 format=3 uid="uid://c5cq4nt0yl43t"]
 
 [ext_resource type="Script" path="res://playfield.gd" id="1_de1dc"]
+[ext_resource type="Environment" uid="uid://cgibf3lqeqjis" path="res://map_environment_dark_scene.tres" id="3_g75ud"]
 [ext_resource type="Texture2D" uid="uid://qbont3rna5ge" path="res://textures/grass.png" id="5_4c4o8"]
 [ext_resource type="PackedScene" uid="uid://cp28gjjsjws27" path="res://maze.tscn" id="6_cy60q"]
 [ext_resource type="PackedScene" uid="uid://3mh0fvm1jcci" path="res://player.tscn" id="6_qmkiw"]
@@ -28,6 +29,8 @@ size = Vector2(5000, 5000)
 
 [node name="Playfield" type="Node"]
 script = ExtResource("1_de1dc")
+default_map_env = ExtResource("13_03e11")
+dark_map_env = ExtResource("3_g75ud")
 
 [node name="Ground" type="StaticBody3D" parent="."]
 
@@ -90,6 +93,13 @@ visible = false
 visible = false
 scale = Vector2(0.5, 0.5)
 
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.965926, -0.258819, 0, 0.0669873, 0.25, 0.965926, -0.25, -0.933013, 0.258819, 25, 300, 25)
+light_energy = 0.8
+shadow_enabled = true
+shadow_bias = 0.05
+sky_mode = 1
+
 [node name="Music" type="Node" parent="."]
 
 [node name="NormalMusicPlayer" type="AudioStreamPlayer" parent="Music"]
@@ -114,7 +124,7 @@ size = Vector2i(256, 256)
 render_target_update_mode = 4
 
 [node name="MiniMapCamera" type="Camera3D" parent="MiniMapViewport"]
-transform = Transform3D(-1, 8.74228e-08, 3.82137e-15, 0, -4.37114e-08, 1, 8.74228e-08, 1, 4.37114e-08, 0, 10, 0)
+transform = Transform3D(-1, 1.50996e-07, 6.60024e-15, 0, -4.37114e-08, 1, 1.50996e-07, 1, 4.37114e-08, 0, 10, 0)
 environment = ExtResource("13_03e11")
 projection = 1
 size = 40.0
