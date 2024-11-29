@@ -69,7 +69,6 @@ layout_mode = 3
 anchors_preset = 0
 offset_right = 1280.0
 offset_bottom = 720.0
-scale = Vector2(0.5, 0.5)
 
 [node name="TimerLabel" type="Label" parent="HUD"]
 layout_mode = 1
@@ -132,8 +131,7 @@ stream = ExtResource("15_a2rsm")
 stream = ExtResource("16_5rnqv")
 
 [node name="MiniMapViewport" type="SubViewport" parent="."]
-msaa_3d = 3
-scaling_3d_scale = 2.0
+msaa_3d = 1
 size = Vector2i(256, 256)
 render_target_update_mode = 4
 

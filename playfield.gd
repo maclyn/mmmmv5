@@ -61,8 +61,10 @@ func _process(_delta: float) -> void:
 			pass
 		GameState.GOING_TO_KEY:
 			_format_label_to_remaining_timer()
-			$Maze.update_maps()
-			_update_minimap()
+			if Globals.tick_count % 2 == 0:
+				$Maze.update_maps()
+			else:
+				_update_minimap()
 		GameState.RETURNING_TO_LOCK:
 			_format_label_to_remaining_timer()
 			$Maze.update_maps()

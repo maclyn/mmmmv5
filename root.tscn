@@ -10,7 +10,6 @@ script = ExtResource("1_b1y3i")
 [node name="Playfield" parent="." instance=ExtResource("2_wqq1c")]
 
 [node name="MainMenu" parent="." instance=ExtResource("7_lvl7v")]
-scale = Vector2(0.5, 0.5)
 
 [connection signal="game_over" from="Playfield" to="." method="_on_playfield_game_over"]
 [connection signal="start_easy_game" from="MainMenu" to="." method="_on_main_menu_start_easy_game"]

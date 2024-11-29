@@ -59,7 +59,6 @@ anchor_bottom = 0.799
 offset_bottom = -0.280029
 grow_horizontal = 2
 grow_vertical = 2
-scale = Vector2(2, 2)
 texture = ExtResource("1_wbcnh")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
