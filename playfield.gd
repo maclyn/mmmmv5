@@ -4,9 +4,10 @@ extends Node
 @export var default_map_env: Resource
 @export var dark_map_env: Resource
 
-signal game_over()
+const Saver = preload("res://saver.gd")
+var saver = Saver.new()
 
-const SAVE_FILE = "user://score.save"
+signal game_over()
 
 # All game state
 var game_state: GameState = GameState.NOT_STARTED
@@ -23,6 +24,12 @@ enum GameDifficulty {
 	NORMAL,
 	SPOOKY
 }
+
+var difficulties_str_list: Array[String] = [
+	str(GameDifficulty.EASY),
+	str(GameDifficulty.NORMAL),
+	str(GameDifficulty.SPOOKY)
+]
 
 enum GameState {
 	NOT_STARTED,
@@ -191,7 +198,12 @@ func _game_over(did_win: bool, skip_anim: bool = false) -> void:
 	if !skip_anim:
 		if did_win:
 			var score = _calculate_score()
-			$GameOver.win(score, _compare_to_last_high_score_and_maybe_update(score))
+			$GameOver.win(
+				score,
+				saver.compare_to_last_high_score_and_maybe_update(
+					difficulties_str_list,
+					str(curr_difficulty),
+					score))
 		else:
 			$GameOver.lose()
 		$GameOver.visible = true
@@ -204,42 +216,6 @@ func _calculate_score() -> int:
 	var pct_better_to_key = 1.0 - (time_to_key / _max_time_to_key_ms())
 	var pct_better_to_return = 1.0 - (time_to_return / 1000.0 / (_max_time_to_return_s()))
 	return floori((pct_better_to_key * 1000) + (pct_better_to_return * 500))
-	
-func _compare_to_last_high_score_and_maybe_update(score: int) -> bool:
-	if !FileAccess.file_exists(SAVE_FILE):
-		_create_new_save(score)
-		return true
- 
-	var save_file = FileAccess.open(SAVE_FILE, FileAccess.READ_WRITE)
-	var json_string = save_file.get_as_text()
-	var json = JSON.new()
-	var parse_result = json.parse(json_string)
-	if not parse_result == OK:
-		print("Parse error; resetting save: ", json.get_error_message(), " in ", json_string, " at line ", json.get_error_line())
-		_create_new_save(score)
-		return true
-		
-	var old_score = json.data[str(curr_difficulty)]
-	if old_score > score:
-		# Lower than old high score
-		return false
-		
-	# We did better; update
-	json.data[str(curr_difficulty)] = score
-	var to_str = JSON.stringify(json.data)
-	save_file.resize(0)
-	save_file.store_string(to_str)
-	return true
-	
-func _create_new_save(score: int):
-	var new_save = FileAccess.open(SAVE_FILE, FileAccess.WRITE)
-	var dict = {
-		str(GameDifficulty.EASY): 0,
-		str(GameDifficulty.NORMAL): 0,
-		str(GameDifficulty.SPOOKY): 0
-	}
-	dict[str(curr_difficulty)] = score
-	new_save.store_line(JSON.stringify(dict))
 
 func _on_mobile_controls_h_swipe(delta_x: float) -> void:
 	$Player.external_x_movement(delta_x)
