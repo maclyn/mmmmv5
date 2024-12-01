@@ -1,3 +1,4 @@
+@tool
 extends Node3D
 
 func attach_viewport_tex(tex: Texture2D) -> void:

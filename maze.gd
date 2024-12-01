@@ -1,9 +1,8 @@
+@tool
 extends Node3D
 
 @export var maze_block_scene: PackedScene
 @export var snake_scene: PackedScene
-
-const DEBUG = false
 
 const HEDGE_HEIGHT = 4
 const HEDGE_LENGTH = 2
@@ -178,16 +177,17 @@ class MazeBlock:
 		
 func build_new_maze() -> Vector2i:
 	var start_position = Vector2i.ZERO
-	while start_position == Vector2i.ZERO:
-		blocks.clear()
+	if Engine.is_editor_hint():
 		start_position = _generate_maze()
-	$MapViewport/MapViewportCamera.position.x = MAZE_DIMENS_IN_SCENE_SPACE / 2.0
-	$MapViewport/MapViewportCamera.position.y = MAZE_DIMENS_IN_SCENE_SPACE / 2.0
-	$MapViewport/MapViewportCamera.position.z = MAZE_DIMENS_IN_SCENE_SPACE / 2.0
+	else:
+		while start_position == Vector2i.ZERO:
+			blocks.clear()
+			start_position = _generate_maze()
+	if start_position == Vector2i.ZERO:
+		push_error("Failed to generate maze in editor!")
+		return Vector2i.ZERO
 	var exit_position = exit_block.instance.global_position
 	$EndMarker.global_position = Vector3(exit_position.x, 4, exit_position.z)
-	if DEBUG:
-		$DebugOverheadCamera.make_current()
 	return start_position
 		
 func clear_maze() -> void:
@@ -261,6 +261,12 @@ func set_map_env(env: Environment):
 func _ready() -> void:
 	viewport_texture = $MapViewport.get_texture()
 	image_texture = ImageTexture.create_from_image(viewport_texture.get_image())
+	$MapViewport/MapViewportCamera.position.x = MAZE_DIMENS_IN_SCENE_SPACE / 2.0
+	$MapViewport/MapViewportCamera.position.y = MAZE_DIMENS_IN_SCENE_SPACE / 2.0
+	$MapViewport/MapViewportCamera.position.z = MAZE_DIMENS_IN_SCENE_SPACE / 2.0
+	if Engine.is_editor_hint():
+		print("Generating maze in editor")
+		build_new_maze()
 
 func _movement_dir_as_xy_when_pointing_in_dir(movement: MovementDirection, direction: GridDirection) -> Vector2i:
 	var base_xy = _movement_dir_as_xy_when_pointing_north(movement)

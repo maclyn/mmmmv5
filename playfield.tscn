@@ -57,6 +57,12 @@ mesh = SubResource("PlaneMesh_ls18c")
 
 [node name="Maze" parent="." instance=ExtResource("6_cy60q")]
 
+[node name="MazeDebugCamera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 50, 80, 50)
+projection = 1
+current = true
+size = 150.0
+
 [node name="Player" parent="." instance=ExtResource("6_qmkiw")]
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 1, 0)
 
