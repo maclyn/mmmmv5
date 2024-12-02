@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://cp28gjjsjws27"]
+[gd_scene load_steps=14 format=3 uid="uid://cp28gjjsjws27"]
 
 [ext_resource type="Script" path="res://maze.gd" id="1_tra7k"]
 [ext_resource type="PackedScene" uid="uid://dkpdan17o8x1l" path="res://maze_block.tscn" id="2_av3s7"]
@@ -32,6 +32,13 @@ top_radius = 1.5
 bottom_radius = 1.5
 height = 0.5
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_untws"]
+albedo_color = Color(1, 1, 0, 1)
+
+[sub_resource type="PrismMesh" id="PrismMesh_bg1dy"]
+material = SubResource("StandardMaterial3D_untws")
+size = Vector3(1, 2, 1)
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2qw1y"]
 albedo_color = Color(1, 0.686252, 0.0195702, 1)
 
@@ -55,11 +62,21 @@ cast_shadow = 0
 mesh = SubResource("TextMesh_obf4p")
 
 [node name="PlayerMarker" type="MeshInstance3D" parent="."]
-transform = Transform3D(1.91069e-15, 4.37114e-08, 1, 0, 1, -4.37114e-08, -1, 0, 1.91069e-15, 50, 80, 50)
+transform = Transform3D(1.91069e-15, 4.37114e-08, 1, 0, 1, -4.37114e-08, -1, 0, 1.91069e-15, 0, 5, 0)
 layers = 262144
 cast_shadow = 0
 mesh = SubResource("CylinderMesh_immoj")
 skeleton = NodePath("../MapViewport")
+
+[node name="DirectionRoot" type="Node3D" parent="PlayerMarker"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
+
+[node name="DirectionArrow" type="MeshInstance3D" parent="PlayerMarker/DirectionRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+layers = 262144
+cast_shadow = 0
+mesh = SubResource("PrismMesh_bg1dy")
+skeleton = NodePath("../..")
 
 [node name="EndMarker" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 4, 78)

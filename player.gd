@@ -5,7 +5,7 @@ signal at_exit()
 signal at_key()
 signal at_enemy()
 signal cheat()
-signal look_direction_changed(position: Vector3, rotation: Vector3)
+signal look_direction_changed(position: Vector3, rotation_y: float)
 
 @export var camera_sun: PackedScene
 @export var camera_moon: PackedScene
@@ -96,15 +96,13 @@ func _physics_process(delta: float) -> void:
 	look_rotation.y += angular_velocity.y * delta
 	rotation.y = look_rotation.y
 	
-	look_direction_changed.emit(position, rotation)
+	look_direction_changed.emit(position, rotation.y)
 	
 func _input(event: InputEvent) -> void:
 	if Engine.is_editor_hint():
 		return
 	if event is InputEventMouseMotion and !Globals.is_mobile():
 		look_rotation.y -= (event.relative.x * sensitivity)
-		look_rotation.x -= (event.relative.x * sensitivity)
-		look_rotation.x = clamp(look_rotation.x, min_angle, max_angle)
 
 func _unhandled_input(_event: InputEvent) -> void:
 	if Engine.is_editor_hint():

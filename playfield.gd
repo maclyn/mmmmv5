@@ -89,8 +89,8 @@ func _update_minimap():
 	$MiniMapViewport/MiniMapCamera.global_position.z = player_pos.z
 	minimap_image_texture.update(minimap_viewport_texture.get_image())
 
-func _on_player_look_direction_changed(position: Vector3, rotation: Vector3) -> void:
-	$Maze.update_player_marker(position.x, position.z)
+func _on_player_look_direction_changed(position: Vector3, rotation_y: float) -> void:
+	$Maze.update_player_marker(position.x, position.z, rotation_y)
 
 func _on_player_cheat() -> void:
 	if game_state == GameState.GOING_TO_KEY:

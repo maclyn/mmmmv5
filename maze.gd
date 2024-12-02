@@ -21,6 +21,8 @@ const MAZE_DIMENS_IN_SCENE_SPACE = MAZE_BLOCK_SQUARE_SIZE * MAZE_WIDTH_AND_HEIGH
 const LEAD_IN_DIST = 3
 const MAX_DIST = MAZE_WIDTH_AND_HEIGHT * 4
 const MAX_PCT_FORWARD_BLOCKS = 0.4
+const MAP_BLOCKS_APPROX_PERCENT = 0.02
+const MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS = 2
 const SNAKE_SPAWN_PER_COL_ROW_PROB = 0.75 # most rows/columns get a snake
 
 # Derived from asset values + gameplay values
@@ -248,8 +250,9 @@ func update_follow_me_mesh(pct_complete: float, player_pos: Vector3) -> void:
 	
 	$ExitFollowMesh.look_at(Vector3(player_pos.x, $ExitFollowMesh.position.y, player_pos.z), Vector3.UP, true)
 	
-func update_player_marker(x: float, z: float):
+func update_player_marker(x: float, z: float, rotation_y: float):
 	$PlayerMarker.global_position = Vector3(x, 4, z)
+	$PlayerMarker/DirectionRoot/DirectionArrow.rotation.z = -(rotation_y + (PI / 2))
 
 func end_block_position_in_scene_space() -> Vector2i:
 	return _maze_block_position_to_center_in_scene_space(exit_block.position.x, exit_block.position.y)
@@ -469,11 +472,9 @@ func _generate_maze() -> Vector2i:
 				break
 	
 	var forward_block_pct = float(none_feature_count) / float(total_feature_count)
-	print("none blocks = ", str(none_feature_count), " of total feature count ", str(total_feature_count))
-	print("pct = ", str(forward_block_pct))
 	if forward_block_pct > MAX_PCT_FORWARD_BLOCKS:
 		# FAILURE -- Probably a boring maze to play
-		print("FAILURE too boring")
+		print("Failed boring maze of ", str(forward_block_pct), "% forward blocks")
 		return Vector2i.ZERO
 	
 	if end_block == null:
@@ -492,9 +493,11 @@ func _generate_maze() -> Vector2i:
 	for x in blocks:
 		for y in blocks[x]:
 			blocks[x][y].actualize(maze_block_scene, self)
-			if y % 4 == 0 && x % 4 == 0:
-				blocks[x][y].instance.get_south_wall().add_map(image_texture)
-				
+			# Place a map on the south wall every ~50 blocks, and never
+			# in first or last 2 blocks
+			if y > MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS && y < MAZE_WIDTH_AND_HEIGHT - MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS && x > MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS && x < MAZE_WIDTH_AND_HEIGHT - MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS:
+				if randf_range(0.0, 1.0) > (1.0 - MAP_BLOCKS_APPROX_PERCENT):
+					blocks[x][y].instance.get_south_wall().add_map(image_texture)
 	return _maze_block_position_to_center_in_scene_space(start_x, start_y)
 		
 func _maze_block_position_to_center_in_scene_space(x: int, y: int) -> Vector2i:
