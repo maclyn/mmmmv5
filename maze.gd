@@ -4,21 +4,26 @@ extends Node3D
 @export var maze_block_scene: PackedScene
 @export var snake_scene: PackedScene
 
+# These values are tied to assets
+# ANY CHANGES HERE NEED CORRESPONDING ASSET CHANGES TOO
 const HEDGE_HEIGHT = 4
 const HEDGE_LENGTH = 2
 const HEDGE_HALF_LENGTH = 1
 const HEDGE_THICKNESS = 0.2
 const HEDGE_HALF_THICKNESS = 0.1
 const MAZE_BLOCK_SQUARE_SIZE = 4
-const MAZE_WIDTH_AND_HEIGHT = 25
-const MAZE_DIMENS_IN_SCENE_SPACE = MAZE_BLOCK_SQUARE_SIZE * MAZE_WIDTH_AND_HEIGHT
-const LEAD_IN_DIST = 5
-const MAX_DIST = MAZE_WIDTH_AND_HEIGHT * 4
-
 const SNAKE_LENGTH = 2.2 # units
 const SNAKE_WIDTH = 0.2 # units
+
+# These values can be tweaked for gameplay reasons
+const MAZE_WIDTH_AND_HEIGHT = 20
+const MAZE_DIMENS_IN_SCENE_SPACE = MAZE_BLOCK_SQUARE_SIZE * MAZE_WIDTH_AND_HEIGHT
+const LEAD_IN_DIST = 3
+const MAX_DIST = MAZE_WIDTH_AND_HEIGHT * 4
+const MAX_PCT_FORWARD_BLOCKS = 0.4
 const SNAKE_SPAWN_PER_COL_ROW_PROB = 0.75 # most rows/columns get a snake
 
+# Derived from asset values + gameplay values
 const EAST_SNAKE_EDGE = (MAZE_DIMENS_IN_SCENE_SPACE) + (SNAKE_LENGTH * 3)
 const WEST_SNAKE_EDGE = -SNAKE_LENGTH * 3
 const SOUTH_SNAKE_EDGE = (MAZE_DIMENS_IN_SCENE_SPACE) + (SNAKE_LENGTH * 3)
@@ -178,7 +183,13 @@ class MazeBlock:
 func build_new_maze() -> Vector2i:
 	var start_position = Vector2i.ZERO
 	if Engine.is_editor_hint():
-		start_position = _generate_maze()
+		# 5 tries to generate before giving up (to avoid editor freezes)
+		print("Building maze in editor")
+		var count = 0
+		while count < 5 && start_position == Vector2i.ZERO:
+			blocks.clear()
+			start_position = _generate_maze()
+			count += 1
 	else:
 		while start_position == Vector2i.ZERO:
 			blocks.clear()
@@ -335,26 +346,22 @@ func _feature_to_movement_list_array(feature: FeatureType) -> Array[MovementList
 func _choose_random_feature() -> FeatureType:
 	var choice = randi_range(0, 100)
 	if choice < 20:
-		return FeatureType.NONE
+		return FeatureType.NONE # i.e. go forward
 	if choice < 35:
 		return FeatureType.LEFT_CORNER
 	if choice < 50:
 		return FeatureType.RIGHT_CORNER
-	if choice < 65:
+	if choice < 60:
 		return FeatureType.JUNCTION_TWO_WAY_SPLIT_L_FWD
-	if choice < 75:
+	if choice < 70:
 		return FeatureType.JUNCTION_TWO_WAY_SPLIT_R_FWD
 	if choice < 80:
 		return FeatureType.JUNCTION_THREE_WAY_SPLIT_L_R_FWD
-	if choice < 90:
+	if choice < 86:
 		return FeatureType.LEFT_S_SHAPE
-	if choice < 95:
+	if choice < 93:
 		return FeatureType.RIGHT_S_SHAPE
 	return FeatureType.JUNCTION_TWO_WAY_SPLIT_L_R
-	##
-	#if choice < 50:
-		#return FeatureType.NONE
-	#return FeatureType.JUNCTION_THREE_WAY_SPLIT_L_R_FWD
 
 func _create_sibling_from_movement(base: MazeBlock, movement: MovementDirection) -> MazeBlock:
 	var dir = _movement_dir_as_grid_direction_when_pointing_in_dir(movement, base.direction_from_prev())
@@ -409,11 +416,11 @@ func _add_block_at_position(block: MazeBlock):
 	sub_dict[y] = block
 	
 # Generate the maze, and return the center of the maze entrance in world space
-# or ZERO if it failed to generate a valid maze, which is (theoretically) 
-# possible
-# We could attempt a walk back approach (rewind when hitting a dead end, and
-# try again and again), but (a) this isn't the best approach, and (b) it's 
-# probably faster just to keep trying this
+# or return Vector2i.ZERO if it failed to generate a good maze
+# We consider a maze "bad" in 2 situations:
+# -- If there is no "solution" (i.e. we don't have a block at the bottom-most
+# part of the maze that is less than MAX_DIST away from the start block)
+# -- If the maze is too many straightaways (i.e. unfun)
 func _generate_maze() -> Vector2i:
 	var start_x = int(MAZE_WIDTH_AND_HEIGHT / 2.0)
 	var start_y = int(-LEAD_IN_DIST / 2.0)
@@ -423,6 +430,8 @@ func _generate_maze() -> Vector2i:
 	entrance_block = start_block
 	
 	var last_block: MazeBlock = start_block
+	var none_feature_count = 0
+	var total_feature_count = 0
 	
 	# Create a little start path
 	for _i in range(LEAD_IN_DIST):
@@ -431,6 +440,8 @@ func _generate_maze() -> Vector2i:
 		new_block.prev = last_block
 		_add_block_at_position(new_block)
 		last_block = new_block
+		none_feature_count += 1
+		total_feature_count += 1
 		
 	var heads: Array[MazeBlock] = [last_block]
 	var end_block_dist = -1
@@ -445,6 +456,9 @@ func _generate_maze() -> Vector2i:
 			if does_fit:
 				var new_heads = _add_feature_after_block_and_return_new_heads(head, feature)
 				heads.append_array(new_heads)
+				if feature == FeatureType.NONE:
+					none_feature_count += 1
+				total_feature_count += 1
 				break
 				
 			if feature_generation_attempts > 15:
@@ -453,6 +467,14 @@ func _generate_maze() -> Vector2i:
 						end_block_dist = head.dist_from_start
 						end_block = head
 				break
+	
+	var forward_block_pct = float(none_feature_count) / float(total_feature_count)
+	print("none blocks = ", str(none_feature_count), " of total feature count ", str(total_feature_count))
+	print("pct = ", str(forward_block_pct))
+	if forward_block_pct > MAX_PCT_FORWARD_BLOCKS:
+		# FAILURE -- Probably a boring maze to play
+		print("FAILURE too boring")
+		return Vector2i.ZERO
 	
 	if end_block == null:
 		# FAILURE -- We didn't build a good path
