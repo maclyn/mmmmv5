@@ -16,10 +16,6 @@ func _ready():
 	$HedgeCornerNW.rotate_y((PI / 2) * randi_range(0, 4))
 
 func configure_walls(north: bool, east: bool, south: bool, west: bool):
-	#north = false
-	#east = false
-	#south = false
-	#swest = false
 	$HedgeWallN.visible = north
 	$HedgeWallN.get_node("CollisionShape3D").disabled = !north
 	$HedgeWallE.visible = east

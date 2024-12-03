@@ -53,6 +53,7 @@ size = Vector3(3.6, 4, 0.2)
 collision_mask = 0
 script = ExtResource("1_b1m0m")
 map_scene = ExtResource("2_xxu40")
+direction = null
 
 [node name="hedge_wall" parent="." instance=ExtResource("3_s56yf")]
 
@@ -65,10 +66,18 @@ shape = SubResource("BoxShape3D_jisk3")
 [node name="MapContainer" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.143847)
 
-[node name="ArrowContainer" type="Node3D" parent="."]
+[node name="Arrows" type="Node3D" parent="."]
+
+[node name="ArrowContainerNW" type="Node3D" parent="Arrows"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.156845)
+
+[node name="maze_arrow" parent="Arrows/ArrowContainerNW" instance=ExtResource("5_iojbm")]
+transform = Transform3D(-4.37114e-08, -8.74228e-08, -1, 0, -1, 8.74228e-08, -1, 3.82137e-15, 4.37114e-08, 0, 0, 0)
+
+[node name="ArrowContainerSE" type="Node3D" parent="Arrows"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.143847)
 
-[node name="maze_arrow" parent="ArrowContainer" instance=ExtResource("5_iojbm")]
+[node name="maze_arrow" parent="Arrows/ArrowContainerSE" instance=ExtResource("5_iojbm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0)
 
 [editable path="hedge_wall"]
