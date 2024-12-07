@@ -182,6 +182,15 @@ class MazeBlock:
 	func snekify():
 		instance.snekify()
 		
+	func show_arrow():
+		var prev = direction_from_prev()
+		instance.show_arrow(
+			prev == GridDirection.NORTH,
+			prev == GridDirection.SOUTH,
+			prev == GridDirection.EAST,
+			prev == GridDirection.WEST
+		)
+		
 func build_new_maze() -> Vector2i:
 	var start_position = Vector2i.ZERO
 	if Engine.is_editor_hint():
@@ -216,15 +225,11 @@ func clear_maze() -> void:
 func update_maps() -> void:
 	image_texture.update(viewport_texture.get_image())
 	
-func show_follow_me_mesh() -> void:
-	var key_pos = exit_block.get_key_position()
+func show_path_out() -> void:
 	exit_block.hide_key()
-	$ExitFollowMesh.visible = true
-	$ExitFollowMesh.position = key_pos
-	_add_snakes()
-	
-func hide_follow_me_mesh() -> void:
-	pass
+	for block in path_from_exit_to_entrance:
+		block.show_arrow()
+	#_add_snakes()
 	
 func update_follow_me_mesh(pct_complete: float, player_pos: Vector3) -> void:
 	# LERP exit follow mesh back
@@ -243,12 +248,12 @@ func update_follow_me_mesh(pct_complete: float, player_pos: Vector3) -> void:
 				start_block.position.x, start_block.position.y)
 			var end_pos = _maze_block_position_to_center_in_scene_space(
 				end_block.position.x, end_block.position.y)
-			$ExitFollowMesh.position = Vector3(
-				lerpf(start_pos.x, end_pos.x, pct_in_segment),
-				$ExitFollowMesh.position.y,
-				lerpf(start_pos.y, end_pos.y, pct_in_segment))
+			#$ExitFollowMesh.position = Vector3(
+				#lerpf(start_pos.x, end_pos.x, pct_in_segment),
+				#$ExitFollowMesh.position.y,
+				#lerpf(start_pos.y, end_pos.y, pct_in_segment))
 	
-	$ExitFollowMesh.look_at(Vector3(player_pos.x, $ExitFollowMesh.position.y, player_pos.z), Vector3.UP, true)
+	#$ExitFollowMesh.look_at(Vector3(player_pos.x, $ExitFollowMesh.position.y, player_pos.z), Vector3.UP, true)
 	
 func update_player_marker(x: float, z: float, rotation_y: float):
 	$PlayerMarker.global_position = Vector3(x, 4, z)
@@ -281,6 +286,7 @@ func _ready() -> void:
 	if Engine.is_editor_hint():
 		print("Generating maze in editor")
 		build_new_maze()
+		show_path_out()
 
 func _movement_dir_as_xy_when_pointing_in_dir(movement: MovementDirection, direction: GridDirection) -> Vector2i:
 	var base_xy = _movement_dir_as_xy_when_pointing_north(movement)

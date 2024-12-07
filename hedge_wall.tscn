@@ -53,7 +53,6 @@ size = Vector3(3.6, 4, 0.2)
 collision_mask = 0
 script = ExtResource("1_b1m0m")
 map_scene = ExtResource("2_xxu40")
-direction = null
 
 [node name="hedge_wall" parent="." instance=ExtResource("3_s56yf")]
 
@@ -67,6 +66,7 @@ shape = SubResource("BoxShape3D_jisk3")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.143847)
 
 [node name="Arrows" type="Node3D" parent="."]
+visible = false
 
 [node name="ArrowContainerNW" type="Node3D" parent="Arrows"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.156845)

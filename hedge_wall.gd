@@ -13,9 +13,9 @@ func add_map(tex: Texture2D):
 	new_map.rotation.y = deg_to_rad(90)
 	$MapContainer.add_child(new_map)
 
-func show_arrow(should_face_right: bool) -> void:
+func show_arrow(flip_arrow_direction: bool) -> void:
 	$Arrows.visible = true
-	if !should_face_right:
+	if flip_arrow_direction:
 		$Arrows/ArrowContainerSE/maze_arrow.rotate_y(deg_to_rad(180))
 		$Arrows/ArrowContainerNW/maze_arrow.rotate_y(deg_to_rad(180))
 	$MapContainer.visible = false
@@ -23,4 +23,4 @@ func show_arrow(should_face_right: bool) -> void:
 func _ready() -> void:
 	$Arrows/ArrowContainerSE.visible = direction == "S" || direction == "E"
 	$Arrows/ArrowContainerNW.visible = direction == "N" || direction == "W"
-	$Arrows.visible = false
+	# $Arrows.visible = false

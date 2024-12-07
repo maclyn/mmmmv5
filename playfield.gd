@@ -116,7 +116,7 @@ func _on_player_at_key() -> void:
 	last_game_state_transition_time = Time.get_ticks_msec()
 	$GameTimer.stop()
 	$GameTimer.start(_max_time_to_return_s())
-	$Maze.show_follow_me_mesh()
+	$Maze.show_path_out()
 	var prev_block = $Maze.before_end_block_position_in_scene_space()
 	$Player.look_at(Vector3(prev_block.x, $Player.global_position.y, prev_block.y), Vector3.UP, true)
 	

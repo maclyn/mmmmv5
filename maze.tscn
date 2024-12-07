@@ -1,26 +1,9 @@
-[gd_scene load_steps=14 format=3 uid="uid://cp28gjjsjws27"]
+[gd_scene load_steps=11 format=3 uid="uid://cp28gjjsjws27"]
 
 [ext_resource type="Script" path="res://maze.gd" id="1_tra7k"]
 [ext_resource type="PackedScene" uid="uid://dkpdan17o8x1l" path="res://maze_block.tscn" id="2_av3s7"]
-[ext_resource type="FontFile" uid="uid://b88ckwrmql0l8" path="res://assets/Flexi_IBM_VGA_False_437.ttf" id="2_ciabl"]
 [ext_resource type="PackedScene" uid="uid://bd2uh8l2mcb1g" path="res://snek.tscn" id="3_wtrhm"]
 [ext_resource type="Environment" uid="uid://dpfnmv1x4cv2d" path="res://map_environments.tres" id="5_21toe"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_b04mf"]
-shading_mode = 2
-diffuse_mode = 1
-specular_mode = 2
-emission_enabled = true
-emission = Color(1, 1, 1, 1)
-texture_filter = 0
-texture_repeat = false
-
-[sub_resource type="TextMesh" id="TextMesh_obf4p"]
-material = SubResource("StandardMaterial3D_b04mf")
-text = "Follow me out!"
-font = ExtResource("2_ciabl")
-font_size = 20
-depth = 0.0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_elldp"]
 albedo_color = Color(1, 0, 0, 1)
@@ -55,12 +38,6 @@ script = ExtResource("1_tra7k")
 maze_block_scene = ExtResource("2_av3s7")
 snake_scene = ExtResource("3_wtrhm")
 
-[node name="ExitFollowMesh" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.06647, 1, 0)
-visible = false
-cast_shadow = 0
-mesh = SubResource("TextMesh_obf4p")
-
 [node name="PlayerMarker" type="MeshInstance3D" parent="."]
 transform = Transform3D(1.91069e-15, 4.37114e-08, 1, 0, 1, -4.37114e-08, -1, 0, 1.91069e-15, 0, 5, 0)
 layers = 262144
@@ -78,7 +55,7 @@ mesh = SubResource("PrismMesh_bg1dy")
 skeleton = NodePath("../..")
 
 [node name="EndMarker" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, 4, 78)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 4, 78)
 layers = 524288
 cast_shadow = 0
 mesh = SubResource("CylinderMesh_5a24f")

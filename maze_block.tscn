@@ -16,16 +16,16 @@ size = Vector3(0.673706, 3.30914, 3.54346)
 script = ExtResource("1_4ffp3")
 
 [node name="HedgeCornerNE" parent="." instance=ExtResource("1_lfmuq")]
-transform = Transform3D(1, 1.74846e-07, 2.38419e-07, -1.74846e-07, 1, -2.03059e-14, -2.38419e-07, -2.13484e-14, 1, 1.9, 0, -1.9)
+transform = Transform3D(1, 1.74846e-07, 1.50996e-07, 1.74846e-07, -1, 8.74228e-08, 1.50996e-07, -8.74228e-08, -1, 1.9, 0, -1.9)
 
 [node name="HedgeCornerSE" parent="." instance=ExtResource("1_lfmuq")]
-transform = Transform3D(-1, 1.74846e-07, 1.19209e-07, -1.74846e-07, -1, 8.74228e-08, 1.19209e-07, 8.74228e-08, 1, 1.9, 0, 1.9)
+transform = Transform3D(-2.50343e-07, 5.37236e-14, -1, -2.62269e-07, -1, 2.13163e-14, -1, 2.62269e-07, 2.50343e-07, 1.9, 0, 1.9)
 
 [node name="HedgeCornerNW" parent="." instance=ExtResource("1_lfmuq")]
-transform = Transform3D(3.93402e-07, -8.74228e-08, 1, -1.74846e-07, -1, -8.74228e-08, 1, -1.74846e-07, -3.93403e-07, -1.9, 0, -1.9)
+transform = Transform3D(-1, 3.49692e-07, 5.00687e-07, 3.49692e-07, 1, 1.74846e-07, -5.00686e-07, 1.74846e-07, -1, -1.9, 0, -1.9)
 
 [node name="HedgeCornerSW" parent="." instance=ExtResource("1_lfmuq")]
-transform = Transform3D(-1, 1.04251e-15, -2.30482e-07, -2.11919e-14, -1, 8.74228e-08, -2.30482e-07, 8.74228e-08, 1, -1.9, 0, 1.9)
+transform = Transform3D(4.37112e-08, -1.74846e-07, -1, -8.74232e-08, -1, 1.74845e-07, -1, 8.74232e-08, -4.37112e-08, -1.9, 0, 1.9)
 
 [node name="HedgeWallN" parent="." instance=ExtResource("2_1rctd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.9)

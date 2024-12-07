@@ -45,3 +45,43 @@ func add_exit():
 	
 func get_key_position() -> Vector3:
 	return $KeyRoot.global_position
+	
+func show_arrow(was_prev_north: bool, was_prev_south: bool, was_prev_east: bool, was_prev_west: bool):
+	# Arrows are configured on the maze block to always point right
+	# Pass "true" to show_arrow to flip the direction
+	if was_prev_south:
+		$HedgeWallE.show_arrow(true)
+		$HedgeWallW.show_arrow(false)
+		if !$HedgeWallE.visible && !$HedgeWallW.visible:
+			return
+		elif $HedgeWallE.visible:
+			$HedgeWallS.show_arrow(true)
+		else:
+			$HedgeWallS.show_arrow(false)
+	elif was_prev_north:
+		$HedgeWallE.show_arrow(false)
+		$HedgeWallW.show_arrow(true)
+		if !$HedgeWallE.visible && !$HedgeWallW.visible:
+			return
+		elif $HedgeWallE.visible:
+			$HedgeWallS.show_arrow(false)
+		else:
+			$HedgeWallS.show_arrow(true)
+	elif was_prev_east:
+		$HedgeWallN.show_arrow(true)
+		$HedgeWallS.show_arrow(false)
+		if !$HedgeWallN.visible && !$HedgeWallS.visible:
+			return
+		elif $HedgeWallN.visible:
+			$HedgeWallW.show_arrow(true)
+		else:
+			$HedgeWallW.show_arrow(false)
+	elif was_prev_west:
+		$HedgeWallN.show_arrow(false)
+		$HedgeWallS.show_arrow(true)
+		if !$HedgeWallN.visible && !$HedgeWallS.visible:
+			return
+		elif $HedgeWallN.visible:
+			$HedgeWallW.show_arrow(false)
+		else:
+			$HedgeWallW.show_arrow(true)
