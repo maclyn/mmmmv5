@@ -17,3 +17,14 @@ shape = SubResource("BoxShape3D_ftojm")
 
 [node name="SnekMesh" parent="." instance=ExtResource("1_ow6oc")]
 transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0.198364, 0.060313, 0)
+
+[node name="body" parent="SnekMesh" index="0"]
+layers = 65536
+
+[node name="left_eye" parent="SnekMesh" index="1"]
+layers = 65536
+
+[node name="right_eye" parent="SnekMesh" index="2"]
+layers = 65536
+
+[editable path="SnekMesh"]

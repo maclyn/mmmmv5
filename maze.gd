@@ -229,31 +229,7 @@ func show_path_out() -> void:
 	exit_block.hide_key()
 	for block in path_from_exit_to_entrance:
 		block.show_arrow()
-	#_add_snakes()
-	
-func update_follow_me_mesh(pct_complete: float, player_pos: Vector3) -> void:
-	# LERP exit follow mesh back
-	var segment_count = path_from_exit_to_entrance.size() - 1
-	if pct_complete > 0.0 && pct_complete < 1.0:
-		var segment_idx = lerpf(0.0, segment_count, pct_complete)
-		# Segment 0 -> between idx 0 and idx 1
-		# Segment 1 -> between idx 1 and idx 2
-		# Etc.
-		var start_idx = floori(segment_idx)
-		var pct_in_segment = segment_idx - start_idx
-		if start_idx + 1 < path_from_exit_to_entrance.size():
-			var start_block = path_from_exit_to_entrance[start_idx]
-			var end_block = path_from_exit_to_entrance[start_idx + 1]
-			var start_pos = _maze_block_position_to_center_in_scene_space(
-				start_block.position.x, start_block.position.y)
-			var end_pos = _maze_block_position_to_center_in_scene_space(
-				end_block.position.x, end_block.position.y)
-			#$ExitFollowMesh.position = Vector3(
-				#lerpf(start_pos.x, end_pos.x, pct_in_segment),
-				#$ExitFollowMesh.position.y,
-				#lerpf(start_pos.y, end_pos.y, pct_in_segment))
-	
-	#$ExitFollowMesh.look_at(Vector3(player_pos.x, $ExitFollowMesh.position.y, player_pos.z), Vector3.UP, true)
+	_add_snakes()
 	
 func update_player_marker(x: float, z: float, rotation_y: float):
 	$PlayerMarker.global_position = Vector3(x, 4, z)

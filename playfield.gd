@@ -77,11 +77,6 @@ func _process(_delta: float) -> void:
 			_format_label_to_remaining_timer()
 			$Maze.update_maps()
 			_update_minimap()
-			var elapsed = Time.get_ticks_msec() - last_game_state_transition_time
-			var segment_count = $Maze.path_block_count() - 1
-			var total_time_ms = _max_time_to_key_ms()
-			var pct_complete = elapsed / total_time_ms
-			$Maze.update_follow_me_mesh(pct_complete, $Player.global_position)
 			
 func _update_minimap():
 	var player_pos = $Player.global_position

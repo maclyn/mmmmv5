@@ -143,6 +143,7 @@ render_target_update_mode = 4
 
 [node name="MiniMapCamera" type="Camera3D" parent="MiniMapViewport"]
 transform = Transform3D(-1, 1.50996e-07, 6.60024e-15, 0, -4.37114e-08, 1, 1.50996e-07, 1, 4.37114e-08, 0, 10, 0)
+cull_mask = 983039
 environment = ExtResource("13_03e11")
 projection = 1
 size = 40.0

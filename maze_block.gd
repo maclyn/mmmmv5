@@ -49,6 +49,7 @@ func get_key_position() -> Vector3:
 func show_arrow(was_prev_north: bool, was_prev_south: bool, was_prev_east: bool, was_prev_west: bool):
 	# Arrows are configured on the maze block to always point right
 	# Pass "true" to show_arrow to flip the direction
+	$InPathBlock.visible = true
 	if was_prev_south:
 		$HedgeWallE.show_arrow(true)
 		$HedgeWallW.show_arrow(false)
