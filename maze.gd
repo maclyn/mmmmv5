@@ -1,6 +1,8 @@
 @tool
 extends Node3D
 
+signal on_snake_hit()
+
 @export var maze_block_scene: PackedScene
 @export var snake_scene: PackedScene
 
@@ -489,8 +491,8 @@ func _maze_block_position_to_center_in_scene_space(x: int, y: int) -> Vector2i:
 		
 func _add_snakes():
 	# New snake, who this
-	for x in MAZE_WIDTH_AND_HEIGHT:
-		var should_snake = randf_range(0.0, 1.0) <= SNAKE_SPAWN_PER_COL_ROW_PROB
+	for x in range(1, MAZE_WIDTH_AND_HEIGHT):
+		var should_snake = randf_range(0.0, 1.0) <= SNAKE_SPAWN_PER_COL_ROW_PROB && x != exit_block.position.x
 		if !should_snake:
 			continue
 		var north_to_south = randf_range(0.0, 1.0) > 0.5
@@ -501,8 +503,8 @@ func _add_snakes():
 		var near_exit = abs(x - exit_block.position.x) < 3
 		y_pos += ((1 if north_to_south else -1) * randf_range(0.2 if near_exit else 0.0, MAZE_DIMENS_IN_SCENE_SPACE * 0.5))
 		_new_snake(dx, dy, x_pos, y_pos, 90.0 if north_to_south else 270.0)
-	for y in MAZE_WIDTH_AND_HEIGHT:
-		var should_snake = randf_range(0.0, 1.0) <= SNAKE_SPAWN_PER_COL_ROW_PROB
+	for y in range(1, MAZE_WIDTH_AND_HEIGHT - 1):
+		var should_snake = randf_range(0.0, 1.0) <= SNAKE_SPAWN_PER_COL_ROW_PROB && y != exit_block.position.y
 		if !should_snake:
 			continue
 		var west_to_east = randf_range(0.0, 1.0) > 0.5
@@ -522,4 +524,8 @@ func _new_snake(dx: int, dy: int, start_x_pos: float, start_y_pos: float, snake_
 	snake.rotation.y = deg_to_rad(snake_rot_deg)
 	snake.init_snek(dx, dy, WEST_SNAKE_EDGE, EAST_SNAKE_EDGE, NORTH_SNAKE_EDGE, SOUTH_SNAKE_EDGE)
 	self.add_child(snake)
+	snake.connect("collided_with_player", _on_snake_hit)
 	snakes.push_back(snake)
+
+func _on_snake_hit():
+	on_snake_hit.emit()

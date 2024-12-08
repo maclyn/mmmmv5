@@ -149,7 +149,6 @@ projection = 1
 size = 40.0
 far = 200.0
 
-[connection signal="at_enemy" from="Player" to="." method="_on_player_at_enemy"]
 [connection signal="at_exit" from="Player" to="." method="_on_player_at_exit"]
 [connection signal="at_key" from="Player" to="." method="_on_player_at_key"]
 [connection signal="cheat" from="Player" to="." method="_on_player_cheat"]

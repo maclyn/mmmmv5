@@ -3,7 +3,6 @@ extends CharacterBody3D
 
 signal at_exit()
 signal at_key()
-signal at_enemy()
 signal cheat()
 signal look_direction_changed(position: Vector3, rotation_y: float)
 
@@ -89,8 +88,6 @@ func _physics_process(delta: float) -> void:
 			at_exit.emit()
 		if collider.is_in_group("key_group"):
 			at_key.emit()
-		if collider.is_in_group("enemy_group"):
-			at_enemy.emit()
 	
 	var angular_velocity = get_platform_angular_velocity()
 	look_rotation.y += angular_velocity.y * delta

@@ -8,7 +8,7 @@ size = Vector3(2.62314, 0.117279, 0.147339)
 
 [node name="Snek" type="AnimatableBody3D" groups=["enemy_group"]]
 collision_layer = 8
-collision_mask = 0
+collision_mask = 2
 script = ExtResource("1_glx8t")
 
 [node name="SnekCollider" type="CollisionShape3D" parent="."]
@@ -26,5 +26,10 @@ layers = 65536
 
 [node name="right_eye" parent="SnekMesh" index="2"]
 layers = 65536
+
+[node name="SnekNotifier" type="VisibleOnScreenNotifier3D" parent="."]
+aabb = AABB(-1.2, 0, -0.1, 2.4, 0.1, 0.2)
+
+[connection signal="screen_entered" from="SnekNotifier" to="." method="_on_snek_notifier_screen_entered"]
 
 [editable path="SnekMesh"]

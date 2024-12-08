@@ -96,9 +96,6 @@ func _on_player_cheat() -> void:
 		var real_pos = $Maze.before_start_block_position_in_scene_space()
 		$Player.position.x = real_pos.x + 1
 		$Player.position.z = real_pos.y + 1
-		
-func _on_player_at_enemy() -> void:
-	_game_over(false)
 	
 func _on_player_at_exit() -> void:
 	if game_state == GameState.RETURNING_TO_LOCK:
@@ -174,10 +171,11 @@ func _start_new_game(difficulty: GameDifficulty) -> void:
 		$Music/SpookyMusicPlayer.play()
 		$MiniMapViewport/MiniMapCamera.environment = dark_map_env
 	$Maze.set_map_env($MiniMapViewport/MiniMapCamera.environment)
+	$Maze.connect("on_snake_hit", _game_over)
 	
 	$GameTimer.start(_max_time_to_key_ms() / 1000.0)
 
-func _game_over(did_win: bool, skip_anim: bool = false) -> void:
+func _game_over(did_win: bool = false, skip_anim: bool = false) -> void:
 	game_state = GameState.GAME_OVER_WIN if did_win else GameState.GAME_OVER_LOSS
 	if did_win:
 		time_to_return = Time.get_ticks_msec() - last_game_state_transition_time
