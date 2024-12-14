@@ -11,7 +11,7 @@ var min_x = 0.0
 var max_x = 0.0
 var min_y = 0.0
 var max_y = 0.0
-var intitial_pos = Vector3()
+var start_pos = Vector3()
 
 # if the player hasn't seen us, we shouldn't kill the player
 # it's too cheezy
@@ -66,7 +66,7 @@ func init_snek(x_dir: int, y_dir: int, min_x: float, max_x: float, min_y: float,
 	self.max_x = max_x
 	self.min_y = min_y
 	self.max_y = max_y
-	self.initial_pos = position
+	self.start_pos = position
 	
 func attach_player(node: Node3D):
 	player_node = node
