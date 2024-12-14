@@ -34,6 +34,7 @@ const SOUTH_SNAKE_EDGE = (MAZE_DIMENS_IN_SCENE_SPACE) + (SNAKE_LENGTH * 3)
 const NORTH_SNAKE_EDGE = (-LEAD_IN_DIST * MAZE_BLOCK_SQUARE_SIZE) + (SNAKE_LENGTH * -3)
 
 var blocks: Dictionary = {}
+var player: Node3D = null
 var snakes: Array[Node] = []
 var entrance_block: MazeBlock = null
 var exit_block: MazeBlock = null
@@ -232,6 +233,9 @@ func show_path_out() -> void:
 	for block in path_from_exit_to_entrance:
 		block.show_arrow()
 	_add_snakes()
+	
+func attach_player(player: Node3D) -> void:
+	self.player = player
 	
 func update_player_marker(x: float, z: float, rotation_y: float):
 	$PlayerMarker.global_position = Vector3(x, 4, z)
@@ -523,6 +527,7 @@ func _new_snake(dx: int, dy: int, start_x_pos: float, start_y_pos: float, snake_
 	snake.position.z = start_y_pos
 	snake.rotation.y = deg_to_rad(snake_rot_deg)
 	snake.init_snek(dx, dy, WEST_SNAKE_EDGE, EAST_SNAKE_EDGE, NORTH_SNAKE_EDGE, SOUTH_SNAKE_EDGE)
+	snake.attach_player(player)
 	self.add_child(snake)
 	snake.connect("collided_with_player", _on_snake_hit)
 	snakes.push_back(snake)

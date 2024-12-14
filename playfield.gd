@@ -172,6 +172,7 @@ func _start_new_game(difficulty: GameDifficulty) -> void:
 		$MiniMapViewport/MiniMapCamera.environment = dark_map_env
 	$Maze.set_map_env($MiniMapViewport/MiniMapCamera.environment)
 	$Maze.connect("on_snake_hit", _game_over)
+	$Maze.attach_player($Player/Pivot)
 	
 	$GameTimer.start(_max_time_to_key_ms() / 1000.0)
 

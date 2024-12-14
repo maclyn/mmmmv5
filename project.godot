@@ -30,6 +30,7 @@ window/stretch/mode="viewport"
 key_group=""
 exit_group=""
 enemy_group=""
+player_group=""
 
 [gui]
 
