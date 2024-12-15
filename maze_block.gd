@@ -43,6 +43,10 @@ func add_exit():
 	$ExitRoot.visible = true
 	$ExitRoot/ExitCollider.disabled = false
 	
+func hide_exit():
+	$ExitRoot.visible = false
+	$ExitRoot/ExitCollider.disabled = true
+	
 func get_key_position() -> Vector3:
 	return $KeyRoot.global_position
 	

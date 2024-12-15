@@ -23,4 +23,4 @@ func show_arrow(flip_arrow_direction: bool) -> void:
 func _ready() -> void:
 	$Arrows/ArrowContainerSE.visible = direction == "S" || direction == "E"
 	$Arrows/ArrowContainerNW.visible = direction == "N" || direction == "W"
-	# $Arrows.visible = false
+	$Arrows.visible = false
