@@ -177,6 +177,8 @@ func _start_new_game(difficulty: GameDifficulty) -> void:
 	$GameTimer.start(_max_time_to_key_ms() / 1000.0)
 
 func _game_over(did_win: bool = false, skip_anim: bool = false) -> void:
+	if game_state == GameState.GAME_OVER_WIN || game_state == GameState.GAME_OVER_LOSS:
+		return
 	game_state = GameState.GAME_OVER_WIN if did_win else GameState.GAME_OVER_LOSS
 	if did_win:
 		time_to_return = Time.get_ticks_msec() - last_game_state_transition_time

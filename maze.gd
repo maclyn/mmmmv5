@@ -222,6 +222,7 @@ func clear_maze() -> void:
 	blocks = {}
 	for snake in snakes:
 		remove_child(snake)
+	snakes = []
 	exit_block = null 
 	path_from_exit_to_entrance.clear()
 		

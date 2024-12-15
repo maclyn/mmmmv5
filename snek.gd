@@ -52,8 +52,10 @@ func _physics_process(delta: float) -> void:
 			1)
 		if collision != null:
 			if !spotted:
+				print("Droppping unfair collision with unspotted player")
 				_reset_position(start_pos)
 			else:
+				print("Colliding!")
 				collided = true
 				collided_with_player.emit()
 
@@ -97,9 +99,7 @@ func _check_spotted() -> void:
 	query.hit_from_inside = false
 	var result = space_state.intersect_ray(query)
 	if result.size() < 1:
-		print("bad result")
 		return
 	var collider = result["collider"]
 	if collider.is_in_group("player_group"):
-		print("spotted player!")
 		spotted = true
