@@ -19,6 +19,15 @@ func show_arrow(flip_arrow_direction: bool) -> void:
 		$Arrows/ArrowContainerSE/maze_arrow.rotate_y(deg_to_rad(180))
 		$Arrows/ArrowContainerNW/maze_arrow.rotate_y(deg_to_rad(180))
 	$MapContainer.visible = false
+	
+func attach_portal(tex: Texture2D):
+	var new_mat = StandardMaterial3D.new()
+	new_mat.albedo_texture = tex
+	$hedge_wall/Cube2.material_override = new_mat
+	$hedge_wall.rotation.y = deg_to_rad(180)
+	
+func detach_portal():
+	$hedge_wall/Cube2.material_overlay = null
 
 func _ready() -> void:
 	$Arrows/ArrowContainerSE.visible = direction == "S" || direction == "E"

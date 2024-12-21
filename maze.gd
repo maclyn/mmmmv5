@@ -23,7 +23,8 @@ const MAZE_DIMENS_IN_SCENE_SPACE = MAZE_BLOCK_SQUARE_SIZE * MAZE_WIDTH_AND_HEIGH
 const LEAD_IN_DIST = 3
 const MAX_DIST = MAZE_WIDTH_AND_HEIGHT * 4
 const MAX_PCT_FORWARD_BLOCKS = 0.4
-const MAP_BLOCKS_APPROX_PERCENT = 0.02
+const MAP_BLOCKS_APPROX_PERCENT = 0.03
+const PERCENT_CHANCE_OF_PORTAL_BLOCK = 0.5
 const MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS = 2
 const SNAKE_SPAWN_PER_COL_ROW_PROB = 0.75 # most rows/columns get a snake
 
@@ -38,6 +39,8 @@ var player: Node3D = null
 var snakes: Array[Node] = []
 var entrance_block: MazeBlock = null
 var exit_block: MazeBlock = null
+var portal_block: MazeBlock = null
+var portal_exit_block: MazeBlock = null
 var path_from_exit_to_entrance: Array[MazeBlock] = []
 
 # Workaround for (what seems like) a bug in ViewportTexture
@@ -45,6 +48,7 @@ var path_from_exit_to_entrance: Array[MazeBlock] = []
 # draw_list_bind_uniform_set: Attempted to use the same texture in framebuffer attachment and a uniform (set: 3, binding: 1), this is not allowed.
 var viewport_texture: ViewportTexture
 var image_texture: ImageTexture
+var has_attached_portal_tex: bool = false
 
 enum GridDirection {
 	NORTH, 
@@ -223,8 +227,11 @@ func clear_maze() -> void:
 	for snake in snakes:
 		remove_child(snake)
 	snakes = []
+	portal_block = null
+	portal_exit_block = null
 	exit_block = null 
 	path_from_exit_to_entrance.clear()
+	has_attached_portal_tex = false
 		
 func update_maps() -> void:
 	image_texture.update(viewport_texture.get_image())
@@ -270,6 +277,14 @@ func _ready() -> void:
 		print("Generating maze in editor")
 		build_new_maze()
 		show_path_out()
+
+func _process(delta: float) -> void:
+	if portal_block != null: # && !has_attached_portal_tex:
+		$PortalViewport/PortalViewportCamera.global_position = portal_exit_block.instance.get_portal_camera_global_pos()
+		var portal_viewport_texture = $PortalViewport.get_texture()
+		var portal_image_texture = ImageTexture.create_from_image(portal_viewport_texture.get_image())
+		portal_block.instance.portal_south_wall(portal_image_texture)
+		has_attached_portal_tex = true
 
 func _movement_dir_as_xy_when_pointing_in_dir(movement: MovementDirection, direction: GridDirection) -> Vector2i:
 	var base_xy = _movement_dir_as_xy_when_pointing_north(movement)
@@ -481,12 +496,38 @@ func _generate_maze() -> Vector2i:
 	# Place objects in the scene, along with maps
 	for x in blocks:
 		for y in blocks[x]:
-			blocks[x][y].actualize(maze_block_scene, self)
+			var block = blocks[x][y]
+			block.actualize(maze_block_scene, self)
 			# Place a map on the south wall every ~50 blocks, and never
 			# in first or last 2 blocks
 			if y > MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS && y < MAZE_WIDTH_AND_HEIGHT - MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS && x > MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS && x < MAZE_WIDTH_AND_HEIGHT - MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS:
 				if randf_range(0.0, 1.0) > (1.0 - MAP_BLOCKS_APPROX_PERCENT):
-					blocks[x][y].instance.get_south_wall().add_map(image_texture)
+					block.instance.get_south_wall().add_map(image_texture)
+				# Maybe portal too?
+				if (
+					portal_block == null &&
+					block.walls[GridDirection.SOUTH] &&
+					randf_range(0.0, 1.0) > (1.0 - PERCENT_CHANCE_OF_PORTAL_BLOCK)
+				):
+					portal_block = block
+					# Choose an exit block
+					var half_grid_height = int(MAZE_WIDTH_AND_HEIGHT / 2)
+					for i in blocks:
+						for j in half_grid_height:
+							var y_idx = j + half_grid_height
+							if !_has_block_at_position(i, y_idx):
+								continue
+							var portal_exit_candidate = blocks[i][y_idx]
+							if (
+								portal_exit_candidate != null &&
+								portal_exit_candidate.walls[GridDirection.NORTH] &&
+								randf_range(0.0, 1.0) > (1.0 - PERCENT_CHANCE_OF_PORTAL_BLOCK)
+							):
+								portal_exit_block = portal_exit_candidate
+					if portal_exit_block == null:
+						portal_block = null
+					else:
+						print("Chose portal block at " + str(x) + ", " + str(y))
 	return _maze_block_position_to_center_in_scene_space(start_x, start_y)
 		
 func _maze_block_position_to_center_in_scene_space(x: int, y: int) -> Vector2i:

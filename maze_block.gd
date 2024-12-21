@@ -50,6 +50,15 @@ func hide_exit():
 func get_key_position() -> Vector3:
 	return $KeyRoot.global_position
 	
+func portal_south_wall(snapshot_of_north_wall: Texture2D) -> void:
+	$HedgeWallS.attach_portal(snapshot_of_north_wall)
+	
+func drop_portal():
+	$HedgeWallS.detach_portal()
+	
+func get_portal_camera_global_pos() -> Vector3:
+	return $PortalCameraAttachment.global_position
+	
 func show_arrow(
 	dir_from_prev_north: bool,
 	dir_from_prev_south: bool,

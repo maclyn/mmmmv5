@@ -1,29 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://fysapkwmvqjd"]
+[gd_scene load_steps=2 format=3 uid="uid://fysapkwmvqjd"]
 
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_n5kh7"]
-sky_top_color = Color(0.0406199, 0.153452, 1, 1)
-sky_horizon_color = Color(1, 1, 1, 1)
-
-[sub_resource type="Sky" id="Sky_24qyn"]
-sky_material = SubResource("ProceduralSkyMaterial_n5kh7")
-radiance_size = 4
-
-[sub_resource type="Environment" id="Environment_xx10y"]
-background_mode = 2
-background_camera_feed_id = 2
-sky = SubResource("Sky_24qyn")
-ambient_light_source = 3
-ambient_light_color = Color(1, 1, 1, 1)
-ambient_light_sky_contribution = 0.5
-reflected_light_source = 2
-fog_enabled = true
-fog_mode = 1
-fog_density = 1.0
-fog_sky_affect = 0.1
-fog_depth_begin = 7.5
-fog_depth_end = 35.0
+[ext_resource type="Environment" uid="uid://denqkg16qhgyr" path="res://player_camera_sun_env.tres" id="1_abukh"]
 
 [node name="PlayerCameraSun" type="Camera3D"]
 cull_mask = 262143
-environment = SubResource("Environment_xx10y")
+environment = ExtResource("1_abukh")
 current = true
