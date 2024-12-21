@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=4 uid="uid://dryg3y1f6logi"]
 
-[ext_resource type="PackedScene" uid="uid://6fny1l3cjwr1" path="res://map_frame.glb" id="1_2jcg4"]
+[ext_resource type="PackedScene" uid="uid://6fny1l3cjwr1" path="res://models/map_frame.glb" id="1_2jcg4"]
 [ext_resource type="Script" path="res://map_frame.gd" id="2_ve1w0"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5lyr7"]

@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://bvkisao0ginsj"]
+
+[ext_resource type="PackedScene" uid="uid://bst5ewg35addv" path="res://models/maze_arrow.glb" id="1_s85gn"]
+
+[node name="maze_arrow" instance=ExtResource("1_s85gn")]
+
+[node name="Cube_001" parent="." index="0"]
+cast_shadow = 0

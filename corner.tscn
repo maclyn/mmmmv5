@@ -1,7 +1,7 @@
 [gd_scene load_steps=7 format=4 uid="uid://8ggdbjul8d5x"]
 
-[ext_resource type="PackedScene" uid="uid://ri4yqdh5wvda" path="res://models/corner/corner.glb" id="1_upwqp"]
-[ext_resource type="Texture2D" uid="uid://de0wya7b36aog" path="res://models/corner/corner_Hedge_wall.png" id="2_0h3kf"]
+[ext_resource type="PackedScene" uid="uid://ri4yqdh5wvda" path="res://models/corner.glb" id="1_upwqp"]
+[ext_resource type="Texture2D" uid="uid://de0wya7b36aog" path="res://textures/corner_Hedge_wall.png" id="2_0h3kf"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_lrh3x"]
 size = Vector3(0.2, 4, 0.2)

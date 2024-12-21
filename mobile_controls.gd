@@ -50,10 +50,10 @@ func _input(event: InputEvent) -> void:
 			if absf(pct_x - 0.5) > absf(pct_y - 0.5):
 				Input.action_release("backwards")
 				Input.action_release("forward")
-				if pct_x > RUN_BOUNDARY_PCT || pct_x < (1.0 - RUN_BOUNDARY_PCT):
-					Input.action_press("run")
+				if pct_x > (0.5 - RUN_BOUNDARY_PCT) || pct_x < (0.5 + RUN_BOUNDARY_PCT):
+					Input.action_press("walk")
 				else:
-					Input.action_release("run")
+					Input.action_release("walk")
 				if pct_x < (0.5 - DEAD_ZONE_PCT):
 					Input.action_release("strafe_right")
 					Input.action_press("strafe_left")
@@ -63,10 +63,10 @@ func _input(event: InputEvent) -> void:
 			else:
 				Input.action_release("strafe_left")
 				Input.action_release("strafe_right")
-				if pct_y > RUN_BOUNDARY_PCT || pct_y < (1.0 - RUN_BOUNDARY_PCT):
-					Input.action_press("run")
+				if pct_y > (0.5 - RUN_BOUNDARY_PCT) || pct_y < (0.5 + RUN_BOUNDARY_PCT):
+					Input.action_press("walk")
 				else:
-					Input.action_release("run")
+					Input.action_release("walk")
 				if pct_y < (0.5 - DEAD_ZONE_PCT):
 					Input.action_release("backwards")
 					Input.action_press("forward")

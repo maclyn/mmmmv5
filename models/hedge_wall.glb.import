@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://6fny1l3cjwr1"
-path="res://.godot/imported/map_frame.glb-66dc102f74c9323a13ca9aa512108713.scn"
+uid="uid://bnaev4n1m6mwa"
+path="res://.godot/imported/hedge_wall.glb-eb02e91079fda77ffd9d448c0470d9cd.scn"
 
 [deps]
 
-source_file="res://map_frame.glb"
-dest_files=["res://.godot/imported/map_frame.glb-66dc102f74c9323a13ca9aa512108713.scn"]
+source_file="res://models/hedge_wall.glb"
+dest_files=["res://.godot/imported/hedge_wall.glb-eb02e91079fda77ffd9d448c0470d9cd.scn"]
 
 [params]
 

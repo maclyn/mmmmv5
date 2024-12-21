@@ -2,8 +2,8 @@
 
 [ext_resource type="Script" path="res://hedge_wall.gd" id="1_b1m0m"]
 [ext_resource type="PackedScene" uid="uid://dryg3y1f6logi" path="res://map_frame.tscn" id="2_xxu40"]
-[ext_resource type="PackedScene" uid="uid://bnaev4n1m6mwa" path="res://models/hedge_wall/hedge_wall.glb" id="3_s56yf"]
-[ext_resource type="Texture2D" uid="uid://jg3ym8is1e51" path="res://models/hedge_wall/hedge_wall_Hedge_wall.png" id="4_iprly"]
+[ext_resource type="PackedScene" uid="uid://bnaev4n1m6mwa" path="res://models/hedge_wall.glb" id="3_s56yf"]
+[ext_resource type="Texture2D" uid="uid://jg3ym8is1e51" path="res://textures/hedge_wall_Hedge_wall.png" id="4_iprly"]
 [ext_resource type="PackedScene" uid="uid://bst5ewg35addv" path="res://models/maze_arrow.glb" id="5_iojbm"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_k7ovi"]
@@ -66,18 +66,15 @@ shape = SubResource("BoxShape3D_jisk3")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.143847)
 
 [node name="Arrows" type="Node3D" parent="."]
-visible = false
 
 [node name="ArrowContainerNW" type="Node3D" parent="Arrows"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.156845)
-visible = false
 
 [node name="maze_arrow" parent="Arrows/ArrowContainerNW" instance=ExtResource("5_iojbm")]
 transform = Transform3D(-4.37114e-08, -8.74228e-08, -1, 0, -1, 8.74228e-08, -1, 3.82137e-15, 4.37114e-08, 0, 0, 0)
 
 [node name="ArrowContainerSE" type="Node3D" parent="Arrows"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.143847)
-visible = false
 
 [node name="maze_arrow" parent="Arrows/ArrowContainerSE" instance=ExtResource("5_iojbm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0)

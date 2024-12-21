@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://de0wya7b36aog"
-path.s3tc="res://.godot/imported/corner_Hedge_wall.png-ef47efd4592840f41c8f1511a91b7b34.s3tc.ctex"
-path.etc2="res://.godot/imported/corner_Hedge_wall.png-ef47efd4592840f41c8f1511a91b7b34.etc2.ctex"
+path.s3tc="res://.godot/imported/corner_Hedge_wall.png-b4a9d763fdf492ecfda60296584b524d.s3tc.ctex"
+path.etc2="res://.godot/imported/corner_Hedge_wall.png-b4a9d763fdf492ecfda60296584b524d.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://models/corner/corner_Hedge_wall.png"
-dest_files=["res://.godot/imported/corner_Hedge_wall.png-ef47efd4592840f41c8f1511a91b7b34.s3tc.ctex", "res://.godot/imported/corner_Hedge_wall.png-ef47efd4592840f41c8f1511a91b7b34.etc2.ctex"]
+source_file="res://textures/corner_Hedge_wall.png"
+dest_files=["res://.godot/imported/corner_Hedge_wall.png-b4a9d763fdf492ecfda60296584b524d.s3tc.ctex", "res://.godot/imported/corner_Hedge_wall.png-b4a9d763fdf492ecfda60296584b524d.etc2.ctex"]
 
 [params]
 

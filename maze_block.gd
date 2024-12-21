@@ -50,43 +50,43 @@ func hide_exit():
 func get_key_position() -> Vector3:
 	return $KeyRoot.global_position
 	
-func show_arrow(was_prev_north: bool, was_prev_south: bool, was_prev_east: bool, was_prev_west: bool):
+func show_arrow(
+	dir_from_prev_north: bool,
+	dir_from_prev_south: bool,
+	dir_from_prev_east: bool,
+	dir_from_prev_west: bool
+):
 	# Arrows are configured on the maze block to always point right
 	# Pass "true" to show_arrow to flip the direction
+	# This operates OPPOSITE to how you might think when in "exit" mode,
+	# since block->prev is the previous when walking to the key
+	# block->prev is actually block->next when exiting!
 	$InPathBlock.visible = true
-	if was_prev_south:
-		$HedgeWallE.show_arrow(true)
-		$HedgeWallW.show_arrow(false)
-		if !$HedgeWallE.visible && !$HedgeWallW.visible:
-			return
-		elif $HedgeWallE.visible:
-			$HedgeWallS.show_arrow(true)
-		else:
-			$HedgeWallS.show_arrow(false)
-	elif was_prev_north:
+	if dir_from_prev_north: # is_next_south
 		$HedgeWallE.show_arrow(false)
 		$HedgeWallW.show_arrow(true)
-		if !$HedgeWallE.visible && !$HedgeWallW.visible:
-			return
-		elif $HedgeWallE.visible:
-			$HedgeWallS.show_arrow(false)
+		if $HedgeWallE.visible:
+			$HedgeWallN.show_arrow(false)
 		else:
+			$HedgeWallN.show_arrow(true)
+	elif dir_from_prev_south: # is_next_north
+		$HedgeWallE.show_arrow(true)
+		$HedgeWallW.show_arrow(false)
+		if $HedgeWallE.visible:
 			$HedgeWallS.show_arrow(true)
-	elif was_prev_east:
+		else:
+			$HedgeWallS.show_arrow(false)
+	elif dir_from_prev_east: # is_next_west
 		$HedgeWallN.show_arrow(true)
 		$HedgeWallS.show_arrow(false)
-		if !$HedgeWallN.visible && !$HedgeWallS.visible:
-			return
-		elif $HedgeWallN.visible:
-			$HedgeWallW.show_arrow(true)
+		if $HedgeWallN.visible:
+			$HedgeWallE.show_arrow(true)
 		else:
-			$HedgeWallW.show_arrow(false)
-	elif was_prev_west:
+			$HedgeWallE.show_arrow(false)
+	elif dir_from_prev_west: # is_next_east
 		$HedgeWallN.show_arrow(false)
 		$HedgeWallS.show_arrow(true)
-		if !$HedgeWallN.visible && !$HedgeWallS.visible:
-			return
-		elif $HedgeWallN.visible:
+		if $HedgeWallN.visible:
 			$HedgeWallW.show_arrow(false)
 		else:
 			$HedgeWallW.show_arrow(true)
