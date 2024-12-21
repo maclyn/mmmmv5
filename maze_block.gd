@@ -1,6 +1,10 @@
 @tool
 extends Node3D
 
+var _is_portal: bool = false
+var _has_updated_tex = false
+var _exit_portal: Node3D = null
+
 func _ready():
 	$HedgeWallN.rotate_mesh(PI if randi_range(0, 1) == 0 else 0.0)
 	$HedgeWallE.rotate_mesh(PI if randi_range(0, 1) == 0 else 0.0)
@@ -14,6 +18,7 @@ func _ready():
 	$HedgeCornerSW.rotate_y((PI / 2) * randi_range(0, 4))
 	$HedgeCornerNW.rotate_z(PI if randi_range(0, 1) == 0 else 0.0)
 	$HedgeCornerNW.rotate_y((PI / 2) * randi_range(0, 4))
+	$PortalBody/PortalCollider.disabled = true
 
 func configure_walls(north: bool, east: bool, south: bool, west: bool):
 	$HedgeWallN.visible = north
@@ -49,9 +54,29 @@ func hide_exit():
 	
 func get_key_position() -> Vector3:
 	return $KeyRoot.global_position
+
+func enable_portal(exit_portal_maze_block: Node3D) -> void:
+	_is_portal = true
+	_exit_portal = exit_portal_maze_block
+	$PortalBody/PortalCollider.disabled = false
 	
-func portal_south_wall(snapshot_of_north_wall: Texture2D) -> void:
-	$HedgeWallS.attach_portal(snapshot_of_north_wall)
+func get_portal_exit() -> Vector2:
+	var start = $HedgeWallN.global_position
+	var fwd = $HedgeWallN.get_global_transform().basis.z
+	var exit = start + (fwd * 0.5)
+	return Vector2(exit.x, exit.z)
+	
+func get_snapshot() -> Texture2D:
+	var portal_viewport_texture = $PortalViewport.get_texture()
+	var image = portal_viewport_texture.get_image()
+	var portal_image_texture = ImageTexture.create_from_image(image)
+	return portal_image_texture
+
+func _process(delta: float) -> void:
+	## todo: only get this once
+	if _is_portal:
+		get_south_wall().remove_map()
+		$HedgeWallS.attach_portal(_exit_portal.get_snapshot())
 	
 func drop_portal():
 	$HedgeWallS.detach_portal()

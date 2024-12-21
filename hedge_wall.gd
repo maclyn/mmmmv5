@@ -12,6 +12,10 @@ func add_map(tex: Texture2D):
 	new_map.attach_viewport_tex(tex)
 	new_map.rotation.y = deg_to_rad(90)
 	$MapContainer.add_child(new_map)
+	
+func remove_map():
+	if $MapContainer.get_child_count() > 0:
+		$MapContainer.remove_child($MapContainer.get_child(0))
 
 func show_arrow(flip_arrow_direction: bool) -> void:
 	$Arrows.visible = true
@@ -21,10 +25,10 @@ func show_arrow(flip_arrow_direction: bool) -> void:
 	$MapContainer.visible = false
 	
 func attach_portal(tex: Texture2D):
+	rotate_mesh(0)
 	var new_mat = StandardMaterial3D.new()
 	new_mat.albedo_texture = tex
 	$hedge_wall/Cube2.material_override = new_mat
-	$hedge_wall.rotation.y = deg_to_rad(180)
 	
 func detach_portal():
 	$hedge_wall/Cube2.material_overlay = null

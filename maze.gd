@@ -237,6 +237,8 @@ func update_maps() -> void:
 	image_texture.update(viewport_texture.get_image())
 	
 func show_path_out() -> void:
+	if portal_block != null:
+		portal_block.instance.drop_portal()
 	exit_block.hide_key()
 	for block in path_from_exit_to_entrance:
 		block.show_arrow()
@@ -264,6 +266,9 @@ func before_end_block_position_in_scene_space() -> Vector2i:
 func path_block_count() -> int:
 	return path_from_exit_to_entrance.size()
 	
+func get_portal_exit_pos() -> Vector2:
+	return portal_exit_block.instance.get_portal_exit()
+	
 func set_map_env(env: Environment):
 	$MapViewport/MapViewportCamera.environment = env
 
@@ -277,14 +282,6 @@ func _ready() -> void:
 		print("Generating maze in editor")
 		build_new_maze()
 		show_path_out()
-
-func _process(delta: float) -> void:
-	if portal_block != null: # && !has_attached_portal_tex:
-		$PortalViewport/PortalViewportCamera.global_position = portal_exit_block.instance.get_portal_camera_global_pos()
-		var portal_viewport_texture = $PortalViewport.get_texture()
-		var portal_image_texture = ImageTexture.create_from_image(portal_viewport_texture.get_image())
-		portal_block.instance.portal_south_wall(portal_image_texture)
-		has_attached_portal_tex = true
 
 func _movement_dir_as_xy_when_pointing_in_dir(movement: MovementDirection, direction: GridDirection) -> Vector2i:
 	var base_xy = _movement_dir_as_xy_when_pointing_north(movement)
@@ -498,6 +495,11 @@ func _generate_maze() -> Vector2i:
 		for y in blocks[x]:
 			var block = blocks[x][y]
 			block.actualize(maze_block_scene, self)
+			# Uncomment this block to make the first south wall you see be a portal blockww
+			if portal_block == null && x == 10 && block.walls[GridDirection.SOUTH]:
+				portal_block = block
+			if portal_block != null && portal_exit_block == null && block.walls[GridDirection.NORTH]:
+				portal_exit_block = block
 			# Place a map on the south wall every ~50 blocks, and never
 			# in first or last 2 blocks
 			if y > MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS && y < MAZE_WIDTH_AND_HEIGHT - MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS && x > MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS && x < MAZE_WIDTH_AND_HEIGHT - MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS:
@@ -528,6 +530,8 @@ func _generate_maze() -> Vector2i:
 						portal_block = null
 					else:
 						print("Chose portal block at " + str(x) + ", " + str(y))
+	if portal_block:
+		portal_block.instance.enable_portal(portal_exit_block.instance)
 	return _maze_block_position_to_center_in_scene_space(start_x, start_y)
 		
 func _maze_block_position_to_center_in_scene_space(x: int, y: int) -> Vector2i:

@@ -112,6 +112,10 @@ func _on_player_at_key() -> void:
 	var prev_block = $Maze.before_end_block_position_in_scene_space()
 	$Player.look_at(Vector3(prev_block.x, $Player.global_position.y, prev_block.y), Vector3.UP, true)
 	
+func _on_player_at_portal() -> void:
+	var exit_xz = $Maze.get_portal_exit_pos()
+	$Player.global_position = Vector3(exit_xz.x, $Player.global_position.y, exit_xz.y)
+	
 func _on_game_timer_timeout() -> void:
 	_game_over(false)
 
