@@ -48,7 +48,6 @@ var path_from_exit_to_entrance: Array[MazeBlock] = []
 # draw_list_bind_uniform_set: Attempted to use the same texture in framebuffer attachment and a uniform (set: 3, binding: 1), this is not allowed.
 var viewport_texture: ViewportTexture
 var image_texture: ImageTexture
-var has_attached_portal_tex: bool = false
 
 enum GridDirection {
 	NORTH, 
@@ -231,7 +230,6 @@ func clear_maze() -> void:
 	portal_exit_block = null
 	exit_block = null 
 	path_from_exit_to_entrance.clear()
-	has_attached_portal_tex = false
 		
 func update_maps() -> void:
 	image_texture.update(viewport_texture.get_image())
@@ -532,6 +530,7 @@ func _generate_maze() -> Vector2i:
 						print("Chose portal block at " + str(x) + ", " + str(y))
 	if portal_block:
 		portal_block.instance.enable_portal(portal_exit_block.instance)
+		portal_exit_block.instance.set_as_portal_exit()
 	return _maze_block_position_to_center_in_scene_space(start_x, start_y)
 		
 func _maze_block_position_to_center_in_scene_space(x: int, y: int) -> Vector2i:

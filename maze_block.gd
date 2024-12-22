@@ -2,7 +2,7 @@
 extends Node3D
 
 var _is_portal: bool = false
-var _has_updated_tex = false
+var _has_updated_updated_portal_tex: bool = false
 var _exit_portal: Node3D = null
 
 func _ready():
@@ -61,6 +61,7 @@ func enable_portal(exit_portal_maze_block: Node3D) -> void:
 	_exit_portal = exit_portal_maze_block
 	$PortalBody/PortalCollider.disabled = false
 	$PortalBody/PortalSurface.visible = true
+
 	
 func get_portal_exit() -> Vector2:
 	var start = $HedgeWallN.global_position
@@ -68,27 +69,32 @@ func get_portal_exit() -> Vector2:
 	var exit = start + (fwd * 0.5)
 	return Vector2(exit.x, exit.z)
 	
+func set_as_portal_exit():
+	# Camera is a globally shared (non-unique) node, so even though it's
+	# positioned correctly in the MazeBlock scene, it needs to be moved to the
+	# center of *this* block
+	var basis_for_cam = Vector3($InPathBlock.global_position)
+	basis_for_cam.y = 2
+	$PortalViewport/PortalCamera.global_position = basis_for_cam
+	
 func get_snapshot() -> Texture2D:
+	await RenderingServer.frame_post_draw
 	var portal_viewport_texture = $PortalViewport.get_texture()
 	var image = portal_viewport_texture.get_image()
 	var portal_image_texture = ImageTexture.create_from_image(image)
 	return portal_image_texture
 
 func _process(delta: float) -> void:
-	## todo: only get this once
-	if _is_portal:
+	if _is_portal && !_has_updated_updated_portal_tex:
 		get_south_wall().remove_map()
-		var new_mat = StandardMaterial3D.new()
-		new_mat.albedo_texture = _exit_portal.get_snapshot()
-		$PortalBody/PortalSurface.material_override = new_mat
+		var tex = await _exit_portal.get_snapshot()
+		$PortalBody/PortalSurface.get_active_material(0).set_shader_parameter("portal_tex", tex)
+		_has_updated_updated_portal_tex = true
 	
 func drop_portal():
 	$PortalBody/PortalSurface.visible = false
 	$PortalBody/PortalCollider.disabled = true
 	$HedgeWallS.detach_portal()
-	
-func get_portal_camera_global_pos() -> Vector3:
-	return $PortalCameraAttachment.global_position
 	
 func show_arrow(
 	dir_from_prev_north: bool,
