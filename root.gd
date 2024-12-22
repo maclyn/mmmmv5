@@ -25,8 +25,7 @@ func _hide_main_menu():
 	$MainMenu.hide_main_menu()
 	$MainMenu.visible = false
 	if !Globals.is_mobile():
-		pass
-		# Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func _on_main_menu_start_easy_game() -> void:
 	_hide_main_menu()

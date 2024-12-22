@@ -24,7 +24,7 @@ const LEAD_IN_DIST = 3
 const MAX_DIST = MAZE_WIDTH_AND_HEIGHT * 4
 const MAX_PCT_FORWARD_BLOCKS = 0.4
 const MAP_BLOCKS_APPROX_PERCENT = 0.03
-const PERCENT_CHANCE_OF_PORTAL_BLOCK = 0.5
+const PERCENT_CHANCE_OF_PORTAL_BLOCK = 0.1
 const MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS = 2
 const SNAKE_SPAWN_PER_COL_ROW_PROB = 0.75 # most rows/columns get a snake
 
@@ -494,10 +494,11 @@ func _generate_maze() -> Vector2i:
 			var block = blocks[x][y]
 			block.actualize(maze_block_scene, self)
 			# Uncomment this block to make the first south wall you see be a portal blockww
-			if portal_block == null && x == 10 && block.walls[GridDirection.SOUTH]:
-				portal_block = block
-			if portal_block != null && portal_exit_block == null && block.walls[GridDirection.NORTH]:
-				portal_exit_block = block
+			#if portal_block == null && x == 10 && block.walls[GridDirection.SOUTH]:
+				#portal_block = block
+			#if portal_block != null && portal_exit_block == null && block.walls[GridDirection.NORTH]:
+				#portal_exit_block = block
+
 			# Place a map on the south wall every ~50 blocks, and never
 			# in first or last 2 blocks
 			if y > MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS && y < MAZE_WIDTH_AND_HEIGHT - MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS && x > MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS && x < MAZE_WIDTH_AND_HEIGHT - MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS:

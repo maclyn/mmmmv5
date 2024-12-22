@@ -1,0 +1,5 @@
+@tool
+extends Node3D
+
+func attach_portal_tex(tex: Texture2D):
+	$Cube.get_active_material(0).set_shader_parameter("portal_tex", tex)

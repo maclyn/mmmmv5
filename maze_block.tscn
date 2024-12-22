@@ -1,13 +1,12 @@
-[gd_scene load_steps=16 format=3 uid="uid://dkpdan17o8x1l"]
+[gd_scene load_steps=13 format=3 uid="uid://dkpdan17o8x1l"]
 
 [ext_resource type="Script" path="res://maze_block.gd" id="1_4ffp3"]
 [ext_resource type="PackedScene" uid="uid://8ggdbjul8d5x" path="res://corner.tscn" id="1_lfmuq"]
 [ext_resource type="PackedScene" uid="uid://8jlfvxcekk5b" path="res://hedge_wall.tscn" id="2_1rctd"]
 [ext_resource type="PackedScene" uid="uid://bhs5s6lrtjexd" path="res://models/key.glb" id="4_w8e5i"]
 [ext_resource type="PackedScene" uid="uid://bttt1jbt1sie7" path="res://models/keyhole.glb" id="5_gaiax"]
-[ext_resource type="Shader" path="res://shaders/portal.gdshader" id="6_3mof0"]
+[ext_resource type="PackedScene" uid="uid://ittim0h2qbue" path="res://models/derived/portal_derived.tscn" id="6_c73up"]
 [ext_resource type="Environment" uid="uid://denqkg16qhgyr" path="res://player_camera_sun_env.tres" id="6_ikqls"]
-[ext_resource type="Texture2D" uid="uid://qhvouxcgdt0i" path="res://textures/jump_button.png" id="7_w1mbm"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_d768j"]
 size = Vector3(0.463318, 1, 1.22662)
@@ -26,28 +25,20 @@ size = Vector3(4, 0.01, 4)
 [sub_resource type="BoxShape3D" id="BoxShape3D_lt8bp"]
 size = Vector3(3.6, 4, 0.1)
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_yjyh6"]
-render_priority = 0
-shader = ExtResource("6_3mof0")
-shader_parameter/portal_tex = ExtResource("7_w1mbm")
-
-[sub_resource type="BoxMesh" id="BoxMesh_neckw"]
-size = Vector3(4, 4, 0.02)
-
 [node name="MazeBlock" type="Node3D"]
 script = ExtResource("1_4ffp3")
 
 [node name="HedgeCornerNE" parent="." instance=ExtResource("1_lfmuq")]
-transform = Transform3D(-4.17252e-07, 3.49691e-07, 1, -8.74224e-08, -1, 3.49691e-07, 1, -8.74223e-08, 4.17252e-07, 1.9, 0, -1.9)
+transform = Transform3D(1, -8.74224e-08, 3.17905e-07, -8.74224e-08, -1, 3.49691e-07, 3.17904e-07, -3.49691e-07, -1, 1.9, 0, -1.9)
 
 [node name="HedgeCornerSE" parent="." instance=ExtResource("1_lfmuq")]
-transform = Transform3D(-4.80825e-07, -6.99384e-07, 1, 8.74224e-08, -1, -6.99384e-07, 1, 8.74221e-08, 4.80825e-07, 1.9, 0, 1.9)
+transform = Transform3D(4.80825e-07, 6.99384e-07, -1, -1.74845e-07, 1, 6.99384e-07, 1, 1.74845e-07, 4.80825e-07, 1.9, 0, 1.9)
 
 [node name="HedgeCornerNW" parent="." instance=ExtResource("1_lfmuq")]
-transform = Transform3D(-1.07283e-07, 2.62269e-07, -1, 2.62269e-07, 1, 2.62269e-07, 1, -2.6227e-07, -1.07284e-07, -1.9, 0, -1.9)
+transform = Transform3D(-1.94706e-07, 1.74846e-07, -1, -2.62269e-07, -1, -1.74846e-07, -1, 2.6227e-07, 1.94707e-07, -1.9, 0, -1.9)
 
 [node name="HedgeCornerSW" parent="." instance=ExtResource("1_lfmuq")]
-transform = Transform3D(-1, 2.62269e-07, -6.04022e-07, 2.62269e-07, 1, 2.62269e-07, 6.04021e-07, 2.62268e-07, -1, -1.9, 0, 1.9)
+transform = Transform3D(1, -1.74846e-07, 7.78867e-07, -1.74846e-07, -1, -2.62269e-07, 7.78867e-07, 2.62268e-07, -1, -1.9, 0, 1.9)
 
 [node name="HedgeWallN" parent="." instance=ExtResource("2_1rctd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.9)
@@ -104,12 +95,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.286952)
 shape = SubResource("BoxShape3D_lt8bp")
 disabled = true
 
-[node name="PortalSurface" type="MeshInstance3D" parent="PortalBody"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.346531)
-visible = false
-material_override = SubResource("ShaderMaterial_yjyh6")
-mesh = SubResource("BoxMesh_neckw")
-skeleton = NodePath("../..")
+[node name="PortalSurface" parent="PortalBody" instance=ExtResource("6_c73up")]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 0.02, 0, 0, 0.364401)
 
 [node name="PortalViewport" type="SubViewport" parent="."]
 render_target_update_mode = 1

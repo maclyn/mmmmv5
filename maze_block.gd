@@ -88,13 +88,12 @@ func _process(delta: float) -> void:
 	if _is_portal && !_has_updated_updated_portal_tex:
 		get_south_wall().remove_map()
 		var tex = await _exit_portal.get_snapshot()
-		$PortalBody/PortalSurface.get_active_material(0).set_shader_parameter("portal_tex", tex)
+		$PortalBody/PortalSurface.attach_portal_tex(tex)
 		_has_updated_updated_portal_tex = true
 	
 func drop_portal():
 	$PortalBody/PortalSurface.visible = false
 	$PortalBody/PortalCollider.disabled = true
-	$HedgeWallS.detach_portal()
 	
 func show_arrow(
 	dir_from_prev_north: bool,
