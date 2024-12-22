@@ -91,6 +91,7 @@ func _physics_process(delta: float) -> void:
 			at_key.emit()
 		if collider.is_in_group("portal_group"):
 			at_portal.emit()
+		print(collider)
 	
 	var angular_velocity = get_platform_angular_velocity()
 	look_rotation.y += angular_velocity.y * delta

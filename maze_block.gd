@@ -19,6 +19,7 @@ func _ready():
 	$HedgeCornerNW.rotate_z(PI if randi_range(0, 1) == 0 else 0.0)
 	$HedgeCornerNW.rotate_y((PI / 2) * randi_range(0, 4))
 	$PortalBody/PortalCollider.disabled = true
+	$PortalBody/PortalSurface.visible = false
 
 func configure_walls(north: bool, east: bool, south: bool, west: bool):
 	$HedgeWallN.visible = north
@@ -59,6 +60,7 @@ func enable_portal(exit_portal_maze_block: Node3D) -> void:
 	_is_portal = true
 	_exit_portal = exit_portal_maze_block
 	$PortalBody/PortalCollider.disabled = false
+	$PortalBody/PortalSurface.visible = true
 	
 func get_portal_exit() -> Vector2:
 	var start = $HedgeWallN.global_position
@@ -76,9 +78,13 @@ func _process(delta: float) -> void:
 	## todo: only get this once
 	if _is_portal:
 		get_south_wall().remove_map()
-		$HedgeWallS.attach_portal(_exit_portal.get_snapshot())
+		var new_mat = StandardMaterial3D.new()
+		new_mat.albedo_texture = _exit_portal.get_snapshot()
+		$PortalBody/PortalSurface.material_override = new_mat
 	
 func drop_portal():
+	$PortalBody/PortalSurface.visible = false
+	$PortalBody/PortalCollider.disabled = true
 	$HedgeWallS.detach_portal()
 	
 func get_portal_camera_global_pos() -> Vector3:
