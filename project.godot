@@ -32,6 +32,7 @@ exit_group=""
 enemy_group=""
 player_group=""
 portal_group=""
+quicksand_group=""
 
 [gui]
 

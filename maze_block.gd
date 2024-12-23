@@ -20,6 +20,8 @@ func _ready():
 	$HedgeCornerNW.rotate_y((PI / 2) * randi_range(0, 4))
 	$PortalBody/PortalCollider.disabled = true
 	$PortalBody/PortalSurface.visible = false
+	$QuickSand/QuickSandCollider.disabled = true
+	$QuickSand/QuickSandSurface.visible = false
 
 func configure_walls(north: bool, east: bool, south: bool, west: bool):
 	$HedgeWallN.visible = north
@@ -62,12 +64,15 @@ func enable_portal(exit_portal_maze_block: Node3D) -> void:
 	$PortalBody/PortalCollider.disabled = false
 	$PortalBody/PortalSurface.visible = true
 
-	
 func get_portal_exit() -> Vector2:
 	var start = $HedgeWallN.global_position
 	var fwd = $HedgeWallN.get_global_transform().basis.z
 	var exit = start + (fwd * 0.5)
 	return Vector2(exit.x, exit.z)
+	
+func add_quicksand() -> void:
+	$QuickSand/QuickSandCollider.disabled = false
+	$QuickSand/QuickSandSurface.visible = true
 	
 func set_as_portal_exit():
 	# Camera is a globally shared (non-unique) node, so even though it's

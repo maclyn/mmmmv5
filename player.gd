@@ -4,6 +4,7 @@ extends CharacterBody3D
 signal at_exit()
 signal at_key()
 signal at_portal()
+signal at_quicksand()
 signal cheat()
 signal look_direction_changed(position: Vector3, rotation_y: float)
 
@@ -91,6 +92,8 @@ func _physics_process(delta: float) -> void:
 			at_key.emit()
 		if collider.is_in_group("portal_group"):
 			at_portal.emit()
+		if collider.is_in_group("quicksand_group"):
+			at_quicksand.emit()
 	
 	var angular_velocity = get_platform_angular_velocity()
 	look_rotation.y += angular_velocity.y * delta

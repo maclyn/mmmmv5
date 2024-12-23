@@ -152,6 +152,7 @@ far = 200.0
 [connection signal="at_exit" from="Player" to="." method="_on_player_at_exit"]
 [connection signal="at_key" from="Player" to="." method="_on_player_at_key"]
 [connection signal="at_portal" from="Player" to="." method="_on_player_at_portal"]
+[connection signal="at_quicksand" from="Player" to="." method="_on_player_at_quicksand"]
 [connection signal="cheat" from="Player" to="." method="_on_player_cheat"]
 [connection signal="look_direction_changed" from="Player" to="." method="_on_player_look_direction_changed"]
 [connection signal="timeout" from="GameTimer" to="." method="_on_game_timer_timeout"]

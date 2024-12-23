@@ -25,6 +25,7 @@ const MAX_DIST = MAZE_WIDTH_AND_HEIGHT * 4
 const MAX_PCT_FORWARD_BLOCKS = 0.4
 const MAP_BLOCKS_APPROX_PERCENT = 0.03
 const PERCENT_CHANCE_OF_PORTAL_BLOCK = 0.1
+const PERCENT_CHANCE_OF_QUICKSAND_BLOCK = 0.05
 const MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS = 2
 const SNAKE_SPAWN_PER_COL_ROW_PROB = 0.75 # most rows/columns get a snake
 
@@ -488,12 +489,14 @@ func _generate_maze() -> Vector2i:
 			path_from_exit_to_entrance.push_back(node)
 			node = node.prev
 		
-	# Place objects in the scene, along with maps
+	# Place objects in the scene
+	# Also choose special maze blocks
 	for x in blocks:
 		for y in blocks[x]:
 			var block = blocks[x][y]
 			block.actualize(maze_block_scene, self)
-			# Uncomment this block to make the first south wall you see be a portal blockww
+			
+			# Uncomment this block to make the first south wall you see be a portal block
 			#if portal_block == null && x == 10 && block.walls[GridDirection.SOUTH]:
 				#portal_block = block
 			#if portal_block != null && portal_exit_block == null && block.walls[GridDirection.NORTH]:
@@ -504,6 +507,7 @@ func _generate_maze() -> Vector2i:
 			if y > MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS && y < MAZE_WIDTH_AND_HEIGHT - MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS && x > MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS && x < MAZE_WIDTH_AND_HEIGHT - MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS:
 				if randf_range(0.0, 1.0) > (1.0 - MAP_BLOCKS_APPROX_PERCENT):
 					block.instance.get_south_wall().add_map(image_texture)
+				
 				# Maybe portal too?
 				if (
 					portal_block == null &&
@@ -529,6 +533,9 @@ func _generate_maze() -> Vector2i:
 						portal_block = null
 					else:
 						print("Chose portal block at " + str(x) + ", " + str(y))
+				elif randf_range(0.0, 1.0) > (1.0 - PERCENT_CHANCE_OF_QUICKSAND_BLOCK):
+					print("Add quicksand block at " + str(x) + ", " + str(y))
+					block.instance.add_quicksand()
 	if portal_block:
 		portal_block.instance.enable_portal(portal_exit_block.instance)
 		portal_exit_block.instance.set_as_portal_exit()

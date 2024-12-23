@@ -116,6 +116,9 @@ func _on_player_at_portal() -> void:
 	var exit_xz = $Maze.get_portal_exit_pos()
 	$Player.global_position = Vector3(exit_xz.x, $Player.global_position.y, exit_xz.y)
 	
+func _on_player_at_quicksand() -> void:
+	_game_over(false)
+	
 func _on_game_timer_timeout() -> void:
 	_game_over(false)
 
