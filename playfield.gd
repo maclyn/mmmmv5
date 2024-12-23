@@ -119,6 +119,9 @@ func _on_player_at_portal() -> void:
 func _on_player_at_quicksand() -> void:
 	_game_over(false)
 	
+func _on_player_at_spike() -> void:
+	_game_over(false)
+	
 func _on_game_timer_timeout() -> void:
 	_game_over(false)
 

@@ -5,6 +5,7 @@ signal at_exit()
 signal at_key()
 signal at_portal()
 signal at_quicksand()
+signal at_spike()
 signal cheat()
 signal look_direction_changed(position: Vector3, rotation_y: float)
 
@@ -94,6 +95,8 @@ func _physics_process(delta: float) -> void:
 			at_portal.emit()
 		if collider.is_in_group("quicksand_group"):
 			at_quicksand.emit()
+		if collider.is_in_group("spike_group"):
+			at_spike.emit()
 	
 	var angular_velocity = get_platform_angular_velocity()
 	look_rotation.y += angular_velocity.y * delta

@@ -15,8 +15,8 @@ void fragment() {
 	}
 	
 	// Render "sizzling" noise texture
-	vec4 noise_value_a = texture(noise_tex_a, UV + vec2(TIME * 0.1, 0.0)) / 2.0;
-	vec4 noise_value_b = texture(noise_tex_b, UV + vec2(0.0, TIME * 0.1)) / 2.0;
+	vec4 noise_value_a = texture(noise_tex_a, UV + vec2(TIME * 0.1, -TIME * 0.1)) / 2.0;
+	vec4 noise_value_b = texture(noise_tex_b, UV + vec2(-TIME * 0.1, TIME * 0.1)) / 2.0;
 	vec4 noise_value = noise_value_a + noise_value_b;
     ALBEDO = vec3(
         clamp(noise_value.r, 0.0, 1.0),

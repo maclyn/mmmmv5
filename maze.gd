@@ -26,6 +26,7 @@ const MAX_PCT_FORWARD_BLOCKS = 0.4
 const MAP_BLOCKS_APPROX_PERCENT = 0.03
 const PERCENT_CHANCE_OF_PORTAL_BLOCK = 0.1
 const PERCENT_CHANCE_OF_QUICKSAND_BLOCK = 0.05
+const PERCENT_CHANGE_OF_SPIKE_BLOCK = 0.2
 const MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS = 2
 const SNAKE_SPAWN_PER_COL_ROW_PROB = 0.75 # most rows/columns get a snake
 
@@ -536,6 +537,9 @@ func _generate_maze() -> Vector2i:
 				elif randf_range(0.0, 1.0) > (1.0 - PERCENT_CHANCE_OF_QUICKSAND_BLOCK):
 					print("Add quicksand block at " + str(x) + ", " + str(y))
 					block.instance.add_quicksand()
+				elif randf_range(0.0, 1.0) > (1.0 - PERCENT_CHANGE_OF_SPIKE_BLOCK):
+					print("Add spike block at " + str(x) + ", " + str(y))
+					block.instance.add_spike()
 	if portal_block:
 		portal_block.instance.enable_portal(portal_exit_block.instance)
 		portal_exit_block.instance.set_as_portal_exit()

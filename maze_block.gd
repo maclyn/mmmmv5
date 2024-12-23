@@ -2,6 +2,7 @@
 extends Node3D
 
 var _is_portal: bool = false
+var _is_spike: bool = false
 var _has_updated_updated_portal_tex: bool = false
 var _exit_portal: Node3D = null
 
@@ -22,6 +23,8 @@ func _ready():
 	$PortalBody/PortalSurface.visible = false
 	$QuickSand/QuickSandCollider.disabled = true
 	$QuickSand/QuickSandSurface.visible = false
+	$Spike/SpikeCollider.disabled = true
+	$Spike/SpikeSurface.visible = false
 
 func configure_walls(north: bool, east: bool, south: bool, west: bool):
 	$HedgeWallN.visible = north
@@ -74,6 +77,11 @@ func add_quicksand() -> void:
 	$QuickSand/QuickSandCollider.disabled = false
 	$QuickSand/QuickSandSurface.visible = true
 	
+func add_spike() -> void:
+	$Spike/SpikeCollider.disabled = false
+	$Spike/SpikeSurface.visible = true
+	_is_spike = true
+	
 func set_as_portal_exit():
 	# Camera is a globally shared (non-unique) node, so even though it's
 	# positioned correctly in the MazeBlock scene, it needs to be moved to the
@@ -95,6 +103,13 @@ func _process(delta: float) -> void:
 		var tex = await _exit_portal.get_snapshot()
 		$PortalBody/PortalSurface.attach_portal_tex(tex)
 		_has_updated_updated_portal_tex = true
+
+		
+func _physics_process(_delta: float) -> void:
+	if _is_spike:
+		var secs = Time.get_ticks_msec() / 1000.0
+		$Spike.position.y = ((sin(secs * 2.0) + 1)) - 3.0
+		$Spike.rotate_y(cos(secs * 2.0))
 	
 func drop_portal():
 	$PortalBody/PortalSurface.visible = false
