@@ -109,7 +109,7 @@ func _physics_process(_delta: float) -> void:
 	if _is_spike:
 		var secs = Time.get_ticks_msec() / 1000.0
 		$Spike.position.y = ((sin(secs * 2.0) + 1)) - 3.0
-		$Spike.rotate_y(cos(secs * 2.0))
+		$Spike.rotation.y = cos(secs * 4.0)
 	
 func drop_portal():
 	$PortalBody/PortalSurface.visible = false
