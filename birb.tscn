@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3 uid="uid://mb8dh7n4i568"]
+
+[ext_resource type="Script" path="res://bird.gd" id="1_chtpb"]
+[ext_resource type="PackedScene" uid="uid://pp1rp2y8cydt" path="res://bird.tscn" id="2_3hvke"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_40njf"]
+size = Vector3(0.773529, 0.165741, 0.549011)
+
+[node name="Birb" type="AnimatableBody3D"]
+collision_layer = 8
+collision_mask = 2
+script = ExtResource("1_chtpb")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0035553, 0.0488434, -0.0671082)
+shape = SubResource("BoxShape3D_40njf")
+
+[node name="bird" parent="." instance=ExtResource("2_3hvke")]

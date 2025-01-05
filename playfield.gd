@@ -175,14 +175,16 @@ func _start_new_game(difficulty: GameDifficulty) -> void:
 	$Sun.visible = difficulty != GameDifficulty.SPOOKY
 		
 	if difficulty != GameDifficulty.SPOOKY:
-		$Music/NormalMusicPlayer.play()
+		if !Globals.is_debug():
+			$Music/NormalMusicPlayer.play()
 		$MiniMapViewport/MiniMapCamera.environment = default_map_env
 	else:
-		$Music/SpookyMusicPlayer.play()
+		if !Globals.is_debug():
+			$Music/SpookyMusicPlayer.play()
 		$MiniMapViewport/MiniMapCamera.environment = dark_map_env
 	$Maze.set_map_env($MiniMapViewport/MiniMapCamera.environment)
 	$Maze.connect("on_snake_hit", _game_over)
-	$Maze.attach_player($Player/Pivot)
+	$Maze.attach_player($Player/Pivot, $Player)
 	
 	$GameTimer.start(_max_time_to_key_ms() / 1000.0)
 

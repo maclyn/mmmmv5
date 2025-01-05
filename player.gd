@@ -21,12 +21,13 @@ const JUMP_VELOCITY = 3
 
 var look_rotation = Vector2(0, PI)
 var cannot_move = false
+var captured_by_bird = false
 
 func restore_camera():
 	var camera = $CameraRoot.get_child(0)
 	if camera is Camera3D:
 		camera.make_current()
-		"wall_min_slide_angle"
+
 func set_camera(sun: bool, moon: bool):
 	while $CameraRoot.get_child_count() > 0:
 		$CameraRoot.remove_child($CameraRoot.get_child(0))
@@ -41,6 +42,12 @@ func respawn():
 func die():
 	cannot_move = true
 	
+func bird_capture():
+	captured_by_bird = true
+	
+func bird_release():
+	captured_by_bird = false
+	
 func external_x_movement(delta_x: float):
 	look_rotation.y -= (delta_x * sensitivity)
 	look_rotation.x -= delta_x * sensitivity
@@ -53,13 +60,17 @@ func _ready():
 func _physics_process(delta: float) -> void:
 	if cannot_move or Engine.is_editor_hint():
 		return
+		
+	if captured_by_bird:
+		# TODO: F
+		return
 	
 	# Add the gravity.
 	if not is_on_floor():
 		velocity += get_gravity() * delta
 
 	# Handle jump.
-	if Input.is_action_just_pressed("ui_accept") and is_on_floor():
+	if Input.is_action_just_pressed("jump") and is_on_floor():
 		velocity.y = JUMP_VELOCITY
 
 	var input_dir := Input.get_vector("strafe_left", "strafe_right", "forward", "backwards")

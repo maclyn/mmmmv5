@@ -5,8 +5,9 @@ signal on_snake_hit()
 
 @export var maze_block_scene: PackedScene
 @export var snake_scene: PackedScene
+@export var bird_scene: PackedScene
 
-# These values are tied to assets
+# These values are tied to assets, and are measured in units
 # ANY CHANGES HERE NEED CORRESPONDING ASSET CHANGES TOO
 const HEDGE_HEIGHT = 4
 const HEDGE_LENGTH = 2
@@ -14,8 +15,10 @@ const HEDGE_HALF_LENGTH = 1
 const HEDGE_THICKNESS = 0.2
 const HEDGE_HALF_THICKNESS = 0.1
 const MAZE_BLOCK_SQUARE_SIZE = 4
-const SNAKE_LENGTH = 2.2 # units
-const SNAKE_WIDTH = 0.2 # units
+const SNAKE_LENGTH = 2.2
+const SNAKE_WIDTH = 0.2
+const BIRD_LENGTH = 0.55
+const BIRD_WIDTH = 0.77
 
 # These values can be tweaked for gameplay reasons
 const MAZE_WIDTH_AND_HEIGHT = 20
@@ -29,6 +32,7 @@ const PERCENT_CHANCE_OF_QUICKSAND_BLOCK = 0.05
 const PERCENT_CHANGE_OF_SPIKE_BLOCK = 0.05
 const MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS = 2
 const SNAKE_SPAWN_PER_COL_ROW_PROB = 0.75 # most rows/columns get a snake
+const BIRD_COL_ROW_PADDING = 2 # first and last 2 columns shouldn't have the bird
 
 # Derived from asset values + gameplay values
 const EAST_SNAKE_EDGE = (MAZE_DIMENS_IN_SCENE_SPACE) + (SNAKE_LENGTH * 3)
@@ -36,9 +40,15 @@ const WEST_SNAKE_EDGE = -SNAKE_LENGTH * 3
 const SOUTH_SNAKE_EDGE = (MAZE_DIMENS_IN_SCENE_SPACE) + (SNAKE_LENGTH * 3)
 const NORTH_SNAKE_EDGE = (-LEAD_IN_DIST * MAZE_BLOCK_SQUARE_SIZE) + (SNAKE_LENGTH * -3)
 
+const EAST_BIRD_EDGE = (MAZE_DIMENS_IN_SCENE_SPACE) + (BIRD_LENGTH * 3)
+const WEST_BIRD_EDGE = -BIRD_LENGTH * 3
+const SOUTH_BIRD_EDGE = (MAZE_DIMENS_IN_SCENE_SPACE) + (BIRD_LENGTH * 3)
+const NORTH_BIRD_EDGE = (-LEAD_IN_DIST * MAZE_BLOCK_SQUARE_SIZE) + (BIRD_LENGTH * -3)
+
 var blocks: Dictionary = {}
 var player: Node3D = null
 var snakes: Array[Node] = []
+var bird: Node3D = null
 var entrance_block: MazeBlock = null
 var exit_block: MazeBlock = null
 var portal_block: MazeBlock = null
@@ -202,10 +212,10 @@ class MazeBlock:
 func build_new_maze() -> Vector2i:
 	var start_position = Vector2i.ZERO
 	if Engine.is_editor_hint():
-		# 5 tries to generate before giving up (to avoid editor freezes)
+		# 15 tries to generate before giving up (to avoid editor freezes)
 		print("Building maze in editor")
 		var count = 0
-		while count < 5 && start_position == Vector2i.ZERO:
+		while count < 15 && start_position == Vector2i.ZERO:
 			blocks.clear()
 			start_position = _generate_maze()
 			count += 1
@@ -228,6 +238,8 @@ func clear_maze() -> void:
 	for snake in snakes:
 		remove_child(snake)
 	snakes = []
+	remove_child(bird)
+	bird = null
 	portal_block = null
 	portal_exit_block = null
 	exit_block = null 
@@ -244,8 +256,11 @@ func show_path_out() -> void:
 		block.show_arrow()
 	_add_snakes()
 	
-func attach_player(player: Node3D) -> void:
-	self.player = player
+# player is actually the pivot node for the player
+func attach_player(player: Node3D, player_instance: Node3D) -> void:
+	player = player
+	if bird != null:
+		bird.attach_player(player_instance)
 	
 func update_player_marker(x: float, z: float, rotation_y: float):
 	$PlayerMarker.global_position = Vector3(x, 4, z)
@@ -506,7 +521,9 @@ func _generate_maze() -> Vector2i:
 			# Place a map on the south wall every ~50 blocks, and never
 			# in first or last 2 blocks
 			if y > MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS && y < MAZE_WIDTH_AND_HEIGHT - MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS && x > MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS && x < MAZE_WIDTH_AND_HEIGHT - MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS:
+				# Add map (maybe)
 				if randf_range(0.0, 1.0) > (1.0 - MAP_BLOCKS_APPROX_PERCENT):
+					print("Added map block at " + str(x) + ", " + str(y))
 					block.instance.get_south_wall().add_map(image_texture)
 				
 				# Maybe portal too?
@@ -535,14 +552,17 @@ func _generate_maze() -> Vector2i:
 					else:
 						print("Chose portal block at " + str(x) + ", " + str(y))
 				elif randf_range(0.0, 1.0) > (1.0 - PERCENT_CHANCE_OF_QUICKSAND_BLOCK):
-					print("Add quicksand block at " + str(x) + ", " + str(y))
+					print("Added quicksand block at " + str(x) + ", " + str(y))
 					block.instance.add_quicksand()
 				elif randf_range(0.0, 1.0) > (1.0 - PERCENT_CHANGE_OF_SPIKE_BLOCK):
-					print("Add spike block at " + str(x) + ", " + str(y))
+					print("Added spike block at " + str(x) + ", " + str(y))
 					block.instance.add_spike()
 	if portal_block:
 		portal_block.instance.enable_portal(portal_exit_block.instance)
 		portal_exit_block.instance.set_as_portal_exit()
+		
+	_add_bird()
+	
 	return _maze_block_position_to_center_in_scene_space(start_x, start_y)
 		
 func _maze_block_position_to_center_in_scene_space(x: int, y: int) -> Vector2i:
@@ -576,7 +596,20 @@ func _add_snakes():
 		x_pos += ((1 if west_to_east else -1) * randf_range(0.2 if near_exit else 0.0, MAZE_DIMENS_IN_SCENE_SPACE * 0.5))
 		var y_pos = _maze_block_position_to_center_in_scene_space(0, y).y - (SNAKE_WIDTH / 2.0)
 		_new_snake(dx, dy, x_pos, y_pos, 180.0 if west_to_east else 0.0)
-
+		
+func _add_bird():
+	var is_col_bird = true # randi_range(0, 1) == 0
+	# Birds always go south-to-north *or* east-to-west
+	var row_or_col = 10 # randi_range(BIRD_COL_ROW_PADDING, MAZE_WIDTH_AND_HEIGHT - BIRD_COL_ROW_PADDING)
+	var dx = 0 if is_col_bird else -1
+	var dy = -1 if is_col_bird else 0
+	var centered_in_row_or_col_pos = (
+		_maze_block_position_to_center_in_scene_space(0, row_or_col).y if is_col_bird
+		else _maze_block_position_to_center_in_scene_space(row_or_col, 0).x
+			) # - (BIRD_WIDTH / 2) 
+	var x_pos = centered_in_row_or_col_pos if is_col_bird else EAST_BIRD_EDGE
+	var y_pos = centered_in_row_or_col_pos if !is_col_bird else (MAZE_DIMENS_IN_SCENE_SPACE / 4.0) # SOUTH_BIRD_EDGE
+	_new_bird(dx, dy, x_pos, y_pos, 0.0 if is_col_bird else 270.0)
 
 func _new_snake(dx: int, dy: int, start_x_pos: float, start_y_pos: float, snake_rot_deg: float = 0.0):
 	var snake = snake_scene.instantiate()
@@ -588,6 +621,17 @@ func _new_snake(dx: int, dy: int, start_x_pos: float, start_y_pos: float, snake_
 	self.add_child(snake)
 	snake.connect("collided_with_player", _on_snake_hit)
 	snakes.push_back(snake)
+	
+func _new_bird(dx: int, dy: int, start_x_pos: float, start_y_pos: float, bird_rot_deg: float = 0.0):
+	bird = bird_scene.instantiate()
+	bird.position.x = start_x_pos
+	bird.position.y = 4.5
+	bird.position.z = start_y_pos
+	bird.rotation.y = deg_to_rad(bird_rot_deg)
+	bird.init_bird(dx, dy, WEST_BIRD_EDGE, EAST_BIRD_EDGE, NORTH_BIRD_EDGE, SOUTH_BIRD_EDGE)
+	bird.attach_player(player)
+	print("Added bird at " + str(bird.position))
+	self.add_child(bird)
 
 func _on_snake_hit():
 	on_snake_hit.emit()

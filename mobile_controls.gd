@@ -22,7 +22,7 @@ func _input(event: InputEvent) -> void:
 				joystick_touch_down_idx = event_index
 			elif _is_point_in_control(pos, $JumpRect):
 				jump_touch_down_idx = event_index
-				Input.action_press("ui_accept")
+				Input.action_press("jump")
 			elif _is_point_in_control(pos, $QuitRect):
 				main_menu.emit()
 			elif drag_idx == UNSET_TOUCH_IDX:
