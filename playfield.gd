@@ -158,8 +158,11 @@ func _max_time_to_return_s() -> float:
 
 func _start_new_game(difficulty: GameDifficulty) -> void:
 	curr_difficulty = difficulty
+	_update_loading_screen(true, "Loading...")
+	$Maze.build_new_maze()
+	
+func _on_maze_load_complete(start_position: Vector2i):
 	$MobileControls.visible = Globals.is_mobile()
-	var start_position = $Maze.build_new_maze()
 	$Player.position.x = start_position.x
 	$Player.position.z = start_position.y
 	$Player.rotation.x = 0
@@ -170,11 +173,10 @@ func _start_new_game(difficulty: GameDifficulty) -> void:
 	last_game_state_transition_time = Time.get_ticks_msec()
 	
 	$Player.set_camera(
-		difficulty != GameDifficulty.SPOOKY,
-		difficulty == GameDifficulty.SPOOKY)
-	$Sun.visible = difficulty != GameDifficulty.SPOOKY
-		
-	if difficulty != GameDifficulty.SPOOKY:
+		curr_difficulty != GameDifficulty.SPOOKY,
+		curr_difficulty == GameDifficulty.SPOOKY)
+	$Sun.visible = curr_difficulty != GameDifficulty.SPOOKY
+	if curr_difficulty != GameDifficulty.SPOOKY:
 		if !Globals.is_debug():
 			$Music/NormalMusicPlayer.play()
 		$MiniMapViewport/MiniMapCamera.environment = default_map_env
@@ -183,10 +185,12 @@ func _start_new_game(difficulty: GameDifficulty) -> void:
 			$Music/SpookyMusicPlayer.play()
 		$MiniMapViewport/MiniMapCamera.environment = dark_map_env
 	$Maze.set_map_env($MiniMapViewport/MiniMapCamera.environment)
-	$Maze.connect("on_snake_hit", _game_over)
 	$Maze.attach_player($Player/Pivot, $Player)
-	
 	$GameTimer.start(_max_time_to_key_ms() / 1000.0)
+	_update_loading_screen(false)
+	
+func _on_snake_hit():
+	_game_over(false, false)
 
 func _game_over(did_win: bool = false, skip_anim: bool = false) -> void:
 	if game_state == GameState.GAME_OVER_WIN || game_state == GameState.GAME_OVER_LOSS:
@@ -230,3 +234,10 @@ func _on_mobile_controls_h_swipe(delta_x: float) -> void:
 
 func _on_mobile_controls_main_menu() -> void:
 	_game_over(false, true)
+	
+func _update_loading_screen(visible: bool, text: String = "") -> void:
+	$HUD/LoadingContainer.visible = visible
+	$HUD/LoadingContainer/LoadingLabel.text = text
+
+func _on_maze_on_load_changed(message: String) -> void:
+	_update_loading_screen(true, message)

@@ -118,7 +118,7 @@ func _input(event: InputEvent) -> void:
 		look_rotation.y -= (event.relative.x * sensitivity)
 
 func _unhandled_input(_event: InputEvent) -> void:
-	if Engine.is_editor_hint():
+	if Engine.is_editor_hint() || !Globals.is_debug():
 		return
 	if Input.is_action_just_pressed("cheat"):
 		cheat.emit()

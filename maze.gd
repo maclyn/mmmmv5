@@ -2,6 +2,8 @@
 extends Node3D
 
 signal on_snake_hit()
+signal on_load_changed(message: String)
+signal on_loaded(start_position: Vector2i)
 
 @export var maze_block_scene: PackedScene
 @export var snake_scene: PackedScene
@@ -45,6 +47,7 @@ const WEST_BIRD_EDGE = -BIRD_LENGTH * 3
 const SOUTH_BIRD_EDGE = (MAZE_DIMENS_IN_SCENE_SPACE) + (BIRD_LENGTH * 3)
 const NORTH_BIRD_EDGE = (-LEAD_IN_DIST * MAZE_BLOCK_SQUARE_SIZE) + (BIRD_LENGTH * -3)
 
+var gen_thread: Thread
 var blocks: Dictionary = {}
 var player: Node3D = null
 var snakes: Array[Node] = []
@@ -189,7 +192,7 @@ class MazeBlock:
 		maze_block.position.x = x + HEDGE_LENGTH
 		maze_block.position.y = HEDGE_HEIGHT / 2.0
 		maze_block.position.z = y + HEDGE_LENGTH
-		root.add_child(maze_block)
+		root.add_child.call_deferred(maze_block)
 		
 	func hide_key():
 		instance.hide_key()
@@ -208,27 +211,31 @@ class MazeBlock:
 			prev == GridDirection.EAST,
 			prev == GridDirection.WEST
 		)
+
+func build_new_maze():
+	gen_thread.start(build_new_maze_impl)
 		
-func build_new_maze() -> Vector2i:
+func build_new_maze_impl():
 	var start_position = Vector2i.ZERO
+	_emit_load_changed("Building maze...")
 	if Engine.is_editor_hint():
 		# 15 tries to generate before giving up (to avoid editor freezes)
 		print("Building maze in editor")
 		var count = 0
 		while count < 15 && start_position == Vector2i.ZERO:
 			blocks.clear()
-			start_position = _generate_maze()
+			start_position = await _generate_maze()
 			count += 1
 	else:
 		while start_position == Vector2i.ZERO:
 			blocks.clear()
-			start_position = _generate_maze()
+			start_position = await _generate_maze()
 	if start_position == Vector2i.ZERO:
 		push_error("Failed to generate maze in editor!")
 		return Vector2i.ZERO
 	var exit_position = exit_block.instance.global_position
 	$EndMarker.global_position = Vector3(exit_position.x, 4, exit_position.z)
-	return start_position
+	_emit_loaded(start_position)
 		
 func clear_maze() -> void:
 	for x in blocks:
@@ -286,6 +293,14 @@ func get_portal_exit_pos() -> Vector2:
 	
 func set_map_env(env: Environment):
 	$MapViewport/MapViewportCamera.environment = env
+	
+func _enter_tree() -> void:
+	gen_thread = Thread.new()
+	
+func _exit_tree() -> void:
+	if gen_thread != null:
+		gen_thread.wait_to_finish()
+		gen_thread = null
 
 func _ready() -> void:
 	viewport_texture = $MapViewport.get_texture()
@@ -440,7 +455,7 @@ func _add_block_at_position(block: MazeBlock):
 # -- If there is no "solution" (i.e. we don't have a block at the bottom-most
 # part of the maze that is less than MAX_DIST away from the start block)
 # -- If the maze is too many straightaways (i.e. unfun)
-func _generate_maze() -> Vector2i:
+func _generate_maze():
 	var start_x = int(MAZE_WIDTH_AND_HEIGHT / 2.0)
 	var start_y = int(-LEAD_IN_DIST / 2.0)
 	var start_block: MazeBlock = MazeBlock.new(start_x, start_y)
@@ -491,10 +506,12 @@ func _generate_maze() -> Vector2i:
 	if forward_block_pct > MAX_PCT_FORWARD_BLOCKS:
 		# FAILURE -- Probably a boring maze to play
 		print("Failed boring maze of ", str(forward_block_pct), "% forward blocks")
+		_emit_load_changed("Retrying after building boring maze...")
 		return Vector2i.ZERO
 	
 	if end_block == null:
 		# FAILURE -- We didn't build a good path
+		_emit_load_changed("Retrying after building maze without path...")
 		return Vector2i.ZERO
 	else:
 		# SUCCESS -- We have a path
@@ -507,10 +524,12 @@ func _generate_maze() -> Vector2i:
 		
 	# Place objects in the scene
 	# Also choose special maze blocks
+	_emit_load_changed("Actualizing completed maze...")
 	for x in blocks:
 		for y in blocks[x]:
 			var block = blocks[x][y]
 			block.actualize(maze_block_scene, self)
+			await block.instance.ready
 			
 			# Uncomment this block to make the first south wall you see be a portal block
 			#if portal_block == null && x == 10 && block.walls[GridDirection.SOUTH]:
@@ -560,9 +579,7 @@ func _generate_maze() -> Vector2i:
 	if portal_block:
 		portal_block.instance.enable_portal(portal_exit_block.instance)
 		portal_exit_block.instance.set_as_portal_exit()
-		
 	_add_bird()
-	
 	return _maze_block_position_to_center_in_scene_space(start_x, start_y)
 		
 func _maze_block_position_to_center_in_scene_space(x: int, y: int) -> Vector2i:
@@ -633,10 +650,16 @@ func _new_bird(dx: int, dy: int, target: Vector2i, start_x_pos: float, start_y_p
 	bird.attach_player(player)
 	bird.connect("player_dropped", _on_player_dropped_by_bird)
 	print("Added bird at " + str(bird.position))
-	self.add_child(bird)
+	self.add_child.call_deferred(bird)
 
 func _on_snake_hit():
 	on_snake_hit.emit()
 
 func _on_player_dropped_by_bird():
 	remove_child(bird)
+
+func _emit_load_changed(msg: String) -> void:
+	call_deferred("emit_signal", "on_load_changed", msg)
+
+func _emit_loaded(start_position: Vector2i):
+	call_deferred("emit_signal", "on_loaded", start_position)

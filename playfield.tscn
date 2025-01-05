@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://c5cq4nt0yl43t"]
+[gd_scene load_steps=20 format=3 uid="uid://c5cq4nt0yl43t"]
 
 [ext_resource type="Script" path="res://playfield.gd" id="1_de1dc"]
 [ext_resource type="Environment" uid="uid://cgibf3lqeqjis" path="res://map_environment_dark_scene.tres" id="3_g75ud"]
@@ -38,6 +38,13 @@ corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 corner_detail = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fvyei"]
+bg_color = Color(0, 0, 0, 1)
+border_width_left = 20
+border_width_top = 20
+border_width_right = 20
+border_width_bottom = 20
 
 [node name="Playfield" type="Node"]
 script = ExtResource("1_de1dc")
@@ -105,12 +112,27 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_rgj6w")
 layout_mode = 2
 expand_mode = 5
 
+[node name="LoadingContainer" type="PanelContainer" parent="HUD"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_fvyei")
+
+[node name="LoadingLabel" type="Label" parent="HUD/LoadingContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Actualizing completed maze..."
+horizontal_alignment = 1
+uppercase = true
+
 [node name="GameOver" parent="." instance=ExtResource("9_gsmfs")]
 visible = false
 
 [node name="MobileControls" parent="." instance=ExtResource("10_8lkyr")]
 visible = false
-scale = Vector2(0.5, 0.5)
 
 [node name="Sun" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.965926, -0.258819, 0, 0.0669873, 0.25, 0.965926, -0.25, -0.933013, 0.258819, 25, 300, 25)
@@ -149,6 +171,9 @@ projection = 1
 size = 40.0
 far = 200.0
 
+[connection signal="on_load_changed" from="Maze" to="." method="_on_maze_on_load_changed"]
+[connection signal="on_loaded" from="Maze" to="." method="_on_maze_load_complete"]
+[connection signal="on_snake_hit" from="Maze" to="." method="_on_snake_hit"]
 [connection signal="at_exit" from="Player" to="." method="_on_player_at_exit"]
 [connection signal="at_key" from="Player" to="." method="_on_player_at_key"]
 [connection signal="at_portal" from="Player" to="." method="_on_player_at_portal"]

@@ -7,7 +7,7 @@ func _ready() -> void:
 func _unhandled_input(_event: InputEvent) -> void:
 	if Input.is_action_just_pressed("ui_cancel"):
 		get_tree().quit()
-	if Input.is_action_just_pressed("wireframe_mode"):
+	if Input.is_action_just_pressed("wireframe_mode") && Globals.is_debug():
 		var rs = get_viewport()
 		rs.debug_draw = (rs.debug_draw + 1) % 5
 	if Input.is_action_just_pressed("fullscreen"):
