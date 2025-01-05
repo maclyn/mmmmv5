@@ -62,7 +62,7 @@ func _physics_process(delta: float) -> void:
 		return
 		
 	if captured_by_bird:
-		# TODO: F
+		_process_look(delta)
 		return
 	
 	# Add the gravity.
@@ -109,11 +109,7 @@ func _physics_process(delta: float) -> void:
 		if collider.is_in_group("spike_group"):
 			at_spike.emit()
 	
-	var angular_velocity = get_platform_angular_velocity()
-	look_rotation.y += angular_velocity.y * delta
-	rotation.y = look_rotation.y
-	
-	look_direction_changed.emit(position, rotation.y)
+	_process_look(delta)
 	
 func _input(event: InputEvent) -> void:
 	if Engine.is_editor_hint():
@@ -127,3 +123,8 @@ func _unhandled_input(_event: InputEvent) -> void:
 	if Input.is_action_just_pressed("cheat"):
 		cheat.emit()
 		
+func _process_look(delta: float):
+	var angular_velocity = get_platform_angular_velocity()
+	look_rotation.y += angular_velocity.y * delta
+	rotation.y = look_rotation.y
+	look_direction_changed.emit(position, rotation.y)

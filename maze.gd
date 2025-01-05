@@ -605,11 +605,12 @@ func _add_bird():
 	var dy = -1 if is_col_bird else 0
 	var centered_in_row_or_col_pos = (
 		_maze_block_position_to_center_in_scene_space(0, row_or_col).y if is_col_bird
-		else _maze_block_position_to_center_in_scene_space(row_or_col, 0).x
-			) # - (BIRD_WIDTH / 2) 
+		else _maze_block_position_to_center_in_scene_space(row_or_col, 0).x)
 	var x_pos = centered_in_row_or_col_pos if is_col_bird else EAST_BIRD_EDGE
 	var y_pos = centered_in_row_or_col_pos if !is_col_bird else (MAZE_DIMENS_IN_SCENE_SPACE / 4.0) # SOUTH_BIRD_EDGE
-	_new_bird(dx, dy, x_pos, y_pos, 0.0 if is_col_bird else 270.0)
+	var drop_location_cell = exit_block.prev.position
+	var drop_location_xz = _maze_block_position_to_center_in_scene_space(drop_location_cell.x, drop_location_cell.y)
+	_new_bird(dx, dy, drop_location_xz, x_pos, y_pos, 0.0 if is_col_bird else 270.0)
 
 func _new_snake(dx: int, dy: int, start_x_pos: float, start_y_pos: float, snake_rot_deg: float = 0.0):
 	var snake = snake_scene.instantiate()
@@ -622,16 +623,20 @@ func _new_snake(dx: int, dy: int, start_x_pos: float, start_y_pos: float, snake_
 	snake.connect("collided_with_player", _on_snake_hit)
 	snakes.push_back(snake)
 	
-func _new_bird(dx: int, dy: int, start_x_pos: float, start_y_pos: float, bird_rot_deg: float = 0.0):
+func _new_bird(dx: int, dy: int, target: Vector2i, start_x_pos: float, start_y_pos: float, bird_rot_deg: float = 0.0):
 	bird = bird_scene.instantiate()
 	bird.position.x = start_x_pos
 	bird.position.y = 4.5
 	bird.position.z = start_y_pos
 	bird.rotation.y = deg_to_rad(bird_rot_deg)
-	bird.init_bird(dx, dy, WEST_BIRD_EDGE, EAST_BIRD_EDGE, NORTH_BIRD_EDGE, SOUTH_BIRD_EDGE)
+	bird.init_bird(dx, dy, target, WEST_BIRD_EDGE, EAST_BIRD_EDGE, NORTH_BIRD_EDGE, SOUTH_BIRD_EDGE)
 	bird.attach_player(player)
+	bird.connect("player_dropped", _on_player_dropped_by_bird)
 	print("Added bird at " + str(bird.position))
 	self.add_child(bird)
 
 func _on_snake_hit():
 	on_snake_hit.emit()
+
+func _on_player_dropped_by_bird():
+	remove_child(bird)
