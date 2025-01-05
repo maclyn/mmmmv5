@@ -598,19 +598,19 @@ func _add_snakes():
 		_new_snake(dx, dy, x_pos, y_pos, 180.0 if west_to_east else 0.0)
 		
 func _add_bird():
-	var is_col_bird = true # randi_range(0, 1) == 0
+	var is_col_bird = randi_range(0, 1) == 0 # true
 	# Birds always go south-to-north *or* east-to-west
-	var row_or_col = 10 # randi_range(BIRD_COL_ROW_PADDING, MAZE_WIDTH_AND_HEIGHT - BIRD_COL_ROW_PADDING)
+	var row_or_col = randi_range(BIRD_COL_ROW_PADDING, MAZE_WIDTH_AND_HEIGHT - BIRD_COL_ROW_PADDING) # 10
 	var dx = 0 if is_col_bird else -1
 	var dy = -1 if is_col_bird else 0
 	var centered_in_row_or_col_pos = (
 		_maze_block_position_to_center_in_scene_space(0, row_or_col).y if is_col_bird
 		else _maze_block_position_to_center_in_scene_space(row_or_col, 0).x)
 	var x_pos = centered_in_row_or_col_pos if is_col_bird else EAST_BIRD_EDGE
-	var y_pos = centered_in_row_or_col_pos if !is_col_bird else (MAZE_DIMENS_IN_SCENE_SPACE / 4.0) # SOUTH_BIRD_EDGE
+	var y_pos = centered_in_row_or_col_pos if !is_col_bird else SOUTH_BIRD_EDGE # (MAZE_DIMENS_IN_SCENE_SPACE / 4.0)
 	var drop_location_cell = exit_block.prev.position
 	var drop_location_xz = _maze_block_position_to_center_in_scene_space(drop_location_cell.x, drop_location_cell.y)
-	_new_bird(dx, dy, drop_location_xz, x_pos, y_pos, 0.0 if is_col_bird else 270.0)
+	_new_bird(dx, dy, drop_location_xz, x_pos, y_pos, 0.0 if is_col_bird else 90.0)
 
 func _new_snake(dx: int, dy: int, start_x_pos: float, start_y_pos: float, snake_rot_deg: float = 0.0):
 	var snake = snake_scene.instantiate()
