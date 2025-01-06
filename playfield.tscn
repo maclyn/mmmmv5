@@ -66,6 +66,7 @@ mesh = SubResource("PlaneMesh_ls18c")
 
 [node name="MazeDebugCamera" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 50, 80, 50)
+cull_mask = 983039
 projection = 1
 current = true
 size = 150.0
@@ -138,7 +139,7 @@ visible = false
 transform = Transform3D(0.965926, -0.258819, 0, 0.0669873, 0.25, 0.965926, -0.25, -0.933013, 0.258819, 25, 300, 25)
 light_energy = 0.8
 shadow_enabled = true
-shadow_bias = 0.05
+directional_shadow_mode = 0
 sky_mode = 1
 
 [node name="Music" type="Node" parent="."]

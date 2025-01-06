@@ -12,5 +12,6 @@ light_color = Color(0.964844, 0.792111, 0.110969, 1)
 light_energy = 1.5
 light_indirect_energy = 0.0
 light_volumetric_fog_energy = 0.0
+shadow_enabled = true
 spot_range = 30.0
 spot_angle = 30.0
