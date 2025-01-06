@@ -636,8 +636,8 @@ func _new_snake(dx: int, dy: int, start_x_pos: float, start_y_pos: float, snake_
 	snake.rotation.y = deg_to_rad(snake_rot_deg)
 	snake.init_snek(dx, dy, WEST_SNAKE_EDGE, EAST_SNAKE_EDGE, NORTH_SNAKE_EDGE, SOUTH_SNAKE_EDGE)
 	snake.attach_player(player)
-	self.add_child(snake)
 	snake.connect("collided_with_player", _on_snake_hit)
+	add_child.call_deferred(snake)
 	snakes.push_back(snake)
 	
 func _new_bird(dx: int, dy: int, target: Vector2i, start_x_pos: float, start_y_pos: float, bird_rot_deg: float = 0.0):

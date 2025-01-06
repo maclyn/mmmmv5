@@ -4,7 +4,7 @@ render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_burley;
 uniform sampler2D portal_tex : source_color, filter_linear_mipmap;
 
 void fragment() {
-	vec4 portal_viewport_value = texture(portal_tex, UV);
+	vec4 portal_viewport_value = texture(portal_tex, vec2(-UV.x, UV.y));
     vec2 center = vec2(0.5, 0.5);
     float distance = length(UV - center);
     float frequency = 20.0; // Number of ripples
