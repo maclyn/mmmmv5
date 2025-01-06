@@ -28,7 +28,7 @@ const MAZE_DIMENS_IN_SCENE_SPACE = MAZE_BLOCK_SQUARE_SIZE * MAZE_WIDTH_AND_HEIGH
 const LEAD_IN_DIST = 3
 const MAX_DIST = MAZE_WIDTH_AND_HEIGHT * 4
 const MAX_PCT_FORWARD_BLOCKS = 0.4
-const MAP_BLOCKS_APPROX_PERCENT = 0.03
+const MAP_BLOCKS_APPROX_PERCENT = 0.50
 const PERCENT_CHANCE_OF_PORTAL_BLOCK = 0.1
 const PERCENT_CHANCE_OF_QUICKSAND_BLOCK = 0.05
 const PERCENT_CHANGE_OF_SPIKE_BLOCK = 0.05
@@ -293,6 +293,9 @@ func get_portal_exit_pos() -> Vector2:
 	
 func set_map_env(env: Environment):
 	$MapViewport/MapViewportCamera.environment = env
+	
+func get_map_image() -> Image:
+	return viewport_texture.get_image()
 	
 func _enter_tree() -> void:
 	gen_thread = Thread.new()
@@ -663,3 +666,4 @@ func _emit_load_changed(msg: String) -> void:
 
 func _emit_loaded(start_position: Vector2i):
 	call_deferred("emit_signal", "on_loaded", start_position)
+	$MapViewport.render_target_update_mode = SubViewport.UPDATE_ONCE

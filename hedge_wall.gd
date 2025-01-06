@@ -11,8 +11,7 @@ func add_map(tex: Texture2D):
 	var new_map = map_scene.instantiate()
 	new_map.attach_viewport_tex(tex)
 	new_map.rotation.y = deg_to_rad(90)
-	await new_map.ready
-	$MapContainer.add_child(new_map)
+	$MapContainer.add_child.call_deferred(new_map)
 	
 func remove_map():
 	if $MapContainer.get_child_count() > 0:

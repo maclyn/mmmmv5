@@ -16,8 +16,7 @@ var last_game_state_transition_time = Time.get_ticks_msec()
 var time_to_key = -1
 var time_to_return = -1
 
-var minimap_viewport_texture: ViewportTexture
-var minimap_image_texture: ImageTexture
+var minimap_atlas_texture: AtlasTexture
 
 enum GameDifficulty {
 	EASY,
@@ -50,11 +49,7 @@ func start_spooky_game() -> void:
 	
 func _ready():
 	$GameOver.visible = false
-	if !Engine.is_editor_hint():
-		minimap_viewport_texture = $MiniMapViewport.get_texture()
-		minimap_image_texture = ImageTexture.create_from_image(minimap_viewport_texture.get_image())
-		$HUD/MiniMapContainer/MiniMap.texture = minimap_image_texture
-	else:
+	if Engine.is_editor_hint():
 		print("Running playfield in editor")
 		$MazeDebugCamera.current = true
 	
@@ -69,20 +64,18 @@ func _process(_delta: float) -> void:
 			pass
 		GameState.GOING_TO_KEY:
 			_format_label_to_remaining_timer()
-			if Globals.tick_count % 2 == 0:
-				$Maze.update_maps()
-			else:
-				_update_minimap()
+			_update_minimap()
 		GameState.RETURNING_TO_LOCK:
 			_format_label_to_remaining_timer()
-			$Maze.update_maps()
 			_update_minimap()
 			
 func _update_minimap():
 	var player_pos = $Player.global_position
-	$MiniMapViewport/MiniMapCamera.global_position.x = player_pos.x
-	$MiniMapViewport/MiniMapCamera.global_position.z = player_pos.z
-	minimap_image_texture.update(minimap_viewport_texture.get_image())
+	if minimap_atlas_texture != null:
+		minimap_atlas_texture.region = Rect2(0.0, 0.0, 512, 512)
+	# TODO: Make region match player position
+	# $MiniMapViewport/MiniMapCamera.global_position.x = player_pos.x
+	# $MiniMapViewport/MiniMapCamera.global_position.z = player_pos.z
 
 func _on_player_look_direction_changed(position: Vector3, rotation_y: float) -> void:
 	$Maze.update_player_marker(position.x, position.z, rotation_y)
@@ -176,18 +169,23 @@ func _on_maze_load_complete(start_position: Vector2i):
 		curr_difficulty != GameDifficulty.SPOOKY,
 		curr_difficulty == GameDifficulty.SPOOKY)
 	$Sun.visible = curr_difficulty != GameDifficulty.SPOOKY
-	if curr_difficulty != GameDifficulty.SPOOKY:
-		if !Globals.is_debug():
+	if !Globals.is_debug():
+		if curr_difficulty != GameDifficulty.SPOOKY:
 			$Music/NormalMusicPlayer.play()
-		$MiniMapViewport/MiniMapCamera.environment = default_map_env
-	else:
-		if !Globals.is_debug():
+		else:
 			$Music/SpookyMusicPlayer.play()
-		$MiniMapViewport/MiniMapCamera.environment = dark_map_env
-	$Maze.set_map_env($MiniMapViewport/MiniMapCamera.environment)
+	$Maze.set_map_env(default_map_env if curr_difficulty != GameDifficulty.SPOOKY else dark_map_env)
 	$Maze.attach_player($Player/Pivot, $Player)
 	$GameTimer.start(_max_time_to_key_ms() / 1000.0)
 	_update_loading_screen(false)
+	RenderingServer.request_frame_drawn_callback(_on_first_frame)
+	
+func _on_first_frame():
+	$Maze.update_maps()	
+	var minimap_image_texture = ImageTexture.create_from_image($Maze.get_map_image())
+	minimap_atlas_texture = AtlasTexture.new()
+	minimap_atlas_texture.atlas = minimap_image_texture
+	$HUD/MiniMapContainer/MiniMap.texture = minimap_atlas_texture
 	
 func _on_snake_hit():
 	_game_over(false, false)

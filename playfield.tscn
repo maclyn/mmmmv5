@@ -112,6 +112,8 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_rgj6w")
 [node name="MiniMap" type="TextureRect" parent="HUD/MiniMapContainer"]
 layout_mode = 2
 expand_mode = 5
+flip_h = true
+flip_v = true
 
 [node name="LoadingContainer" type="PanelContainer" parent="HUD"]
 layout_mode = 1
@@ -158,19 +160,6 @@ stream = ExtResource("15_a2rsm")
 
 [node name="KeyHitPlayer" type="AudioStreamPlayer" parent="Music"]
 stream = ExtResource("16_5rnqv")
-
-[node name="MiniMapViewport" type="SubViewport" parent="."]
-msaa_3d = 1
-size = Vector2i(256, 256)
-render_target_update_mode = 4
-
-[node name="MiniMapCamera" type="Camera3D" parent="MiniMapViewport"]
-transform = Transform3D(-1, 1.50996e-07, 6.60024e-15, 0, -4.37114e-08, 1, 1.50996e-07, 1, 4.37114e-08, 0, 10, 0)
-cull_mask = 983039
-environment = ExtResource("13_03e11")
-projection = 1
-size = 40.0
-far = 200.0
 
 [connection signal="on_load_changed" from="Maze" to="." method="_on_maze_on_load_changed"]
 [connection signal="on_loaded" from="Maze" to="." method="_on_maze_load_complete"]
