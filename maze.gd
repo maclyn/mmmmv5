@@ -1,4 +1,4 @@
-@tool
+# @tool
 extends Node3D
 
 signal on_snake_hit()
@@ -213,30 +213,26 @@ class MazeBlock:
 		)
 
 func build_new_maze():
+	gen_thread = Thread.new()
 	gen_thread.start(build_new_maze_impl)
+	
+func join_maze_gen_thread():
+	gen_thread.wait_to_finish()
 		
 func build_new_maze_impl():
 	var start_position = Vector2i.ZERO
 	_emit_load_changed("Building maze...")
 	if Engine.is_editor_hint():
-		# 15 tries to generate before giving up (to avoid editor freezes)
 		print("Building maze in editor")
-		var count = 0
-		while count < 15 && start_position == Vector2i.ZERO:
-			blocks.clear()
-			start_position = await _generate_maze()
-			count += 1
-	else:
-		while start_position == Vector2i.ZERO:
-			blocks.clear()
-			start_position = await _generate_maze()
-	if start_position == Vector2i.ZERO:
-		push_error("Failed to generate maze in editor!")
-		return Vector2i.ZERO
+	while start_position == Vector2i.ZERO:
+		blocks.clear()
+		start_position = await _generate_maze(Engine.is_editor_hint())
 	var exit_position = exit_block.instance.global_position
 	$EndMarker.global_position = Vector3(exit_position.x, 4, exit_position.z)
 	_emit_loaded(start_position)
-		
+	call_deferred("join_maze_gen_thread")
+	$MapViewport.render_target_update_mode = SubViewport.UPDATE_ONCE
+
 func clear_maze() -> void:
 	for x in blocks:
 		for y in blocks[x]:
@@ -258,7 +254,8 @@ func update_maps() -> void:
 func show_path_out() -> void:
 	if portal_block != null:
 		portal_block.instance.drop_portal()
-	exit_block.hide_key()
+	if exit_block != null:
+		exit_block.hide_key()
 	for block in path_from_exit_to_entrance:
 		block.show_arrow()
 	_add_snakes()
@@ -298,12 +295,15 @@ func get_map_image() -> Image:
 	return viewport_texture.get_image()
 	
 func _enter_tree() -> void:
+	print("Maze entering tree")
 	gen_thread = Thread.new()
 	
 func _exit_tree() -> void:
+	print("Maze exiting tree")
 	if gen_thread != null:
 		gen_thread.wait_to_finish()
 		gen_thread = null
+		print("Thread joined")
 
 func _ready() -> void:
 	viewport_texture = $MapViewport.get_texture()
@@ -458,7 +458,8 @@ func _add_block_at_position(block: MazeBlock):
 # -- If there is no "solution" (i.e. we don't have a block at the bottom-most
 # part of the maze that is less than MAX_DIST away from the start block)
 # -- If the maze is too many straightaways (i.e. unfun)
-func _generate_maze():
+func _generate_maze(allow_bad_mazes: bool = false):
+	print("Generating maze...")
 	var start_x = int(MAZE_WIDTH_AND_HEIGHT / 2.0)
 	var start_y = int(-LEAD_IN_DIST / 2.0)
 	var start_block: MazeBlock = MazeBlock.new(start_x, start_y)
@@ -506,18 +507,18 @@ func _generate_maze():
 				break
 	
 	var forward_block_pct = float(none_feature_count) / float(total_feature_count)
-	if forward_block_pct > MAX_PCT_FORWARD_BLOCKS:
+	if forward_block_pct > MAX_PCT_FORWARD_BLOCKS && !allow_bad_mazes:
 		# FAILURE -- Probably a boring maze to play
 		print("Failed boring maze of ", str(forward_block_pct), "% forward blocks")
 		_emit_load_changed("Retrying after building boring maze...")
 		return Vector2i.ZERO
-	
 	if end_block == null:
 		# FAILURE -- We didn't build a good path
 		_emit_load_changed("Retrying after building maze without path...")
 		return Vector2i.ZERO
 	else:
 		# SUCCESS -- We have a path
+		print("Maze designed; solidfiying path")
 		end_block.is_exit = true
 		exit_block = end_block
 		var node = exit_block
@@ -593,7 +594,7 @@ func _maze_block_position_to_center_in_scene_space(x: int, y: int) -> Vector2i:
 func _add_snakes():
 	# New snake, who this
 	for x in range(1, MAZE_WIDTH_AND_HEIGHT):
-		var should_snake = randf_range(0.0, 1.0) <= SNAKE_SPAWN_PER_COL_ROW_PROB && x != exit_block.position.x
+		var should_snake = randf_range(0.0, 1.0) <= SNAKE_SPAWN_PER_COL_ROW_PROB && (exit_block == null || x != exit_block.position.x)
 		if !should_snake:
 			continue
 		var north_to_south = randf_range(0.0, 1.0) > 0.5
@@ -601,11 +602,11 @@ func _add_snakes():
 		var dy = 1 if north_to_south else -1
 		var x_pos = _maze_block_position_to_center_in_scene_space(x, 0).x - (SNAKE_WIDTH / 2.0)
 		var y_pos = NORTH_SNAKE_EDGE if north_to_south else SOUTH_SNAKE_EDGE
-		var near_exit = abs(x - exit_block.position.x) < 3
+		var near_exit = exit_block != null && abs(x - exit_block.position.x) < 3
 		y_pos += ((1 if north_to_south else -1) * randf_range(0.2 if near_exit else 0.0, MAZE_DIMENS_IN_SCENE_SPACE * 0.5))
 		_new_snake(dx, dy, x_pos, y_pos, 90.0 if north_to_south else 270.0)
 	for y in range(1, MAZE_WIDTH_AND_HEIGHT - 1):
-		var should_snake = randf_range(0.0, 1.0) <= SNAKE_SPAWN_PER_COL_ROW_PROB && y != exit_block.position.y
+		var should_snake = randf_range(0.0, 1.0) <= SNAKE_SPAWN_PER_COL_ROW_PROB && exit_block != null && y != exit_block.position.y
 		if !should_snake:
 			continue
 		var west_to_east = randf_range(0.0, 1.0) > 0.5
@@ -662,8 +663,9 @@ func _on_player_dropped_by_bird():
 	remove_child(bird)
 
 func _emit_load_changed(msg: String) -> void:
+	print("Emitting load changed msg: " + msg)
 	call_deferred("emit_signal", "on_load_changed", msg)
 
 func _emit_loaded(start_position: Vector2i):
+	print("Emiting mazze loaded with start_pos=" + str(start_position))
 	call_deferred("emit_signal", "on_loaded", start_position)
-	$MapViewport.render_target_update_mode = SubViewport.UPDATE_ONCE

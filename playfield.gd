@@ -72,7 +72,26 @@ func _process(_delta: float) -> void:
 func _update_minimap():
 	var player_pos = $Player.global_position
 	if minimap_atlas_texture != null:
-		minimap_atlas_texture.region = Rect2(0.0, 0.0, 512, 512)
+		# region is 0.0 to 2048.0
+		# actual bounds of visible area to camera are 100, centered at (40, 40)
+		# we want to crop in with a scale of 20
+		# so visible area is [-10, 90], [-10, 90]
+		# a x = 0 and w = 2048, and y = 0 and h = 2048 just draws the whole map
+		# the center is (40, 40)
+		var screen_units_in_px = 2048.0 / 100.0
+		var desired_span = screen_units_in_px * 20.0 # 10 units across
+		var half_span = desired_span / 2.0
+		var player_center_x_in_px = player_pos.x * screen_units_in_px
+		var player_center_y_in_px = player_pos.z * screen_units_in_px
+		var ideal_start_x = player_center_x_in_px - half_span
+		var ideal_end_x = player_center_x_in_px + half_span
+		var ideal_start_y = player_center_y_in_px - half_span
+		var ideal_end_y = player_center_y_in_px + half_span
+		var new_region = Rect2(2048.0 - ideal_start_x, 2048.0 - ideal_start_y, desired_span, desired_span)
+		# minimap_atlas_texture.filter_clip = true
+		minimap_atlas_texture.region = new_region
+		# TODO: Rotate it
+		# $HUD/MiniMapContainer/MiniMap.rotation_degrees = Time.get_ticks_msec() / 100.0
 	# TODO: Make region match player position
 	# $MiniMapViewport/MiniMapCamera.global_position.x = player_pos.x
 	# $MiniMapViewport/MiniMapCamera.global_position.z = player_pos.z
@@ -155,7 +174,7 @@ func _start_new_game(difficulty: GameDifficulty) -> void:
 	$Maze.build_new_maze()
 	
 func _on_maze_load_complete(start_position: Vector2i):
-	$MobileControls.visible = Globals.is_mobile()
+	$MobileControls.visible = !Engine.is_editor_hint() && Globals.is_mobile()
 	$Player.position.x = start_position.x
 	$Player.position.z = start_position.y
 	$Player.rotation.x = 0

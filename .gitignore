@@ -3,3 +3,4 @@
 /android/
 # https://github.com/godotengine/godot/issues/82270
 *.tmp
+*.swp
