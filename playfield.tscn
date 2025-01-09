@@ -73,7 +73,7 @@ current = true
 size = 150.0
 
 [node name="Player" parent="." instance=ExtResource("6_qmkiw")]
-transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 1, 0)
+transform = Transform3D(-1, 0, -1.50996e-07, 0, 1, 0, 1.50996e-07, 0, -1, 42, 1, -2)
 
 [node name="GameTimer" type="Timer" parent="."]
 wait_time = 120.0
@@ -96,7 +96,7 @@ offset_bottom = 80.0
 grow_horizontal = 2
 theme_override_fonts/font = ExtResource("7_eeir4")
 theme_override_font_sizes/font_size = 48
-text = "0:00"
+text = "0:00:0"
 horizontal_alignment = 1
 vertical_alignment = 1
 

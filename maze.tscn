@@ -1,7 +1,7 @@
 [gd_scene load_steps=12 format=3 uid="uid://cp28gjjsjws27"]
 
 [ext_resource type="Script" path="res://maze.gd" id="1_tra7k"]
-[ext_resource type="PackedScene" uid="uid://dkpdan17o8x1l" path="res://maze_block.tscn" id="2_av3s7"]
+[ext_resource type="PackedScene" uid="uid://dkpdan17o8x1l" path="res://maze_block.tscn" id="2_ea76l"]
 [ext_resource type="PackedScene" uid="uid://bd2uh8l2mcb1g" path="res://snek.tscn" id="3_wtrhm"]
 [ext_resource type="PackedScene" uid="uid://mb8dh7n4i568" path="res://birb.tscn" id="4_yn50u"]
 [ext_resource type="Environment" uid="uid://dpfnmv1x4cv2d" path="res://map_environments.tres" id="5_21toe"]
@@ -36,7 +36,7 @@ rings = 2
 
 [node name="Maze" type="Node3D"]
 script = ExtResource("1_tra7k")
-maze_block_scene = ExtResource("2_av3s7")
+maze_block_scene = ExtResource("2_ea76l")
 snake_scene = ExtResource("3_wtrhm")
 bird_scene = ExtResource("4_yn50u")
 

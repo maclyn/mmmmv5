@@ -1,4 +1,4 @@
-# @tool
+@tool
 extends Node3D
 
 signal on_snake_hit()
@@ -47,7 +47,7 @@ const WEST_BIRD_EDGE = -BIRD_LENGTH * 3
 const SOUTH_BIRD_EDGE = (MAZE_DIMENS_IN_SCENE_SPACE) + (BIRD_LENGTH * 3)
 const NORTH_BIRD_EDGE = (-LEAD_IN_DIST * MAZE_BLOCK_SQUARE_SIZE) + (BIRD_LENGTH * -3)
 
-var gen_thread: Thread
+var gen_thread: Thread = null
 var blocks: Dictionary = {}
 var player: Node3D = null
 var snakes: Array[Node] = []
@@ -194,9 +194,6 @@ class MazeBlock:
 		maze_block.position.z = y + HEDGE_LENGTH
 		root.add_child.call_deferred(maze_block)
 		
-	func hide_key():
-		instance.hide_key()
-		
 	func get_key_position() -> Vector3:
 		return instance.get_key_position()
 		
@@ -217,7 +214,11 @@ func build_new_maze():
 	gen_thread.start(build_new_maze_impl)
 	
 func join_maze_gen_thread():
-	gen_thread.wait_to_finish()
+	if gen_thread != null:
+		gen_thread.wait_to_finish()
+	if Engine.is_editor_hint():
+		print("Showing path out for editor preview")
+		show_path_out()
 		
 func build_new_maze_impl():
 	var start_position = Vector2i.ZERO
@@ -232,6 +233,7 @@ func build_new_maze_impl():
 	_emit_loaded(start_position)
 	call_deferred("join_maze_gen_thread")
 	$MapViewport.render_target_update_mode = SubViewport.UPDATE_ONCE
+	print("Background thread complete")
 
 func clear_maze() -> void:
 	for x in blocks:
@@ -255,7 +257,7 @@ func show_path_out() -> void:
 	if portal_block != null:
 		portal_block.instance.drop_portal()
 	if exit_block != null:
-		exit_block.hide_key()
+		exit_block.instance.hide_key()
 	for block in path_from_exit_to_entrance:
 		block.show_arrow()
 	_add_snakes()
@@ -293,17 +295,6 @@ func set_map_env(env: Environment):
 	
 func get_map_image() -> Image:
 	return viewport_texture.get_image()
-	
-func _enter_tree() -> void:
-	print("Maze entering tree")
-	gen_thread = Thread.new()
-	
-func _exit_tree() -> void:
-	print("Maze exiting tree")
-	if gen_thread != null:
-		gen_thread.wait_to_finish()
-		gen_thread = null
-		print("Thread joined")
 
 func _ready() -> void:
 	viewport_texture = $MapViewport.get_texture()
@@ -313,8 +304,7 @@ func _ready() -> void:
 	$MapViewport/MapViewportCamera.position.z = MAZE_DIMENS_IN_SCENE_SPACE / 2.0
 	if Engine.is_editor_hint():
 		print("Generating maze in editor")
-		build_new_maze()
-		show_path_out()
+		build_new_maze_impl() # Threading leads to freezing on editor load
 
 func _movement_dir_as_xy_when_pointing_in_dir(movement: MovementDirection, direction: GridDirection) -> Vector2i:
 	var base_xy = _movement_dir_as_xy_when_pointing_north(movement)
@@ -532,8 +522,10 @@ func _generate_maze(allow_bad_mazes: bool = false):
 	for x in blocks:
 		for y in blocks[x]:
 			var block = blocks[x][y]
+			# print("self " + str(self))
 			block.actualize(maze_block_scene, self)
-			await block.instance.ready
+			if !block.instance.is_node_ready():
+				await block.instance.ready
 			
 			# Uncomment this block to make the first south wall you see be a portal block
 			#if portal_block == null && x == 10 && block.walls[GridDirection.SOUTH]:
@@ -667,5 +659,5 @@ func _emit_load_changed(msg: String) -> void:
 	call_deferred("emit_signal", "on_load_changed", msg)
 
 func _emit_loaded(start_position: Vector2i):
-	print("Emiting mazze loaded with start_pos=" + str(start_position))
+	print("Emiting maze loaded with start_pos=" + str(start_position))
 	call_deferred("emit_signal", "on_loaded", start_position)
