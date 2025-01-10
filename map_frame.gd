@@ -1,6 +1,5 @@
 @tool
 extends Node3D
 
-func attach_viewport_tex(tex: Texture2D) -> void:
-	var mat: Material = $Cube.get_active_material(1)
-	mat.set("albedo_texture", tex)
+func replace_map_material(material: BaseMaterial3D) -> void:
+	$Cube.set_surface_override_material(1, material)

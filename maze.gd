@@ -57,12 +57,10 @@ var exit_block: MazeBlock = null
 var portal_block: MazeBlock = null
 var portal_exit_block: MazeBlock = null
 var path_from_exit_to_entrance: Array[MazeBlock] = []
+var map_blocks: Array[MazeBlock] = []
 
-# Workaround for (what seems like) a bug in ViewportTexture
-# https://github.com/godotengine/godot/issues/81928#issuecomment-2337645721
-# draw_list_bind_uniform_set: Attempted to use the same texture in framebuffer attachment and a uniform (set: 3, binding: 1), this is not allowed.
-var viewport_texture: ViewportTexture
-var image_texture: ImageTexture
+# Shared between overhead map and wall maps
+var map_image_texture: ImageTexture
 
 enum GridDirection {
 	NORTH, 
@@ -230,6 +228,7 @@ func build_new_maze_impl():
 		start_position = await _generate_maze(Engine.is_editor_hint())
 	var exit_position = exit_block.instance.global_position
 	$EndMarker.global_position = Vector3(exit_position.x, 4, exit_position.z)
+	$StartMarker.global_position = Vector3(start_position.x, 4, start_position.y)
 	_emit_loaded(start_position)
 	call_deferred("join_maze_gen_thread")
 	$MapViewport.render_target_update_mode = SubViewport.UPDATE_ONCE
@@ -250,8 +249,21 @@ func clear_maze() -> void:
 	exit_block = null 
 	path_from_exit_to_entrance.clear()
 		
-func update_maps() -> void:
-	image_texture.update(viewport_texture.get_image())
+func on_first_frame() -> void:
+	var map_viewport_texture = $MapViewport.get_texture()
+	map_image_texture = ImageTexture.create_from_image(map_viewport_texture.get_image())
+	# To make this texture usable in both places we show maps, it's zoomed out
+	# Crop in 15% for the wall map use
+	var shader = ShaderMaterial.new()
+	
+	var new_material = StandardMaterial3D.new()
+	new_material.albedo_texture = map_image_texture
+	new_material.uv1_scale = Vector3(0.8, 0.8, 1.0)
+	new_material.uv1_offset = Vector3(0.1, 0.08, 0.0)
+	for block in map_blocks:
+		var overlay_material = StandardMaterial3D.new()
+		
+		block.instance.get_south_wall().add_map(new_material)
 	
 func show_path_out() -> void:
 	if portal_block != null:
@@ -293,13 +305,12 @@ func get_portal_exit_pos() -> Vector2:
 func set_map_env(env: Environment):
 	$MapViewport/MapViewportCamera.environment = env
 	
-func get_map_image() -> Image:
-	return viewport_texture.get_image()
+func get_overhead_camera_image() -> Image:
+	return map_image_texture.get_image()
 
 func _ready() -> void:
-	viewport_texture = $MapViewport.get_texture()
-	image_texture = ImageTexture.create_from_image(viewport_texture.get_image())
 	$MapViewport/MapViewportCamera.position.x = MAZE_DIMENS_IN_SCENE_SPACE / 2.0
+	# strictly speaking: not important for an orthoganal camera
 	$MapViewport/MapViewportCamera.position.y = MAZE_DIMENS_IN_SCENE_SPACE / 2.0
 	$MapViewport/MapViewportCamera.position.z = MAZE_DIMENS_IN_SCENE_SPACE / 2.0
 	if Engine.is_editor_hint():
@@ -539,7 +550,7 @@ func _generate_maze(allow_bad_mazes: bool = false):
 				# Add map (maybe)
 				if randf_range(0.0, 1.0) > (1.0 - MAP_BLOCKS_APPROX_PERCENT):
 					print("Added map block at " + str(x) + ", " + str(y))
-					block.instance.get_south_wall().add_map(image_texture)
+					map_blocks.push_back(block)
 				
 				# Maybe portal too?
 				if (

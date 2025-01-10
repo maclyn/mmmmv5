@@ -7,9 +7,9 @@ extends StaticBody3D
 func rotate_mesh(rotation_rad: float):
 	$hedge_wall.rotation.z = rotation_rad
 
-func add_map(tex: Texture2D):
+func add_map(map_material_override: BaseMaterial3D):
 	var new_map = map_scene.instantiate()
-	new_map.attach_viewport_tex(tex)
+	new_map.replace_map_material(map_material_override)
 	new_map.rotation.y = deg_to_rad(90)
 	$MapContainer.add_child.call_deferred(new_map)
 	

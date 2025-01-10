@@ -13,7 +13,7 @@ void fragment() {
 	if (dist >= 0.45 && dist <= 0.50) {
 		ALPHA = smoothstep(0.0, 1.0, (0.50 - dist) * 20.0);
 	}
-	
+
 	// Render "sizzling" noise texture
 	vec4 noise_value_a = texture(noise_tex_a, UV + vec2(TIME * 0.1, -TIME * 0.1)) / 2.0;
 	vec4 noise_value_b = texture(noise_tex_b, UV + vec2(-TIME * 0.1, TIME * 0.1)) / 2.0;

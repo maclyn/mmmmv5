@@ -113,8 +113,6 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_rgj6w")
 [node name="MiniMap" type="TextureRect" parent="HUD/MiniMapContainer"]
 layout_mode = 2
 expand_mode = 5
-flip_h = true
-flip_v = true
 
 [node name="TextureRect" type="TextureRect" parent="HUD/MiniMapContainer"]
 custom_minimum_size = Vector2(24, 24)

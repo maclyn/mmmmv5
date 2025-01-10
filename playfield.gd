@@ -73,28 +73,27 @@ func _update_minimap():
 	var player_pos = $Player.global_position
 	if minimap_atlas_texture != null:
 		# region is 0.0 to 2048.0
-		# actual bounds of visible area to camera are 100, centered at (40, 40)
-		# we want to crop in with a scale of 20
+		# actual bounds of visible area to camera are 124, centered at (40, 40)
+		# we want to crop in so we can see 20, 20 on each side
 		# so visible area is [-10, 90], [-10, 90]
 		# a x = 0 and w = 2048, and y = 0 and h = 2048 just draws the whole map
 		# the center is (40, 40)
-		var screen_units_in_px = 2048.0 / 100.0
-		var desired_span = screen_units_in_px * 20.0 # 10 units across
-		var half_span = desired_span / 2.0
-		var player_center_x_in_px = player_pos.x * screen_units_in_px
-		var player_center_y_in_px = player_pos.z * screen_units_in_px
+		var viewport_size = 124.0
+		var tex_size = 2048.0
+		var tex_px_per_scene_unit = tex_size / viewport_size
+		var desired_span_px = tex_px_per_scene_unit * 20.0 # 10 units across
+		var half_span = desired_span_px / 2.0
+		var player_center_x_in_px = player_pos.x * desired_span_px
+		var player_center_y_in_px = player_pos.z * desired_span_px
 		var ideal_start_x = player_center_x_in_px - half_span
 		var ideal_end_x = player_center_x_in_px + half_span
 		var ideal_start_y = player_center_y_in_px - half_span
 		var ideal_end_y = player_center_y_in_px + half_span
-		var new_region = Rect2(2048.0 - ideal_start_x, 2048.0 - ideal_start_y, desired_span, desired_span)
+		var new_region = Rect2(tex_size - ideal_start_x, tex_size - ideal_start_y, desired_span_px, desired_span_px)
 		# minimap_atlas_texture.filter_clip = true
-		minimap_atlas_texture.region = new_region
+		minimap_atlas_texture.region = Rect2(0.0, 0.0, tex_size, tex_size) #new_region
 		# TODO: Rotate it
 		# $HUD/MiniMapContainer/MiniMap.rotation_degrees = Time.get_ticks_msec() / 100.0
-	# TODO: Make region match player position
-	# $MiniMapViewport/MiniMapCamera.global_position.x = player_pos.x
-	# $MiniMapViewport/MiniMapCamera.global_position.z = player_pos.z
 
 func _on_player_look_direction_changed(position: Vector3, rotation_y: float) -> void:
 	$Maze.update_player_marker(position.x, position.z, rotation_y)
@@ -200,8 +199,9 @@ func _on_maze_load_complete(start_position: Vector2i):
 	RenderingServer.request_frame_drawn_callback(_on_first_frame)
 	
 func _on_first_frame():
-	$Maze.update_maps()	
-	var minimap_image_texture = ImageTexture.create_from_image($Maze.get_map_image())
+	print("on first frame")
+	$Maze.on_first_frame()
+	var minimap_image_texture = ImageTexture.create_from_image($Maze.get_overhead_camera_image())
 	minimap_atlas_texture = AtlasTexture.new()
 	minimap_atlas_texture.atlas = minimap_image_texture
 	$HUD/MiniMapContainer/MiniMap.texture = minimap_atlas_texture
