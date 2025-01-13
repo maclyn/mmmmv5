@@ -75,16 +75,16 @@ points = PackedVector3Array(-0.5, -1, 0, -0.23101, 0, -0.0957322, -0.46202, -1, 
 script = ExtResource("1_4ffp3")
 
 [node name="HedgeCornerNE" parent="." instance=ExtResource("1_lfmuq")]
-transform = Transform3D(1, -8.74223e-08, 3.41754e-07, 8.74224e-08, 1, -2.62268e-07, -3.41753e-07, 2.62267e-07, 1, 1.9, 0, -1.9)
+transform = Transform3D(-1, 8.74223e-08, -4.29177e-07, 8.74224e-08, 1, -2.62268e-07, 4.29176e-07, -2.62267e-07, -1, 1.9, 0, -1.9)
 
 [node name="HedgeCornerSE" parent="." instance=ExtResource("1_lfmuq")]
-transform = Transform3D(1.18021e-06, 6.11961e-07, -1, 8.74232e-08, 1, 6.11961e-07, 1, -8.74232e-08, 1.18021e-06, 1.9, 0, 1.9)
+transform = Transform3D(-1.44248e-06, -6.11961e-07, 1, 8.74232e-08, 1, 6.11961e-07, -1, 8.74234e-08, -1.44248e-06, 1.9, 0, 1.9)
 
 [node name="HedgeCornerNW" parent="." instance=ExtResource("1_lfmuq")]
-transform = Transform3D(-1, 6.11962e-07, 5.32473e-07, -6.11961e-07, -1, -5.24538e-07, 5.32471e-07, -5.24538e-07, 1, -1.9, 0, -1.9)
+transform = Transform3D(1, -6.99385e-07, -5.6426e-07, -6.99384e-07, -1, -4.37115e-07, -5.64258e-07, 4.37115e-07, -1, -1.9, 0, -1.9)
 
 [node name="HedgeCornerSW" parent="." instance=ExtResource("1_lfmuq")]
-transform = Transform3D(-1, -1.74845e-07, -9.85504e-07, 1.74846e-07, -1, -2.62269e-07, -9.85504e-07, -2.62267e-07, 1, -1.9, 0, 1.9)
+transform = Transform3D(-1, 5.96856e-13, -1.16035e-06, 4.40536e-13, -1, -2.62269e-07, -1.16035e-06, -2.62267e-07, 1, -1.9, 0, 1.9)
 
 [node name="HedgeWallN" parent="." instance=ExtResource("2_1rctd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.9)

@@ -252,18 +252,10 @@ func clear_maze() -> void:
 func on_first_frame() -> void:
 	var map_viewport_texture = $MapViewport.get_texture()
 	map_image_texture = ImageTexture.create_from_image(map_viewport_texture.get_image())
-	# To make this texture usable in both places we show maps, it's zoomed out
-	# Crop in 15% for the wall map use
-	var shader = ShaderMaterial.new()
-	
-	var new_material = StandardMaterial3D.new()
-	new_material.albedo_texture = map_image_texture
-	new_material.uv1_scale = Vector3(0.8, 0.8, 1.0)
-	new_material.uv1_offset = Vector3(0.1, 0.08, 0.0)
 	for block in map_blocks:
-		var overlay_material = StandardMaterial3D.new()
-		
-		block.instance.get_south_wall().add_map(new_material)
+		print("adding at " + str(block.position))
+		var center = _maze_block_position_to_center_in_scene_space(block.position.x, block.position.y)
+		block.instance.get_south_wall().add_map(map_image_texture, center.x, center.y)
 	
 func show_path_out() -> void:
 	if portal_block != null:

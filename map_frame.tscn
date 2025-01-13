@@ -1,7 +1,10 @@
-[gd_scene load_steps=7 format=4 uid="uid://dryg3y1f6logi"]
+[gd_scene load_steps=10 format=4 uid="uid://dryg3y1f6logi"]
 
 [ext_resource type="PackedScene" uid="uid://6fny1l3cjwr1" path="res://models/map_frame.glb" id="1_2jcg4"]
 [ext_resource type="Script" path="res://map_frame.gd" id="2_ve1w0"]
+[ext_resource type="Shader" path="res://map.gdshader" id="3_pgwon"]
+[ext_resource type="Texture2D" uid="uid://cfvxkcnfqydr8" path="res://textures/Hedge_wall.png" id="4_46fi4"]
+[ext_resource type="Texture2D" uid="uid://weoiaiefxjih" path="res://textures/map_marker.png" id="5_8y7ec"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5lyr7"]
 resource_name = "Frame_Material"
@@ -9,8 +12,16 @@ cull_mode = 2
 albedo_color = Color(0.548346, 0.3076, 0.0997338, 1)
 roughness = 0.613636
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_udpb6"]
-resource_local_to_scene = true
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_jeqjv"]
+render_priority = 0
+shader = ExtResource("3_pgwon")
+shader_parameter/map_size_units = 124.0
+shader_parameter/x_center_units = 42.0
+shader_parameter/y_center_units = 42.0
+shader_parameter/pin_x_units = 10.0
+shader_parameter/pin_y_units = 10.0
+shader_parameter/base_map = ExtResource("4_46fi4")
+shader_parameter/pin = ExtResource("5_8y7ec")
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_2oeql"]
 _surfaces = [{
@@ -57,7 +68,7 @@ _surfaces = [{
 "format": 34896613399,
 "index_count": 6,
 "index_data": PackedByteArray("AQACAAAAAQADAAIA"),
-"material": SubResource("StandardMaterial3D_udpb6"),
+"material": SubResource("ShaderMaterial_jeqjv"),
 "name": "Render_To_Mat",
 "primitive": 3,
 "uv_scale": Vector4(0, 0, 0, 0),
@@ -68,8 +79,9 @@ blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_2oeql")
 
 [node name="map_frame" instance=ExtResource("1_2jcg4")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0)
 script = ExtResource("2_ve1w0")
 
 [node name="Cube" parent="." index="0"]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 1.0065, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.0065, 0, 0)
 mesh = SubResource("ArrayMesh_ll2vl")
