@@ -251,7 +251,9 @@ func clear_maze() -> void:
 		
 func on_first_frame() -> void:
 	var map_viewport_texture = $MapViewport.get_texture()
-	map_image_texture = ImageTexture.create_from_image(map_viewport_texture.get_image())
+	var image: Image = map_viewport_texture.get_image()
+	image.rotate_90(CLOCKWISE) # Not sure why, but when using get_image(), the image is rotated
+	map_image_texture = ImageTexture.create_from_image(image)
 	for block in map_blocks:
 		print("adding at " + str(block.position))
 		var center = _maze_block_position_to_center_in_scene_space(block.position.x, block.position.y)
