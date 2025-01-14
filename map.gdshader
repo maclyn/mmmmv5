@@ -4,6 +4,7 @@ uniform sampler2D base_map : source_color, filter_linear_mipmap;
 uniform sampler2D pin : source_color, filter_linear;
 
 uniform float map_size_units;
+uniform float maze_size_units;
 uniform float x_center_units;
 uniform float y_center_units;
 uniform float pin_x_units;
@@ -39,11 +40,19 @@ void fragment() {
 	// at (40, 40)
 	// In our default config, that's left-most/top-most side at 40 - (124 / 2) = -22
 	// ...but we're cropped in by pct_of_map_visible
+
+	// This is a dirty and bad hack to fix rotation issues
+	// x = 42, y = 2 --> x = 78, y = 2
+	// What works without adjustment: x = 78, y = 42
+	// For what should actually be: x = 42, y = 2
+	float pin_x_adjusted = maze_size_units - pin_y_units;
+	float pin_y_adjusted = pin_x_units;
+
 	float lhs_bound_unit = x_center_units - (target_square_units / 2.0);
 	float top_bound_unit = y_center_units - (target_square_units / 2.0);
 	// We find the "center" relative to the units displayed as a % x,  y in the screen
-	float pin_center_pct_over_x = (pin_x_units - lhs_bound_unit) / target_square_units;
-	float pin_center_pct_over_y = (pin_y_units - top_bound_unit) / target_square_units;
+	float pin_center_pct_over_x = (pin_x_adjusted - lhs_bound_unit) / target_square_units;
+	float pin_center_pct_over_y = (pin_y_adjusted - top_bound_unit) / target_square_units;
 	// And then we get the bounds
 	float lhs_pin_pct_of_output = pin_center_pct_over_x - (pin_size_as_pct_of_output / 2.0);
 	float rhs_pin_pct_of_output = lhs_pin_pct_of_output + pin_size_as_pct_of_output;
