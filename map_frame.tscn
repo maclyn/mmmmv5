@@ -13,6 +13,7 @@ albedo_color = Color(0.548346, 0.3076, 0.0997338, 1)
 roughness = 0.613636
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_jeqjv"]
+resource_local_to_scene = true
 render_priority = 0
 shader = ExtResource("3_pgwon")
 shader_parameter/map_size_units = 124.0
