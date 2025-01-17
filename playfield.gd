@@ -81,17 +81,20 @@ func _update_minimap():
 		var viewport_size = 124.0
 		var tex_size = 2048.0
 		var tex_px_per_scene_unit = tex_size / viewport_size
-		var desired_span_px = tex_px_per_scene_unit * 20.0 # 10 units across
-		var half_span = desired_span_px / 2.0
-		var player_center_x_in_px = player_pos.x * desired_span_px
-		var player_center_y_in_px = player_pos.z * desired_span_px
-		var ideal_start_x = player_center_x_in_px - half_span
-		var ideal_end_x = player_center_x_in_px + half_span
-		var ideal_start_y = player_center_y_in_px - half_span
-		var ideal_end_y = player_center_y_in_px + half_span
-		var new_region = Rect2(tex_size - ideal_start_x, tex_size - ideal_start_y, desired_span_px, desired_span_px)
-		# minimap_atlas_texture.filter_clip = true
-		minimap_atlas_texture.region = Rect2(0.0, 0.0, tex_size, tex_size) #new_region
+		var desired_map_size_span_px = tex_px_per_scene_unit * 32.0 # 4 units on each side -> 16.0 -> 32.0
+		var half_desired_map_size_span_px = desired_map_size_span_px / 2.0
+		var player_center_x_in_px = player_pos.x * desired_map_size_span_px
+		var player_center_y_in_px = player_pos.z * desired_map_size_span_px
+		var ideal_start_x = player_center_x_in_px - half_desired_map_size_span_px
+		var ideal_end_x = player_center_x_in_px + half_desired_map_size_span_px
+		var ideal_start_y = player_center_y_in_px - half_desired_map_size_span_px
+		var ideal_end_y = player_center_y_in_px + half_desired_map_size_span_px
+		var new_region = Rect2(
+			tex_size - ideal_start_x,
+			tex_size - ideal_start_y,
+			desired_map_size_span_px,
+			desired_map_size_span_px)
+		minimap_atlas_texture.region = new_region
 		# TODO: Rotate it
 		# $HUD/MiniMapContainer/MiniMap.rotation_degrees = Time.get_ticks_msec() / 100.0
 
@@ -199,7 +202,6 @@ func _on_maze_load_complete(start_position: Vector2i):
 	RenderingServer.request_frame_drawn_callback(_on_first_frame)
 	
 func _on_first_frame():
-	print("on first frame")
 	$Maze.on_first_frame()
 	var minimap_image_texture = ImageTexture.create_from_image($Maze.get_overhead_camera_image())
 	minimap_atlas_texture = AtlasTexture.new()

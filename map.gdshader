@@ -9,6 +9,7 @@ uniform float x_center_units;
 uniform float y_center_units;
 uniform float pin_x_units;
 uniform float pin_y_units;
+uniform bool flip_pin_units;
 
 void fragment() {
 	// UV will give us where we are on the square
@@ -41,12 +42,21 @@ void fragment() {
 	// In our default config, that's left-most/top-most side at 40 - (124 / 2) = -22
 	// ...but we're cropped in by pct_of_map_visible
 
+	// If we've rotated the map from world-space (good idea, since we go south)
+	// we should flip
+	float pin_x_flipped = pin_x_units;
+	float pin_y_flipped = pin_y_units;
+	if (flip_pin_units) {
+		pin_x_flipped = maze_size_units - pin_x_units;
+		pin_y_flipped = maze_size_units - pin_y_units;
+	}
+
 	// This is a dirty and bad hack to fix rotation issues
 	// x = 42, y = 2 --> x = 78, y = 2
 	// What works without adjustment: x = 78, y = 42
 	// For what should actually be: x = 42, y = 2
-	float pin_x_adjusted = maze_size_units - pin_y_units;
-	float pin_y_adjusted = pin_x_units;
+	float pin_x_adjusted = maze_size_units - pin_y_flipped;
+	float pin_y_adjusted = pin_x_flipped;
 
 	float lhs_bound_unit = x_center_units - (target_square_units / 2.0);
 	float top_bound_unit = y_center_units - (target_square_units / 2.0);

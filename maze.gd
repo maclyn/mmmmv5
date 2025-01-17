@@ -252,11 +252,16 @@ func clear_maze() -> void:
 func on_first_frame() -> void:
 	var map_viewport_texture = $MapViewport.get_texture()
 	var image: Image = map_viewport_texture.get_image()
-	image.rotate_90(CLOCKWISE) # Not sure why, but when using get_image(), the image is rotated
 	map_image_texture = ImageTexture.create_from_image(image)
+	
+	var wall_map_image: Image = image.duplicate(true)
+	wall_map_image.rotate_90(CLOCKWISE)
+	# Uncomment to generate a new textures/map_sample.png
+	# wall_map_image.save_png("/Users/maclyn/Development/mmmmv5/textures/map_sample.png")
+	var wall_map_image_texture = ImageTexture.create_from_image(wall_map_image)
 	for block in map_blocks:
 		var center = _maze_block_position_to_center_in_scene_space(block.position.x, block.position.y)
-		block.instance.get_south_wall().add_map(map_image_texture, center.x, center.y)
+		block.instance.get_south_wall().add_map(wall_map_image_texture, center.x, center.y)
 	
 func show_path_out() -> void:
 	if portal_block != null:

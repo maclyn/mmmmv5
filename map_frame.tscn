@@ -20,8 +20,9 @@ shader_parameter/map_size_units = 124.0
 shader_parameter/maze_size_units = 80.0
 shader_parameter/x_center_units = 40.0
 shader_parameter/y_center_units = 40.0
-shader_parameter/pin_x_units = 6.0
-shader_parameter/pin_y_units = 6.0
+shader_parameter/pin_x_units = 2.0
+shader_parameter/pin_y_units = 2.0
+shader_parameter/flip_pin_units = true
 shader_parameter/base_map = ExtResource("4_q2in2")
 shader_parameter/pin = ExtResource("5_8y7ec")
 
