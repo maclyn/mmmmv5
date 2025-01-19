@@ -52,6 +52,10 @@ func _ready():
 	$GameOver.visible = false
 	var indicator_size = $HUD/MiniMapContainer/PlayerIndicator.size.x
 	$HUD/MiniMapContainer/PlayerIndicator.pivot_offset = Vector2(indicator_size / 2.0, indicator_size / 2.0)
+	var minimap_size = $HUD/MiniMapContainer.size.x
+	$HUD/MiniMapContainer.pivot_offset = Vector2(minimap_size / 2.0, minimap_size / 2.0)
+	$HUD/MiniMapContainer.rotation_degrees = 180.0
+
 	if Engine.is_editor_hint():
 		print("Running playfield in editor")
 		$MazeDebugCamera.current = true
@@ -86,19 +90,20 @@ func _update_minimap():
 		var tex_px_per_scene_unit = tex_size / viewport_size
 		var desired_map_size_span_px = tex_px_per_scene_unit * 40.0 # 5 units on each side -> 20.0 -> 40.0
 		var half_desired_map_size_span_px = desired_map_size_span_px / 2.0
-		var player_center_x_in_px = player_pos.x * desired_map_size_span_px
-		var player_center_y_in_px = player_pos.z * desired_map_size_span_px
-		var ideal_start_x = player_center_x_in_px - half_desired_map_size_span_px
-		var ideal_end_x = player_center_x_in_px + half_desired_map_size_span_px
-		var ideal_start_y = player_center_y_in_px - half_desired_map_size_span_px
-		var ideal_end_y = player_center_y_in_px + half_desired_map_size_span_px
+		var player_center_x_in_px = player_pos.x * tex_px_per_scene_unit
+		var player_center_y_in_px = player_pos.z * tex_px_per_scene_unit
+		# Offset, since the edge of the map is not (0, 0)
+		# 22.0 = 124.0 - (20.0 * 4) / 2.0; flip
+		player_center_x_in_px -= (-22.0 * tex_px_per_scene_unit)
+		player_center_y_in_px -= (-22.0 * tex_px_per_scene_unit)
 		var new_region = Rect2(
-			tex_size - ideal_start_x,
-			tex_size - ideal_start_y,
+			player_center_x_in_px - half_desired_map_size_span_px,
+			player_center_y_in_px - half_desired_map_size_span_px,
 			desired_map_size_span_px,
 			desired_map_size_span_px)
-		minimap_atlas_texture.region = new_region
-		$HUD/MiniMapContainer/PlayerIndicator.rotation = -(player_rotation_y + PI)
+		# TODO: Rotation on UI element
+		minimap_atlas_texture.region = new_region# Rect2(0.0, 0.0, tex_size, tex_size) #new_region
+		$HUD/MiniMapContainer/PlayerIndicator.rotation = -(player_rotation_y)
 
 func _on_player_look_direction_changed(position: Vector3, rotation_y: float) -> void:
 	$Maze.update_player_marker(position.x, position.z, rotation_y)
@@ -206,7 +211,9 @@ func _on_maze_load_complete(start_position: Vector2i):
 	
 func _on_first_frame():
 	$Maze.on_first_frame()
-	var minimap_image_texture = ImageTexture.create_from_image($Maze.get_overhead_camera_image())
+	var overhead_image: Image = $Maze.get_overhead_camera_image().duplicate()
+	overhead_image.rotate_180()
+	var minimap_image_texture = ImageTexture.create_from_image(overhead_image)
 	minimap_atlas_texture = AtlasTexture.new()
 	minimap_atlas_texture.atlas = minimap_image_texture
 	$HUD/MiniMapContainer/MiniMap.texture = minimap_atlas_texture
