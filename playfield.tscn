@@ -114,7 +114,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_rgj6w")
 layout_mode = 2
 expand_mode = 5
 
-[node name="TextureRect" type="TextureRect" parent="HUD/MiniMapContainer"]
+[node name="PlayerIndicator" type="TextureRect" parent="HUD/MiniMapContainer"]
 custom_minimum_size = Vector2(24, 24)
 layout_mode = 2
 size_flags_horizontal = 4
@@ -123,6 +123,7 @@ texture = ExtResource("8_5jnvf")
 expand_mode = 1
 
 [node name="LoadingContainer" type="PanelContainer" parent="HUD"]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

@@ -15,6 +15,7 @@ var curr_difficulty: GameDifficulty = GameDifficulty.NORMAL
 var last_game_state_transition_time = Time.get_ticks_msec()
 var time_to_key = -1
 var time_to_return = -1
+var player_rotation_y = 0.0
 
 var minimap_atlas_texture: AtlasTexture
 
@@ -49,6 +50,8 @@ func start_spooky_game() -> void:
 	
 func _ready():
 	$GameOver.visible = false
+	var indicator_size = $HUD/MiniMapContainer/PlayerIndicator.size.x
+	$HUD/MiniMapContainer/PlayerIndicator.pivot_offset = Vector2(indicator_size / 2.0, indicator_size / 2.0)
 	if Engine.is_editor_hint():
 		print("Running playfield in editor")
 		$MazeDebugCamera.current = true
@@ -78,10 +81,10 @@ func _update_minimap():
 		# so visible area is [-10, 90], [-10, 90]
 		# a x = 0 and w = 2048, and y = 0 and h = 2048 just draws the whole map
 		# the center is (40, 40)
-		var viewport_size = 124.0
+		var viewport_size = 124.0 # 20 units * 4 = 80 units; 44 units padding (22 / 4 -> ~5.5 blocks of padding)
 		var tex_size = 2048.0
 		var tex_px_per_scene_unit = tex_size / viewport_size
-		var desired_map_size_span_px = tex_px_per_scene_unit * 32.0 # 4 units on each side -> 16.0 -> 32.0
+		var desired_map_size_span_px = tex_px_per_scene_unit * 40.0 # 5 units on each side -> 20.0 -> 40.0
 		var half_desired_map_size_span_px = desired_map_size_span_px / 2.0
 		var player_center_x_in_px = player_pos.x * desired_map_size_span_px
 		var player_center_y_in_px = player_pos.z * desired_map_size_span_px
@@ -95,11 +98,11 @@ func _update_minimap():
 			desired_map_size_span_px,
 			desired_map_size_span_px)
 		minimap_atlas_texture.region = new_region
-		# TODO: Rotate it
-		# $HUD/MiniMapContainer/MiniMap.rotation_degrees = Time.get_ticks_msec() / 100.0
+		$HUD/MiniMapContainer/PlayerIndicator.rotation = -(player_rotation_y + PI)
 
 func _on_player_look_direction_changed(position: Vector3, rotation_y: float) -> void:
 	$Maze.update_player_marker(position.x, position.z, rotation_y)
+	player_rotation_y = rotation_y
 
 func _on_player_cheat() -> void:
 	if game_state == GameState.GOING_TO_KEY:
