@@ -4,12 +4,15 @@ extends Node
 @export var default_map_env: Resource
 @export var dark_map_env: Resource
 
-const Saver = preload("res://saver.gd")
-var saver = Saver.new()
+var saver = Globals.get_saver()
 
 signal game_over()
 
-# All game state
+# Overall game state
+var score: int = 0
+var round: int = 0
+
+# Round state
 var game_state: GameState = GameState.NOT_STARTED
 var curr_difficulty: GameDifficulty = GameDifficulty.NORMAL
 var last_game_state_transition_time = Time.get_ticks_msec()
@@ -22,7 +25,8 @@ var minimap_atlas_texture: AtlasTexture
 enum GameDifficulty {
 	EASY,
 	NORMAL,
-	SPOOKY
+	SPOOKY,
+	HARD
 }
 
 var difficulties_str_list: Array[String] = [
@@ -239,12 +243,7 @@ func _game_over(did_win: bool = false, skip_anim: bool = false) -> void:
 	if !skip_anim:
 		if did_win:
 			var score = _calculate_score()
-			$GameOver.win(
-				score,
-				saver.compare_to_last_high_score_and_maybe_update(
-					difficulties_str_list,
-					str(curr_difficulty),
-					score))
+			$GameOver.win(score, saver.compare_to_last_high_score_and_maybe_update(score))
 		else:
 			$GameOver.lose()
 		$GameOver.visible = true

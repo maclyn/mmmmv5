@@ -1,6 +1,12 @@
 extends Node
 
+const Saver = preload("res://saver.gd")
+
+var saver = Saver.new()
 var tick_count: int
+
+func get_saver() -> Object:
+	return saver
 
 func is_mobile() -> bool:
 	return OS.get_name() == "Android" || OS.get_name() == "iOS" || emulate_mobile()

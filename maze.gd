@@ -28,7 +28,7 @@ const MAZE_DIMENS_IN_SCENE_SPACE = MAZE_BLOCK_SQUARE_SIZE * MAZE_WIDTH_AND_HEIGH
 const LEAD_IN_DIST = 3
 const MAX_DIST = MAZE_WIDTH_AND_HEIGHT * 4
 const MAX_PCT_FORWARD_BLOCKS = 0.4
-const MAP_BLOCKS_APPROX_PERCENT = 0.50
+const MAP_BLOCKS_APPROX_PERCENT = 0.02
 const PERCENT_CHANCE_OF_PORTAL_BLOCK = 0.1
 const PERCENT_CHANCE_OF_QUICKSAND_BLOCK = 0.05
 const PERCENT_CHANGE_OF_SPIKE_BLOCK = 0.05
@@ -49,6 +49,7 @@ const NORTH_BIRD_EDGE = (-LEAD_IN_DIST * MAZE_BLOCK_SQUARE_SIZE) + (BIRD_LENGTH 
 
 var gen_thread: Thread = null
 var blocks: Dictionary = {}
+var blocks_count: int = 0
 var player: Node3D = null
 var snakes: Array[Node] = []
 var bird: Node3D = null
@@ -225,6 +226,7 @@ func build_new_maze_impl():
 		print("Building maze in editor")
 	while start_position == Vector2i.ZERO:
 		blocks.clear()
+		blocks_count = 0
 		start_position = await _generate_maze(Engine.is_editor_hint())
 	var exit_position = exit_block.instance.global_position
 	$EndMarker.global_position = Vector3(exit_position.x, 4, exit_position.z)
@@ -450,6 +452,7 @@ func _add_block_at_position(block: MazeBlock):
 	var sub_dict = blocks[x]
 	assert(y not in sub_dict, "should not add block at existing position")
 	sub_dict[y] = block
+	blocks_count += 1
 	
 # Generate the maze, and return the center of the maze entrance in world space
 # or return Vector2i.ZERO if it failed to generate a good maze
@@ -509,15 +512,12 @@ func _generate_maze(allow_bad_mazes: bool = false):
 	if forward_block_pct > MAX_PCT_FORWARD_BLOCKS && !allow_bad_mazes:
 		# FAILURE -- Probably a boring maze to play
 		print("Failed boring maze of ", str(forward_block_pct), "% forward blocks")
-		_emit_load_changed("Retrying after building boring maze...")
 		return Vector2i.ZERO
 	if end_block == null:
 		# FAILURE -- We didn't build a good path
-		_emit_load_changed("Retrying after building maze without path...")
 		return Vector2i.ZERO
 	else:
 		# SUCCESS -- We have a path
-		print("Maze designed; solidfiying path")
 		end_block.is_exit = true
 		exit_block = end_block
 		var node = exit_block
@@ -527,11 +527,11 @@ func _generate_maze(allow_bad_mazes: bool = false):
 		
 	# Place objects in the scene
 	# Also choose special maze blocks
-	_emit_load_changed("Actualizing completed maze...")
+	_emit_load_changed("Building completed maze...")
+	var blocks_built = 0
 	for x in blocks:
 		for y in blocks[x]:
 			var block = blocks[x][y]
-			# print("self " + str(self))
 			block.actualize(maze_block_scene, self)
 			if !block.instance.is_node_ready():
 				await block.instance.ready
@@ -581,6 +581,10 @@ func _generate_maze(allow_bad_mazes: bool = false):
 				elif randf_range(0.0, 1.0) > (1.0 - PERCENT_CHANGE_OF_SPIKE_BLOCK):
 					print("Added spike block at " + str(x) + ", " + str(y))
 					block.instance.add_spike()
+			
+			blocks_built += 1
+			if blocks_built % 25 == 0:
+				_emit_load_changed("Added " + str(blocks_built) + " of " + str(blocks_count))
 	if portal_block:
 		portal_block.instance.enable_portal(portal_exit_block.instance)
 		portal_exit_block.instance.set_as_portal_exit()

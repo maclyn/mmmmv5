@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://dtsi5rjl4d3mi"]
+[gd_scene load_steps=9 format=3 uid="uid://dtsi5rjl4d3mi"]
 
 [ext_resource type="Script" path="res://main_menu.gd" id="1_1efbp"]
 [ext_resource type="Texture2D" uid="uid://dghtc8eovy3xq" path="res://textures/splash.png" id="1_wbcnh"]
@@ -11,14 +11,6 @@ colors = PackedColorArray(0.391928, 0.52284, 1, 1, 1, 1, 1, 1)
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_l74hv"]
 gradient = SubResource("Gradient_7omxu")
 
-[sub_resource type="InputEventKey" id="InputEventKey_4qk7b"]
-device = -1
-keycode = 69
-unicode = 101
-
-[sub_resource type="Shortcut" id="Shortcut_ewu6a"]
-events = [SubResource("InputEventKey_4qk7b")]
-
 [sub_resource type="InputEventKey" id="InputEventKey_6vci2"]
 device = -1
 keycode = 78
@@ -26,14 +18,6 @@ unicode = 110
 
 [sub_resource type="Shortcut" id="Shortcut_65fy5"]
 events = [SubResource("InputEventKey_6vci2")]
-
-[sub_resource type="InputEventKey" id="InputEventKey_asvg4"]
-device = -1
-keycode = 83
-unicode = 115
-
-[sub_resource type="Shortcut" id="Shortcut_5t60t"]
-events = [SubResource("InputEventKey_asvg4")]
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -54,8 +38,9 @@ texture = SubResource("GradientTexture1D_l74hv")
 texture_filter = 1
 layout_mode = 1
 anchors_preset = -1
-anchor_right = 1.0
-anchor_bottom = 0.799
+anchor_left = 0.15
+anchor_right = 0.85
+anchor_bottom = 0.629
 offset_bottom = -0.280029
 grow_horizontal = 2
 grow_vertical = 2
@@ -64,18 +49,10 @@ texture = ExtResource("1_wbcnh")
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
 layout_mode = 0
 offset_left = 34.0
-offset_top = 575.0
+offset_top = 600.0
 offset_right = 1241.0
-offset_bottom = 706.0
+offset_bottom = 700.0
 alignment = 1
-
-[node name="EasyButton" type="Button" parent="HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme = ExtResource("2_eh4l0")
-shortcut = SubResource("Shortcut_ewu6a")
-shortcut_in_tooltip = false
-text = "(E)ASY"
 
 [node name="NormalButton" type="Button" parent="HBoxContainer"]
 layout_mode = 2
@@ -83,15 +60,7 @@ size_flags_horizontal = 3
 theme = ExtResource("2_eh4l0")
 shortcut = SubResource("Shortcut_65fy5")
 shortcut_in_tooltip = false
-text = "(N)ORMAL"
-
-[node name="SpookyButton" type="Button" parent="HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme = ExtResource("2_eh4l0")
-shortcut = SubResource("Shortcut_5t60t")
-shortcut_in_tooltip = false
-text = "(S)POOKY"
+text = "(N)ew Game"
 
 [node name="Button" type="Button" parent="."]
 layout_mode = 1
@@ -108,7 +77,24 @@ text = "Mute"
 [node name="Music" type="AudioStreamPlayer3D" parent="."]
 stream = ExtResource("4_lgns7")
 
-[connection signal="pressed" from="HBoxContainer/EasyButton" to="." method="_on_easy_button_pressed"]
+[node name="HighScoreLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -302.0
+offset_top = -199.0
+offset_right = 298.0
+offset_bottom = -163.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 36
+text = "No high score yet!"
+horizontal_alignment = 1
+
+[connection signal="visibility_changed" from="." to="." method="_on_visibility_changed"]
 [connection signal="pressed" from="HBoxContainer/NormalButton" to="." method="_on_normal_button_pressed"]
-[connection signal="pressed" from="HBoxContainer/SpookyButton" to="." method="_on_spooky_button_pressed"]
 [connection signal="pressed" from="Button" to="." method="_on_button_pressed"]
