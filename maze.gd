@@ -28,12 +28,7 @@ const MAZE_DIMENS_IN_SCENE_SPACE = MAZE_BLOCK_SQUARE_SIZE * MAZE_WIDTH_AND_HEIGH
 const LEAD_IN_DIST = 3
 const MAX_DIST = MAZE_WIDTH_AND_HEIGHT * 4
 const MAX_PCT_FORWARD_BLOCKS = 0.4
-const MAP_BLOCKS_APPROX_PERCENT = 0.02
-const PERCENT_CHANCE_OF_PORTAL_BLOCK = 0.1
-const PERCENT_CHANCE_OF_QUICKSAND_BLOCK = 0.05
-const PERCENT_CHANGE_OF_SPIKE_BLOCK = 0.05
 const MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS = 2
-const SNAKE_SPAWN_PER_COL_ROW_PROB = 0.75 # most rows/columns get a snake
 const BIRD_COL_ROW_PADDING = 2 # first and last 2 columns shouldn't have the bird
 
 # Derived from asset values + gameplay values
@@ -48,6 +43,7 @@ const SOUTH_BIRD_EDGE = (MAZE_DIMENS_IN_SCENE_SPACE) + (BIRD_LENGTH * 3)
 const NORTH_BIRD_EDGE = (-LEAD_IN_DIST * MAZE_BLOCK_SQUARE_SIZE) + (BIRD_LENGTH * -3)
 
 var gen_thread: Thread = null
+var difficulty: Constants.GameDifficulty = Constants.GameDifficulty.EASY
 var blocks: Dictionary = {}
 var blocks_count: int = 0
 var player: Node3D = null
@@ -208,7 +204,8 @@ class MazeBlock:
 			prev == GridDirection.WEST
 		)
 
-func build_new_maze():
+func build_new_maze(difficulty: Constants.GameDifficulty):
+	self.difficulty = difficulty
 	gen_thread = Thread.new()
 	gen_thread.start(build_new_maze_impl)
 	
@@ -272,6 +269,8 @@ func show_path_out() -> void:
 		exit_block.instance.hide_key()
 	for block in path_from_exit_to_entrance:
 		block.show_arrow()
+	if is_instance_valid(bird):
+		remove_child(bird)
 	_add_snakes()
 	
 # player is actually the pivot node for the player
@@ -546,7 +545,7 @@ func _generate_maze(allow_bad_mazes: bool = false):
 			# in first or last 2 blocks
 			if y > MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS && y < MAZE_WIDTH_AND_HEIGHT - MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS && x > MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS && x < MAZE_WIDTH_AND_HEIGHT - MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS:
 				# Add map (maybe)
-				if randf_range(0.0, 1.0) > (1.0 - MAP_BLOCKS_APPROX_PERCENT):
+				if randf_range(0.0, 1.0) > (1.0 - _percent_chance_of_map_block()):
 					print("Added map block at " + str(x) + ", " + str(y))
 					map_blocks.push_back(block)
 				
@@ -554,7 +553,7 @@ func _generate_maze(allow_bad_mazes: bool = false):
 				if (
 					portal_block == null &&
 					block.walls[GridDirection.SOUTH] &&
-					randf_range(0.0, 1.0) > (1.0 - PERCENT_CHANCE_OF_PORTAL_BLOCK)
+					randf_range(0.0, 1.0) > (1.0 - _percent_chance_of_portal_block())
 				):
 					portal_block = block
 					# Choose an exit block
@@ -568,17 +567,17 @@ func _generate_maze(allow_bad_mazes: bool = false):
 							if (
 								portal_exit_candidate != null &&
 								portal_exit_candidate.walls[GridDirection.NORTH] &&
-								randf_range(0.0, 1.0) > (1.0 - PERCENT_CHANCE_OF_PORTAL_BLOCK)
+								randf_range(0.0, 1.0) > (1.0 - _percent_chance_of_portal_block())
 							):
 								portal_exit_block = portal_exit_candidate
 					if portal_exit_block == null:
 						portal_block = null
 					else:
 						print("Chose portal block at " + str(x) + ", " + str(y))
-				elif randf_range(0.0, 1.0) > (1.0 - PERCENT_CHANCE_OF_QUICKSAND_BLOCK):
+				elif randf_range(0.0, 1.0) > (1.0 - _percent_chance_of_quicksand_block()):
 					print("Added quicksand block at " + str(x) + ", " + str(y))
 					block.instance.add_quicksand()
-				elif randf_range(0.0, 1.0) > (1.0 - PERCENT_CHANGE_OF_SPIKE_BLOCK):
+				elif randf_range(0.0, 1.0) > (1.0 - _percent_chance_of_spike_block()):
 					print("Added spike block at " + str(x) + ", " + str(y))
 					block.instance.add_spike()
 			
@@ -599,7 +598,7 @@ func _maze_block_position_to_center_in_scene_space(x: int, y: int) -> Vector2i:
 func _add_snakes():
 	# New snake, who this
 	for x in range(1, MAZE_WIDTH_AND_HEIGHT):
-		var should_snake = randf_range(0.0, 1.0) <= SNAKE_SPAWN_PER_COL_ROW_PROB && (exit_block == null || x != exit_block.position.x)
+		var should_snake = randf_range(0.0, 1.0) <= _percent_chance_of_snake_per_row_col() && (exit_block == null || x != exit_block.position.x)
 		if !should_snake:
 			continue
 		var north_to_south = randf_range(0.0, 1.0) > 0.5
@@ -611,7 +610,7 @@ func _add_snakes():
 		y_pos += ((1 if north_to_south else -1) * randf_range(0.2 if near_exit else 0.0, MAZE_DIMENS_IN_SCENE_SPACE * 0.5))
 		_new_snake(dx, dy, x_pos, y_pos, 90.0 if north_to_south else 270.0)
 	for y in range(1, MAZE_WIDTH_AND_HEIGHT - 1):
-		var should_snake = randf_range(0.0, 1.0) <= SNAKE_SPAWN_PER_COL_ROW_PROB && exit_block != null && y != exit_block.position.y
+		var should_snake = randf_range(0.0, 1.0) <= _percent_chance_of_snake_per_row_col() && exit_block != null && y != exit_block.position.y
 		if !should_snake:
 			continue
 		var west_to_east = randf_range(0.0, 1.0) > 0.5
@@ -660,6 +659,60 @@ func _new_bird(dx: int, dy: int, target: Vector2i, start_x_pos: float, start_y_p
 	bird.connect("player_dropped", _on_player_dropped_by_bird)
 	print("Added bird at " + str(bird.position))
 	self.add_child.call_deferred(bird)
+	
+func _percent_chance_of_map_block():
+	match difficulty:
+		Constants.GameDifficulty.EASY:
+			return 0.02
+		Constants.GameDifficulty.NORMAL:
+			return 0.02
+		Constants.GameDifficulty.SPOOKY:
+			return 0.02
+		Constants.GameDifficulty.HARD:
+			return 0.02
+	return 0.05
+	
+func _percent_chance_of_portal_block():
+	# Doesn't change per difficulty
+	# Only 1 per map, and we want it to show up earlier, so skew prob.
+	# higher so we hit it soon
+	return 0.1
+	
+func _percent_chance_of_quicksand_block():
+	match difficulty:
+		Constants.GameDifficulty.EASY:
+			return 0.05
+		Constants.GameDifficulty.NORMAL:
+			return 0.06
+		Constants.GameDifficulty.SPOOKY:
+			return 0.06
+		Constants.GameDifficulty.HARD:
+			return 0.07
+	return 0.07
+
+func _percent_chance_of_spike_block():
+	match difficulty:
+		Constants.GameDifficulty.EASY:
+			return 0.04
+		Constants.GameDifficulty.NORMAL:
+			return 0.05
+		Constants.GameDifficulty.SPOOKY:
+			return 0.05
+		Constants.GameDifficulty.HARD:
+			return 0.06
+	return 0.06
+	
+func _percent_chance_of_snake_per_row_col():
+	match difficulty:
+		Constants.GameDifficulty.EASY:
+			return 0.60
+		Constants.GameDifficulty.NORMAL:
+			return 0.75
+		Constants.GameDifficulty.SPOOKY:
+			return 0.65
+		Constants.GameDifficulty.HARD:
+			return 0.80
+	return 0.80
 
 func _on_snake_hit():
 	on_snake_hit.emit()

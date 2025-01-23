@@ -1,10 +1,12 @@
 @tool
 extends Node
 
+# Playfield manages the "game", both overall, and within a given round
+# When a round is won, round state is reset, but score isn't change and round number is bumped
+# When the game ends, round state is reset
+
 @export var default_map_env: Resource
 @export var dark_map_env: Resource
-
-var saver = Globals.get_saver()
 
 signal game_over()
 
@@ -14,7 +16,7 @@ var round: int = 0
 
 # Round state
 var game_state: GameState = GameState.NOT_STARTED
-var curr_difficulty: GameDifficulty = GameDifficulty.NORMAL
+var round_difficulty: Constants.GameDifficulty = Constants.GameDifficulty.EASY
 var last_game_state_transition_time = Time.get_ticks_msec()
 var time_to_key = -1
 var time_to_return = -1
@@ -22,35 +24,16 @@ var player_rotation_y = 0.0
 
 var minimap_atlas_texture: AtlasTexture
 
-enum GameDifficulty {
-	EASY,
-	NORMAL,
-	SPOOKY,
-	HARD
-}
-
-var difficulties_str_list: Array[String] = [
-	str(GameDifficulty.EASY),
-	str(GameDifficulty.NORMAL),
-	str(GameDifficulty.SPOOKY)
-]
-
 enum GameState {
 	NOT_STARTED,
 	GOING_TO_KEY,
 	RETURNING_TO_LOCK,
-	GAME_OVER_WIN,
-	GAME_OVER_LOSS
+	ROUND_OVER_WIN,
+	GAME_OVER
 }
-	
-func start_easy_game() -> void:
-	_start_new_game(GameDifficulty.EASY)
 
-func start_normal_game() -> void:
-	_start_new_game(GameDifficulty.NORMAL)
-
-func start_spooky_game() -> void:
-	_start_new_game(GameDifficulty.SPOOKY)
+func start_new_game() -> void:
+	_start_new_game()
 	
 func _ready():
 	$GameOver.visible = false
@@ -68,9 +51,9 @@ func _process(_delta: float) -> void:
 	match game_state:
 		GameState.NOT_STARTED:
 			pass
-		GameState.GAME_OVER_WIN:
+		GameState.ROUND_OVER_WIN:
 			pass
-		GameState.GAME_OVER_LOSS:
+		GameState.GAME_OVER:
 			$Player.rotation.x = deg_to_rad($GameOver.pct_faded_in() * 45)
 			pass
 		GameState.GOING_TO_KEY:
@@ -125,7 +108,7 @@ func _on_player_cheat() -> void:
 	
 func _on_player_at_exit() -> void:
 	if game_state == GameState.RETURNING_TO_LOCK:
-		_game_over(true)
+		_round_over(true)
 
 func _on_player_at_key() -> void:
 	game_state = GameState.RETURNING_TO_LOCK
@@ -143,13 +126,13 @@ func _on_player_at_portal() -> void:
 	$Player.global_position = Vector3(exit_xz.x, $Player.global_position.y, exit_xz.y)
 	
 func _on_player_at_quicksand() -> void:
-	_game_over(false)
+	_round_over(false)
 	
 func _on_player_at_spike() -> void:
-	_game_over(false)
+	_round_over(false)
 	
 func _on_game_timer_timeout() -> void:
-	_game_over(false)
+	_round_over(false)
 
 func _format_label_to_remaining_timer():
 	var time_left = $GameTimer.time_left
@@ -159,33 +142,54 @@ func _format_label_to_remaining_timer():
 	$HUD/TimerLabel.text = "%01d:%02d:%01.1d" % [minutes, seconds, milliseconds]
 
 func _ms_per_block() -> float:
-	match curr_difficulty:
-		GameDifficulty.EASY:
+	match round_difficulty:
+		Constants.GameDifficulty.EASY:
 			return 800.0
-		GameDifficulty.NORMAL:
+		Constants.GameDifficulty.NORMAL:
 			return 625.0
-		GameDifficulty.SPOOKY:
+		Constants.GameDifficulty.SPOOKY:
 			return 600.0
+		Constants.GameDifficulty.HARD:
+			return 500.0
 	return 500.0
 
 func _max_time_to_key_ms() -> float:
 	var multiplier = 1.0
-	match curr_difficulty:
-		GameDifficulty.EASY:
+	match round_difficulty:
+		Constants.GameDifficulty.EASY:
 			multiplier = 4.0
-		GameDifficulty.NORMAL:
+		Constants.GameDifficulty.NORMAL:
 			multiplier = 3.0
-		GameDifficulty.SPOOKY:
+		Constants.GameDifficulty.SPOOKY:
 			multiplier = 2.5
+		Constants.GameDifficulty.HARD:
+			multiplier = 2.0
 	return multiplier * ($Maze.path_block_count() - 1) * 1000
 	
 func _max_time_to_return_s() -> float:
 	return _ms_per_block() * 0.001 * $Maze.path_block_count()
 
-func _start_new_game(difficulty: GameDifficulty) -> void:
-	curr_difficulty = difficulty
+func _start_new_game() -> void:
+	round = 1
+	score = 0
 	_update_loading_screen(true, "Loading...")
-	$Maze.build_new_maze()
+	_start_new_round()
+	
+func _start_new_round() -> void:
+	game_state = GameState.NOT_STARTED
+	if round == 1:
+		round_difficulty = Constants.GameDifficulty.EASY
+	elif round == 2:
+		round_difficulty = Constants.GameDifficulty.NORMAL
+	elif round == 3:
+		round_difficulty = Constants.GameDifficulty.SPOOKY
+	else:
+		round_difficulty = Constants.GameDifficulty.HARD if round % 2 == 0 else Constants.GameDifficulty.SPOOKY
+	last_game_state_transition_time = Time.get_ticks_msec()
+	time_to_key = -1
+	time_to_return = -1
+	player_rotation_y = 0.0
+	$Maze.build_new_maze(round_difficulty)
 	
 func _on_maze_load_complete(start_position: Vector2i):
 	$MobileControls.visible = !Engine.is_editor_hint() && Globals.is_mobile()
@@ -199,15 +203,15 @@ func _on_maze_load_complete(start_position: Vector2i):
 	last_game_state_transition_time = Time.get_ticks_msec()
 	
 	$Player.set_camera(
-		curr_difficulty != GameDifficulty.SPOOKY,
-		curr_difficulty == GameDifficulty.SPOOKY)
-	$Sun.visible = curr_difficulty != GameDifficulty.SPOOKY
+		round_difficulty != Constants.GameDifficulty.SPOOKY,
+		round_difficulty == Constants.GameDifficulty.SPOOKY)
+	$Sun.visible = round_difficulty != Constants.GameDifficulty.SPOOKY
 	if !Globals.is_debug():
-		if curr_difficulty != GameDifficulty.SPOOKY:
+		if round_difficulty != Constants.GameDifficulty.SPOOKY:
 			$Music/NormalMusicPlayer.play()
 		else:
 			$Music/SpookyMusicPlayer.play()
-	$Maze.set_map_env(default_map_env if curr_difficulty != GameDifficulty.SPOOKY else dark_map_env)
+	$Maze.set_map_env(default_map_env if round_difficulty != Constants.GameDifficulty.SPOOKY else dark_map_env)
 	$Maze.attach_player($Player/Pivot, $Player)
 	$GameTimer.start(_max_time_to_key_ms() / 1000.0)
 	_update_loading_screen(false)
@@ -223,12 +227,12 @@ func _on_first_frame():
 	$HUD/MiniMapContainer/MiniMap.texture = minimap_atlas_texture
 	
 func _on_snake_hit():
-	_game_over(false, false)
+	_round_over(false)
 
-func _game_over(did_win: bool = false, skip_anim: bool = false) -> void:
-	if game_state == GameState.GAME_OVER_WIN || game_state == GameState.GAME_OVER_LOSS:
+func _round_over(did_win: bool = false, skip_anim: bool = false) -> void:
+	if game_state == GameState.ROUND_OVER_WIN || game_state == GameState.GAME_OVER:
 		return
-	game_state = GameState.GAME_OVER_WIN if did_win else GameState.GAME_OVER_LOSS
+	game_state = GameState.ROUND_OVER_WIN if did_win else GameState.GAME_OVER
 	if did_win:
 		time_to_return = Time.get_ticks_msec() - last_game_state_transition_time
 	last_game_state_transition_time = Time.get_ticks_msec()
@@ -243,7 +247,7 @@ func _game_over(did_win: bool = false, skip_anim: bool = false) -> void:
 	if !skip_anim:
 		if did_win:
 			var score = _calculate_score()
-			$GameOver.win(score, saver.compare_to_last_high_score_and_maybe_update(score))
+			$GameOver.win(score, Globals.get_saver().compare_to_last_high_score_and_maybe_update(score))
 		else:
 			$GameOver.lose()
 		$GameOver.visible = true
@@ -261,7 +265,7 @@ func _on_mobile_controls_h_swipe(delta_x: float) -> void:
 	$Player.external_x_movement(delta_x)
 
 func _on_mobile_controls_main_menu() -> void:
-	_game_over(false, true)
+	_round_over(false, true)
 	
 func _update_loading_screen(visible: bool, text: String = "") -> void:
 	$HUD/LoadingContainer.visible = visible

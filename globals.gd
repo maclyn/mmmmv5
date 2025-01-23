@@ -1,5 +1,13 @@
 extends Node
 
+class_name Constants
+enum GameDifficulty {
+	EASY,
+	NORMAL,
+	SPOOKY,
+	HARD
+}
+
 const Saver = preload("res://saver.gd")
 
 var saver = Saver.new()

@@ -29,7 +29,7 @@ func _hide_main_menu():
 		
 func _on_main_menu_start_game() -> void:
 	_hide_main_menu()
-	$Playfield.start_normal_game()
+	$Playfield.start_new_game()
 
 func _on_playfield_game_over() -> void:
 	_show_main_menu()
