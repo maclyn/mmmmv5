@@ -1,9 +1,8 @@
-[gd_scene load_steps=10 format=4 uid="uid://dryg3y1f6logi"]
+[gd_scene load_steps=9 format=4 uid="uid://dryg3y1f6logi"]
 
 [ext_resource type="PackedScene" uid="uid://6fny1l3cjwr1" path="res://models/map_frame.glb" id="1_2jcg4"]
 [ext_resource type="Script" path="res://map_frame.gd" id="2_ve1w0"]
 [ext_resource type="Shader" path="res://map.gdshader" id="3_pgwon"]
-[ext_resource type="Texture2D" uid="uid://dkmx2tdy5le2f" path="res://textures/map_sample.png" id="4_q2in2"]
 [ext_resource type="Texture2D" uid="uid://weoiaiefxjih" path="res://textures/map_marker.png" id="5_8y7ec"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5lyr7"]
@@ -23,7 +22,6 @@ shader_parameter/y_center_units = 40.0
 shader_parameter/pin_x_units = 2.0
 shader_parameter/pin_y_units = 2.0
 shader_parameter/flip_pin_units = true
-shader_parameter/base_map = ExtResource("4_q2in2")
 shader_parameter/pin = ExtResource("5_8y7ec")
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_2oeql"]

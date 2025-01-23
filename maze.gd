@@ -9,6 +9,10 @@ var maze_block_scene = preload("res://maze_block.tscn")
 var snake_scene = preload("res://snek.tscn")
 var bird_scene = preload("res://birb.tscn")
 
+# Set to true to make it all possible block types/shapes visible early in 
+# the first maze
+const DEBUG_ALL_BLOCKS = true
+
 # These values are tied to assets, and are measured in units
 # ANY CHANGES HERE NEED CORRESPONDING ASSET CHANGES TOO
 const HEDGE_HEIGHT = 4
@@ -30,7 +34,7 @@ const MAZE_DIMENS_IN_SCENE_SPACE = MAZE_BLOCK_SQUARE_SIZE * MAZE_WIDTH_AND_HEIGH
 const LEAD_IN_DIST = 3
 const MAX_DIST = MAZE_WIDTH_AND_HEIGHT * 4
 const MAX_PCT_FORWARD_BLOCKS = 0.4
-const MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS = 2
+const SPECIAL_BLOCK_BOUNDARY_IN_BLOCKS = 2
 const BIRD_COL_ROW_PADDING = 2 # first and last 2 columns shouldn't have the bird
 
 # Derived from asset values + gameplay values
@@ -46,6 +50,8 @@ const NORTH_BIRD_EDGE = (-LEAD_IN_DIST * MAZE_BLOCK_SQUARE_SIZE) + (BIRD_LENGTH 
 
 var gen_thread: Thread = null
 var difficulty: Constants.GameDifficulty = Constants.GameDifficulty.EASY
+# Dynamic root is a node that isn't attached until it's compeltely setup
+# add_child(...) on anything already in the scene tree
 var dynamic_root: Node3D = null
 var blocks: Dictionary = {}
 var blocks_count: int = 0
@@ -166,6 +172,9 @@ class MazeBlock:
 	func actualize(maze_block: Node3D):
 		var x = position.x * MAZE_BLOCK_SQUARE_SIZE
 		var y = position.y * MAZE_BLOCK_SQUARE_SIZE
+		maze_block.position.x = x + HEDGE_LENGTH
+		maze_block.position.y = HEDGE_HEIGHT / 2.0
+		maze_block.position.z = y + HEDGE_LENGTH
 		instance = maze_block
 		maze_block.configure_walls(
 			walls[GridDirection.NORTH],
@@ -173,6 +182,8 @@ class MazeBlock:
 			walls[GridDirection.SOUTH],
 			walls[GridDirection.WEST]
 		)
+		if is_entrance:
+			maze_block.add_exit()
 		if is_exit:
 			maze_block.add_key()
 			match direction_from_prev():
@@ -184,11 +195,6 @@ class MazeBlock:
 					instance.rotate_key_y(PI * 1.5)
 				GridDirection.WEST:
 					instance.rotate_key_y(PI * 0.5)
-		if is_entrance:
-			maze_block.add_exit()
-		maze_block.position.x = x + HEDGE_LENGTH
-		maze_block.position.y = HEDGE_HEIGHT / 2.0
-		maze_block.position.z = y + HEDGE_LENGTH
 		
 	func snekify():
 		instance.snekify()
@@ -205,7 +211,7 @@ class MazeBlock:
 func build_new_maze(difficulty: Constants.GameDifficulty):
 	self.difficulty = difficulty
 	gen_thread = Thread.new()
-	gen_thread.start(build_new_maze_impl, Thread.PRIORITY_LOW)
+	gen_thread.start(build_new_maze_impl, Thread.PRIORITY_HIGH)
 	
 func join_maze_gen_thread(start_position: Vector2i):
 	if gen_thread != null:
@@ -234,7 +240,7 @@ func build_new_maze_impl():
 
 func clear_maze() -> void:
 	if dynamic_root == null:
-		print("Will not clear maze with dynamic_root set")
+		print("Will not clear maze witout dynamic_root set")
 		return
 	for x in blocks:
 		for y in blocks[x]:
@@ -280,7 +286,7 @@ func show_path_out() -> void:
 	for block in path_from_exit_to_entrance:
 		block.show_arrow()
 	if is_instance_valid(bird):
-		remove_child(bird)
+		dynamic_root.remove_child(bird)
 	_add_snakes()
 	
 # player is actually the pivot node for the player
@@ -546,57 +552,57 @@ func _generate_maze(allow_bad_mazes: bool = false):
 	for x in blocks:
 		for y in blocks[x]:
 			var block = blocks[x][y]
-			block.actualize(maze_block_scene.instantiate())
+			block.actualize(maze_block_scene.instantiate()) # The slowest line here
 			dynamic_root.add_child(block.instance)
+			blocks_built += 1
+			_emit_load_changed("Added " + str(blocks_built) + " of " + str(blocks_count))
 			
-			# Uncomment this block to make the first south wall you see be a portal block
-			#if portal_block == null && x == 10 && block.walls[GridDirection.SOUTH]:
-				#portal_block = block
-			#if portal_block != null && portal_exit_block == null && block.walls[GridDirection.NORTH]:
-				#portal_exit_block = block
+			if y < SPECIAL_BLOCK_BOUNDARY_IN_BLOCKS \
+				|| y > MAZE_WIDTH_AND_HEIGHT - SPECIAL_BLOCK_BOUNDARY_IN_BLOCKS \
+				|| x < SPECIAL_BLOCK_BOUNDARY_IN_BLOCKS \
+				|| x > MAZE_WIDTH_AND_HEIGHT - SPECIAL_BLOCK_BOUNDARY_IN_BLOCKS \
+			:
+				continue
+
 
 			# Place a map on the south wall every ~50 blocks, and never
 			# in first or last 2 blocks
-			if y > MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS && y < MAZE_WIDTH_AND_HEIGHT - MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS && x > MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS && x < MAZE_WIDTH_AND_HEIGHT - MAP_BLOCKS_BOUNDARY_SIZE_IN_BLOCKS:
-				# Add map (maybe)
-				if randf_range(0.0, 1.0) > (1.0 - _percent_chance_of_map_block()):
-					print("Added map block at " + str(x) + ", " + str(y))
-					map_blocks.push_back(block)
+			# Add map (maybe)
+			if randf_range(0.0, 1.0) > (1.0 - _percent_chance_of_map_block()):
+				print("Added map block at " + str(x) + ", " + str(y))
+				map_blocks.push_back(block)
 				
-				# Maybe portal too?
-				if (
-					portal_block == null &&
-					block.walls[GridDirection.SOUTH] &&
-					randf_range(0.0, 1.0) > (1.0 - _percent_chance_of_portal_block())
-				):
-					portal_block = block
-					# Choose an exit block
-					var half_grid_height = int(MAZE_WIDTH_AND_HEIGHT / 2)
-					for i in blocks:
-						for j in half_grid_height:
-							var y_idx = j + half_grid_height
-							if !_has_block_at_position(i, y_idx):
-								continue
-							var portal_exit_candidate = blocks[i][y_idx]
-							if (
-								portal_exit_candidate != null &&
-								portal_exit_candidate.walls[GridDirection.NORTH] &&
-								randf_range(0.0, 1.0) > (1.0 - _percent_chance_of_portal_block())
-							):
-								portal_exit_block = portal_exit_candidate
-					if portal_exit_block == null:
-						portal_block = null
-					else:
-						print("Chose portal block at " + str(x) + ", " + str(y))
-				elif randf_range(0.0, 1.0) > (1.0 - _percent_chance_of_quicksand_block()):
-					print("Added quicksand block at " + str(x) + ", " + str(y))
-					block.instance.add_quicksand()
-				elif randf_range(0.0, 1.0) > (1.0 - _percent_chance_of_spike_block()):
-					print("Added spike block at " + str(x) + ", " + str(y))
-					block.instance.add_spike()
-			
-			blocks_built += 1
-			_emit_load_changed("Added " + str(blocks_built) + " of " + str(blocks_count))
+			# Maybe portal too?
+			if (
+				portal_block == null &&
+				block.walls[GridDirection.SOUTH] &&
+				randf_range(0.0, 1.0) > (1.0 - _percent_chance_of_portal_block())
+			):
+				portal_block = block
+				# Choose an exit block
+				var half_grid_height = int(MAZE_WIDTH_AND_HEIGHT / 2)
+				for i in blocks:
+					for j in half_grid_height:
+						var y_idx = j + half_grid_height
+						if !_has_block_at_position(i, y_idx):
+							continue
+						var portal_exit_candidate = blocks[i][y_idx]
+						if (
+							portal_exit_candidate != null &&
+							portal_exit_candidate.walls[GridDirection.NORTH] &&
+							randf_range(0.0, 1.0) > (1.0 - _percent_chance_of_portal_block())
+						):
+							portal_exit_block = portal_exit_candidate
+				if portal_exit_block == null:
+					portal_block = null
+				else:
+					print("Chose portal block at " + str(x) + ", " + str(y))
+			elif randf_range(0.0, 1.0) > (1.0 - _percent_chance_of_quicksand_block()):
+				print("Added quicksand block at " + str(x) + ", " + str(y))
+				block.instance.add_quicksand()
+			elif randf_range(0.0, 1.0) > (1.0 - _percent_chance_of_spike_block()):
+				print("Added spike block at " + str(x) + ", " + str(y))
+				block.instance.add_spike()
 	if portal_block:
 		portal_block.instance.enable_portal(portal_exit_block.instance)
 		portal_exit_block.instance.set_as_portal_exit()
@@ -675,6 +681,8 @@ func _new_bird(dx: int, dy: int, target: Vector2i, start_x_pos: float, start_y_p
 	dynamic_root.add_child(bird)
 	
 func _percent_chance_of_map_block():
+	if DEBUG_ALL_BLOCKS:
+		return 0.25
 	match difficulty:
 		Constants.GameDifficulty.EASY:
 			return 0.02
@@ -690,9 +698,13 @@ func _percent_chance_of_portal_block():
 	# Doesn't change per difficulty
 	# Only 1 per map, and we want it to show up earlier, so skew prob.
 	# higher so we hit it soon
+	if DEBUG_ALL_BLOCKS:
+		return 0.5
 	return 0.1
 	
 func _percent_chance_of_quicksand_block():
+	if DEBUG_ALL_BLOCKS:
+		return 0.15
 	match difficulty:
 		Constants.GameDifficulty.EASY:
 			return 0.05
@@ -705,6 +717,8 @@ func _percent_chance_of_quicksand_block():
 	return 0.07
 
 func _percent_chance_of_spike_block():
+	if DEBUG_ALL_BLOCKS:
+		return 0.15
 	match difficulty:
 		Constants.GameDifficulty.EASY:
 			return 0.04
@@ -717,6 +731,8 @@ func _percent_chance_of_spike_block():
 	return 0.06
 	
 func _percent_chance_of_snake_per_row_col():
+	if DEBUG_ALL_BLOCKS:
+		return 1.0
 	match difficulty:
 		Constants.GameDifficulty.EASY:
 			return 0.60
@@ -732,10 +748,9 @@ func _on_snake_hit():
 	on_snake_hit.emit()
 
 func _on_player_dropped_by_bird():
-	remove_child(bird)
+	dynamic_root.remove_child(bird)
 
 func _emit_load_changed(msg: String) -> void:
-	print("Emitting load changed msg: " + msg)
 	call_deferred("emit_signal", "on_load_changed", msg)
 
 func _emit_loaded(start_position: Vector2i):
