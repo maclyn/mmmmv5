@@ -22,7 +22,9 @@ const SNAKE_WIDTH = 0.2
 const BIRD_LENGTH = 0.55
 const BIRD_WIDTH = 0.77
 
-# These values can be tweaked for gameplay reasons
+# These values are tied to other assumptions in the codebase
+# Specfically, in the map shaders and atlas texture logic
+# You must change those too if you change the map size
 const MAZE_WIDTH_AND_HEIGHT = 20
 const MAZE_DIMENS_IN_SCENE_SPACE = MAZE_BLOCK_SQUARE_SIZE * MAZE_WIDTH_AND_HEIGHT
 const LEAD_IN_DIST = 3

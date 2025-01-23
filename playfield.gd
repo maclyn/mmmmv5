@@ -18,8 +18,6 @@ var round: int = 0
 var game_state: GameState = GameState.NOT_STARTED
 var round_difficulty: Constants.GameDifficulty = Constants.GameDifficulty.EASY
 var last_game_state_transition_time = Time.get_ticks_msec()
-var time_to_key = -1
-var time_to_return = -1
 var player_rotation_y = 0.0
 
 var minimap_atlas_texture: AtlasTexture
@@ -113,7 +111,10 @@ func _on_player_at_exit() -> void:
 func _on_player_at_key() -> void:
 	game_state = GameState.RETURNING_TO_LOCK
 	$Music/KeyHitPlayer.play()
-	time_to_key = Time.get_ticks_msec() - last_game_state_transition_time
+	var time_to_key = Time.get_ticks_msec() - last_game_state_transition_time
+	var pct_better_to_key = 1.0 - (time_to_key / _max_time_to_key_ms())
+	score += floori(pct_better_to_key * 1000)
+	_update_score_label()
 	last_game_state_transition_time = Time.get_ticks_msec()
 	$GameTimer.stop()
 	$GameTimer.start(_max_time_to_return_s())
@@ -172,6 +173,7 @@ func _max_time_to_return_s() -> float:
 func _start_new_game() -> void:
 	round = 1
 	score = 0
+	_update_score_label()
 	_update_loading_screen(true, "Loading...")
 	_start_new_round()
 	
@@ -186,9 +188,8 @@ func _start_new_round() -> void:
 	else:
 		round_difficulty = Constants.GameDifficulty.HARD if round % 2 == 0 else Constants.GameDifficulty.SPOOKY
 	last_game_state_transition_time = Time.get_ticks_msec()
-	time_to_key = -1
-	time_to_return = -1
 	player_rotation_y = 0.0
+	$Maze.clear_maze()
 	$Maze.build_new_maze(round_difficulty)
 	
 func _on_maze_load_complete(start_position: Vector2i):
@@ -234,7 +235,10 @@ func _round_over(did_win: bool = false, skip_anim: bool = false) -> void:
 		return
 	game_state = GameState.ROUND_OVER_WIN if did_win else GameState.GAME_OVER
 	if did_win:
-		time_to_return = Time.get_ticks_msec() - last_game_state_transition_time
+		var time_to_return = Time.get_ticks_msec() - last_game_state_transition_time
+		var pct_better_to_return = 1.0 - (time_to_return / 1000.0 / (_max_time_to_return_s()))
+		score += floori(pct_better_to_return * 500)
+		_update_score_label()
 	last_game_state_transition_time = Time.get_ticks_msec()
 	$GameTimer.stop()
 	$Music/SpookyMusicPlayer.stop()
@@ -244,22 +248,29 @@ func _round_over(did_win: bool = false, skip_anim: bool = false) -> void:
 		$Music/WinPlayer.play()
 	else:
 		$Music/LosePlayer.play()
+	
+	if did_win:
+		# next round
+		# TODO: Animation so things don't just freeze
+		round += 1
+		_start_new_round()
+		return
+	
 	if !skip_anim:
-		if did_win:
-			var score = _calculate_score()
-			$GameOver.win(score, Globals.get_saver().compare_to_last_high_score_and_maybe_update(score))
+		# Quitting (even with a high score) prevents you from saving it
+		# By design
+		if Globals.get_saver().compare_to_last_high_score_and_maybe_update(score):
+			$GameOver.new_high_score(score)
 		else:
-			$GameOver.lose()
+			$GameOver.game_over()
 		$GameOver.visible = true
 		await get_tree().create_timer($GameOver.get_show_time_s()).timeout
 	$Maze.clear_maze()
 	game_over.emit()
 	
-func _calculate_score() -> int:
-	# Score is based on what % you did better than the expected time
-	var pct_better_to_key = 1.0 - (time_to_key / _max_time_to_key_ms())
-	var pct_better_to_return = 1.0 - (time_to_return / 1000.0 / (_max_time_to_return_s()))
-	return floori((pct_better_to_key * 1000) + (pct_better_to_return * 500))
+func _update_score_label():
+	var label = "%06d" % score
+	$HUD/ScoreLabel.text = label
 
 func _on_mobile_controls_h_swipe(delta_x: float) -> void:
 	$Player.external_x_movement(delta_x)
@@ -268,6 +279,8 @@ func _on_mobile_controls_main_menu() -> void:
 	_round_over(false, true)
 	
 func _update_loading_screen(visible: bool, text: String = "") -> void:
+	if round > 1:
+		return
 	$HUD/LoadingContainer.visible = visible
 	$HUD/LoadingContainer/LoadingLabel.text = text
 
