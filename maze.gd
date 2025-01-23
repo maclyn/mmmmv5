@@ -11,7 +11,7 @@ var bird_scene = preload("res://birb.tscn")
 
 # Set to true to make it all possible block types/shapes visible early in 
 # the first maze
-const DEBUG_ALL_BLOCKS = true
+const DEBUG_ALL_BLOCKS = false
 
 # These values are tied to assets, and are measured in units
 # ANY CHANGES HERE NEED CORRESPONDING ASSET CHANGES TOO
@@ -221,8 +221,8 @@ func join_maze_gen_thread(start_position: Vector2i):
 	$StartMarker.global_position = Vector3(start_position.x, 4, start_position.y)
 	$MapViewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 	if Engine.is_editor_hint():
-		print("Showing path out for editor preview")
-		show_path_out()
+		print("Completed setup")
+		# show_path_out()
 	print("Background thread joined")
 		
 func build_new_maze_impl():

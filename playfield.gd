@@ -10,9 +10,12 @@ extends Node
 
 signal game_over()
 
+const ROUND_TRANSITION_TIME_MS = 1500
+
 # Overall game state
 var score: int = 0
 var round: int = 0
+var round_transition_anim_start_time: int = 0
 
 # Round state
 var game_state: GameState = GameState.NOT_STARTED
@@ -189,6 +192,7 @@ func _start_new_round() -> void:
 		round_difficulty = Constants.GameDifficulty.HARD if round % 2 == 0 else Constants.GameDifficulty.SPOOKY
 	last_game_state_transition_time = Time.get_ticks_msec()
 	player_rotation_y = 0.0
+	$HUD/RoundLabel.text = "Round %d" % round
 	$Maze.clear_maze()
 	$Maze.build_new_maze(round_difficulty)
 	
@@ -196,8 +200,6 @@ func _on_maze_load_complete(start_position: Vector2i):
 	$MobileControls.visible = !Engine.is_editor_hint() && Globals.is_mobile()
 	$Player.position.x = start_position.x
 	$Player.position.z = start_position.y
-	$Player.rotation.x = 0
-	$Player.rotation.x = 0
 	$Player.respawn()
 
 	game_state = GameState.GOING_TO_KEY
@@ -217,6 +219,11 @@ func _on_maze_load_complete(start_position: Vector2i):
 	$GameTimer.start(_max_time_to_key_ms() / 1000.0)
 	_update_loading_screen(false)
 	if $HUD/NewRoundOverlay.texture != null:
+		# Don't cut off animation if there's still time left
+		var time_elapsed = Time.get_ticks_msec() - round_transition_anim_start_time
+		if time_elapsed < ROUND_TRANSITION_TIME_MS:
+			var delta = ROUND_TRANSITION_TIME_MS - time_elapsed
+			await get_tree().create_timer(delta / 1000.0).timeout
 		var tex: Texture2D = $HUD/NewRoundOverlay.texture
 		$HUD/NewRoundOverlay.texture = null
 		$HUD/NewRoundOverlay.visible = false
@@ -229,7 +236,8 @@ func _on_first_frame():
 	var minimap_image_texture = ImageTexture.create_from_image(overhead_image)
 	minimap_atlas_texture = AtlasTexture.new()
 	minimap_atlas_texture.atlas = minimap_image_texture
-	$HUD/MiniMapContainer/MiniMap.texture = minimap_atlas_texture
+	if !Engine.is_editor_hint():
+		$HUD/MiniMapContainer/MiniMap.texture = minimap_atlas_texture
 	
 func _on_snake_hit():
 	_round_over(false)
@@ -261,7 +269,9 @@ func _round_over(did_win: bool = false, skip_anim: bool = false) -> void:
 		$HUD/NewRoundOverlay.texture = image_tex
 		$HUD/NewRoundOverlay.visible = true
 		var shader_mat: ShaderMaterial = $HUD/NewRoundOverlay.material
+		shader_mat.set_shader_parameter("total_anim_duration_ms", ROUND_TRANSITION_TIME_MS)
 		shader_mat.set_shader_parameter("appear_time_ms", Globals.time_ms())
+		round_transition_anim_start_time = Time.get_ticks_msec()
 		round += 1
 		_start_new_round()
 		return

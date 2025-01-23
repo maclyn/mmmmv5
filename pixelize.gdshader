@@ -12,15 +12,15 @@ void fragment() {
 	ivec2 tex_size = textureSize(TEXTURE, 0);
 	// What x, y cell are we in
 	int t = time_ms; // now 
-	float x_cell_floor = float(tex_size.x) / 128.0;
-	float y_cell_floor = float(tex_size.y) / 72.0;
+	float x_cell_floor = float(tex_size.x) * 0.005;
+	float y_cell_floor = float(tex_size.y) * 0.005;
 	float x_cells = x_cell_floor;
 	float y_cells = y_cell_floor;
 	// As we get closer to time, x_cells and y_cells decrease in size
 	if (t - appear_time_ms < total_anim_duration_ms) {
 		int delta = t - appear_time_ms;
-		x_cells = mix(float(tex_size.x), x_cell_floor, float(delta) / float(total_anim_duration_ms));
-		y_cells = mix(float(tex_size.y), y_cell_floor, float(delta) / float(total_anim_duration_ms));
+		x_cells = mix(float(tex_size.x), x_cell_floor, pow(float(delta) / float(total_anim_duration_ms), 1.5));
+		y_cells = mix(float(tex_size.y), y_cell_floor, pow(float(delta) / float(total_anim_duration_ms), 1.5));
 	}
 	float x_cell_size = 1.0 / x_cells;
 	float y_cell_size = 1.0 / y_cells;
@@ -35,5 +35,5 @@ void fragment() {
 			(x_cell * x_cell_size) + half_x_cell_size,
 			(y_cell * y_cell_size) + half_y_cell_size));
 
-	COLOR = vec4(mod(sin(TIME * 10.0), 1.0), scaled_down.g, scaled_down.b, 1.0);
+	COLOR = scaled_down;
 }

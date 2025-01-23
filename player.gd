@@ -39,6 +39,9 @@ func set_camera(sun: bool, moon: bool):
 
 func respawn():
 	cannot_move = false
+	rotation.x = 0
+	rotation.y = PI
+	look_rotation = Vector2(0, PI)
 
 func die():
 	cannot_move = true
