@@ -1,8 +1,6 @@
-[gd_scene load_steps=6 format=3 uid="uid://3mh0fvm1jcci"]
+[gd_scene load_steps=4 format=3 uid="uid://3mh0fvm1jcci"]
 
 [ext_resource type="Script" path="res://player.gd" id="1_an2rx"]
-[ext_resource type="PackedScene" uid="uid://fysapkwmvqjd" path="res://player_camera_sun.tscn" id="2_qvkrj"]
-[ext_resource type="PackedScene" uid="uid://d3ckrhqrld737" path="res://player_camera_moon.tscn" id="3_6r23q"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_kqxx0"]
 
@@ -14,8 +12,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 collision_layer = 2
 collision_mask = 13
 script = ExtResource("1_an2rx")
-camera_sun = ExtResource("2_qvkrj")
-camera_moon = ExtResource("3_6r23q")
 
 [node name="Collider" type="CollisionShape3D" parent="."]
 shape = SubResource("CapsuleShape3D_kqxx0")

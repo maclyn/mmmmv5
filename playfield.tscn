@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3 uid="uid://c5cq4nt0yl43t"]
+[gd_scene load_steps=24 format=3 uid="uid://c5cq4nt0yl43t"]
 
 [ext_resource type="Script" path="res://playfield.gd" id="1_de1dc"]
 [ext_resource type="Environment" uid="uid://cgibf3lqeqjis" path="res://map_environment_dark_scene.tres" id="3_g75ud"]
@@ -7,7 +7,9 @@
 [ext_resource type="PackedScene" uid="uid://3mh0fvm1jcci" path="res://player.tscn" id="6_qmkiw"]
 [ext_resource type="FontFile" uid="uid://b88ckwrmql0l8" path="res://assets/Flexi_IBM_VGA_False_437.ttf" id="7_eeir4"]
 [ext_resource type="Texture2D" uid="uid://cnftnuevfyaxl" path="res://textures/player_position.png" id="8_5jnvf"]
+[ext_resource type="Shader" path="res://pixelize.gdshader" id="9_fxjji"]
 [ext_resource type="PackedScene" uid="uid://dvaw2npxvr5ig" path="res://game_over.tscn" id="9_gsmfs"]
+[ext_resource type="Texture2D" uid="uid://dxkn1ye5h3t0a" path="res://models/corner_Hedge_wall.png" id="9_nbwp5"]
 [ext_resource type="PackedScene" uid="uid://bcbm4lb2vq0x6" path="res://mobile_controls.tscn" id="10_8lkyr"]
 [ext_resource type="AudioStream" uid="uid://x1ak4jiyioge" path="res://sounds/normal_music.wav" id="12_noj5f"]
 [ext_resource type="AudioStream" uid="uid://blfwbscvqconq" path="res://sounds/spooky_music.wav" id="13_3c3to"]
@@ -39,6 +41,12 @@ corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 corner_detail = 16
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_a4plv"]
+shader = ExtResource("9_fxjji")
+shader_parameter/total_anim_duration_ms = 2000
+shader_parameter/appear_time_ms = 1500
+shader_parameter/now = 2500
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fvyei"]
 bg_color = Color(0, 0, 0, 1)
@@ -135,6 +143,19 @@ size_flags_vertical = 4
 texture = ExtResource("8_5jnvf")
 expand_mode = 1
 
+[node name="NewRoundOverlay" type="TextureRect" parent="HUD"]
+process_mode = 3
+texture_filter = 1
+texture_repeat = 1
+material = SubResource("ShaderMaterial_a4plv")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("9_nbwp5")
+
 [node name="LoadingContainer" type="PanelContainer" parent="HUD"]
 visible = false
 layout_mode = 1
@@ -148,7 +169,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_fvyei")
 [node name="LoadingLabel" type="Label" parent="HUD/LoadingContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
-text = "Added 350 of 359"
+text = "Added 375 of 396"
 horizontal_alignment = 1
 uppercase = true
 

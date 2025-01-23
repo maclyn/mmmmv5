@@ -83,9 +83,13 @@ func _reset_position(new_pos: Vector3):
 	spotted = false
 	
 func _check_spotted() -> void:
+	if !is_node_ready():
+		return
+	
 	# Check in camera frustrum
 	if !on_screen:
 		return
+		
 	# Check distance
 	if self.global_position.distance_to(player_node.global_position) > MAX_DIST_FOR_VALID_HIT:
 		return

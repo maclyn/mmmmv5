@@ -44,6 +44,7 @@ func _ready():
 	if Engine.is_editor_hint():
 		print("Running playfield in editor")
 		$MazeDebugCamera.current = true
+		RenderingServer.global_shader_parameter_set("time_ms", 1000)
 	
 func _process(_delta: float) -> void:
 	match game_state:
@@ -86,7 +87,6 @@ func _update_minimap():
 			player_center_y_in_px - half_desired_map_size_span_px,
 			desired_map_size_span_px,
 			desired_map_size_span_px)
-		# TODO: Rotation on UI element
 		minimap_atlas_texture.region = new_region# Rect2(0.0, 0.0, tex_size, tex_size) #new_region
 		$HUD/MiniMapContainer/PlayerIndicator.rotation = -(player_rotation_y)
 
@@ -216,6 +216,10 @@ func _on_maze_load_complete(start_position: Vector2i):
 	$Maze.attach_player($Player/Pivot, $Player)
 	$GameTimer.start(_max_time_to_key_ms() / 1000.0)
 	_update_loading_screen(false)
+	if $HUD/NewRoundOverlay.texture != null:
+		var tex: Texture2D = $HUD/NewRoundOverlay.texture
+		$HUD/NewRoundOverlay.texture = null
+		$HUD/NewRoundOverlay.visible = false
 	RenderingServer.request_frame_drawn_callback(_on_first_frame)
 	
 func _on_first_frame():
@@ -250,8 +254,14 @@ func _round_over(did_win: bool = false, skip_anim: bool = false) -> void:
 		$Music/LosePlayer.play()
 	
 	if did_win:
-		# next round
-		# TODO: Animation so things don't just freeze
+		# Dump the framebuffer into a texture
+		var freeze_frame: Image = get_viewport().get_texture().get_image()
+		var image_tex = ImageTexture.new()
+		image_tex.image = freeze_frame
+		$HUD/NewRoundOverlay.texture = image_tex
+		$HUD/NewRoundOverlay.visible = true
+		var shader_mat: ShaderMaterial = $HUD/NewRoundOverlay.material
+		shader_mat.set_shader_parameter("appear_time_ms", Globals.time_ms())
 		round += 1
 		_start_new_round()
 		return

@@ -2,6 +2,7 @@
 extends Node3D
 
 var _is_portal: bool = false
+var _is_portal_exit: bool = false
 var _is_spike: bool = false
 var _has_updated_updated_portal_tex: bool = false
 var _exit_portal: Node3D = null
@@ -25,6 +26,13 @@ func _ready():
 	$QuickSand/QuickSandSurface.visible = false
 	$Spike/SpikeCollider.disabled = true
 	$Spike/SpikeSurface.visible = false
+	if _is_portal_exit:
+		# Camera is a globally shared (non-unique) node, so even though it's
+		# positioned correctly in the MazeBlock scene, it needs to be moved to the
+		# center of *this* block
+		var basis_for_cam = Vector3($InPathBlock.global_position)
+		basis_for_cam.y = 2
+		$PortalViewport/PortalCamera.global_position = basis_for_cam
 
 func configure_walls(north: bool, east: bool, south: bool, west: bool):
 	$HedgeWallN.visible = north
@@ -57,9 +65,6 @@ func add_exit():
 func hide_exit():
 	$ExitRoot.visible = false
 	$ExitRoot/ExitCollider.disabled = true
-	
-func get_key_position() -> Vector3:
-	return $KeyRoot.global_position
 
 func enable_portal(exit_portal_maze_block: Node3D) -> void:
 	_is_portal = true
@@ -83,12 +88,7 @@ func add_spike() -> void:
 	_is_spike = true
 	
 func set_as_portal_exit():
-	# Camera is a globally shared (non-unique) node, so even though it's
-	# positioned correctly in the MazeBlock scene, it needs to be moved to the
-	# center of *this* block
-	var basis_for_cam = Vector3($InPathBlock.global_position)
-	basis_for_cam.y = 2
-	$PortalViewport/PortalCamera.global_position = basis_for_cam
+	_is_portal_exit = true
 	
 func get_snapshot() -> Texture2D:
 	await RenderingServer.frame_post_draw
@@ -103,7 +103,6 @@ func _process(delta: float) -> void:
 		var tex = await _exit_portal.get_snapshot()
 		$PortalBody/PortalSurface.attach_portal_tex(tex)
 		_has_updated_updated_portal_tex = true
-
 		
 func _physics_process(_delta: float) -> void:
 	if _is_spike:

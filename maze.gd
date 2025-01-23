@@ -5,9 +5,9 @@ signal on_snake_hit()
 signal on_load_changed(message: String)
 signal on_loaded(start_position: Vector2i)
 
-@export var maze_block_scene: PackedScene
-@export var snake_scene: PackedScene
-@export var bird_scene: PackedScene
+var maze_block_scene = preload("res://maze_block.tscn")
+var snake_scene = preload("res://snek.tscn")
+var bird_scene = preload("res://birb.tscn")
 
 # These values are tied to assets, and are measured in units
 # ANY CHANGES HERE NEED CORRESPONDING ASSET CHANGES TOO
@@ -46,6 +46,7 @@ const NORTH_BIRD_EDGE = (-LEAD_IN_DIST * MAZE_BLOCK_SQUARE_SIZE) + (BIRD_LENGTH 
 
 var gen_thread: Thread = null
 var difficulty: Constants.GameDifficulty = Constants.GameDifficulty.EASY
+var dynamic_root: Node3D = null
 var blocks: Dictionary = {}
 var blocks_count: int = 0
 var player: Node3D = null
@@ -162,10 +163,9 @@ class MazeBlock:
 				direction = GridDirection.NORTH
 		return direction
 		
-	func actualize(scene: PackedScene, root: Node):
+	func actualize(maze_block: Node3D):
 		var x = position.x * MAZE_BLOCK_SQUARE_SIZE
 		var y = position.y * MAZE_BLOCK_SQUARE_SIZE
-		var maze_block = scene.instantiate()
 		instance = maze_block
 		maze_block.configure_walls(
 			walls[GridDirection.NORTH],
@@ -189,10 +189,6 @@ class MazeBlock:
 		maze_block.position.x = x + HEDGE_LENGTH
 		maze_block.position.y = HEDGE_HEIGHT / 2.0
 		maze_block.position.z = y + HEDGE_LENGTH
-		root.add_child.call_deferred(maze_block)
-		
-	func get_key_position() -> Vector3:
-		return instance.get_key_position()
 		
 	func snekify():
 		instance.snekify()
@@ -209,14 +205,19 @@ class MazeBlock:
 func build_new_maze(difficulty: Constants.GameDifficulty):
 	self.difficulty = difficulty
 	gen_thread = Thread.new()
-	gen_thread.start(build_new_maze_impl)
+	gen_thread.start(build_new_maze_impl, Thread.PRIORITY_LOW)
 	
-func join_maze_gen_thread():
+func join_maze_gen_thread(start_position: Vector2i):
 	if gen_thread != null:
 		gen_thread.wait_to_finish()
+	var exit_position = _maze_block_position_to_center_in_scene_space(exit_block.position.x, exit_block.position.y)
+	$EndMarker.global_position = Vector3(exit_position.x, 4, exit_position.y)
+	$StartMarker.global_position = Vector3(start_position.x, 4, start_position.y)
+	$MapViewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 	if Engine.is_editor_hint():
 		print("Showing path out for editor preview")
 		show_path_out()
+	print("Background thread joined")
 		
 func build_new_maze_impl():
 	var start_position = Vector2i.ZERO
@@ -226,29 +227,36 @@ func build_new_maze_impl():
 	while start_position == Vector2i.ZERO:
 		blocks.clear()
 		blocks_count = 0
-		start_position = await _generate_maze(Engine.is_editor_hint())
-	var exit_position = exit_block.instance.global_position
-	$EndMarker.global_position = Vector3(exit_position.x, 4, exit_position.z)
-	$StartMarker.global_position = Vector3(start_position.x, 4, start_position.y)
+		start_position = _generate_maze(Engine.is_editor_hint())
 	_emit_loaded(start_position)
-	call_deferred("join_maze_gen_thread")
-	$MapViewport.render_target_update_mode = SubViewport.UPDATE_ONCE
+	call_deferred("join_maze_gen_thread", start_position)
 	print("Background thread complete")
 
 func clear_maze() -> void:
+	if dynamic_root == null:
+		print("Will not clear maze with dynamic_root set")
+		return
 	for x in blocks:
 		for y in blocks[x]:
-			remove_child(blocks[x][y].instance)
+			var instance = blocks[x][y].instance
+			dynamic_root.remove_child(instance)
+			instance.queue_free()
 	blocks = {}
 	for snake in snakes:
-		remove_child(snake)
+		dynamic_root.remove_child(snake)
+		snake.queue_free()
 	snakes = []
-	remove_child(bird)
-	bird = null
+	if bird != null:
+		dynamic_root.remove_child(bird)
+		bird.queue_free()
+		bird = null
 	portal_block = null
 	portal_exit_block = null
 	exit_block = null 
+	map_blocks.clear()
 	path_from_exit_to_entrance.clear()
+	remove_child(dynamic_root)
+	dynamic_root = null
 		
 func on_first_frame() -> void:
 	var map_viewport_texture = $MapViewport.get_texture()
@@ -529,13 +537,17 @@ func _generate_maze(allow_bad_mazes: bool = false):
 	# Place objects in the scene
 	# Also choose special maze blocks
 	_emit_load_changed("Building completed maze...")
+	
+	# We can add_child(...) to a dummy node so long as we don't took the
+	# actual scene graph (which needs to be deferred)
+	dynamic_root = Node3D.new()
+	
 	var blocks_built = 0
 	for x in blocks:
 		for y in blocks[x]:
 			var block = blocks[x][y]
-			block.actualize(maze_block_scene, self)
-			if !block.instance.is_node_ready():
-				await block.instance.ready
+			block.actualize(maze_block_scene.instantiate())
+			dynamic_root.add_child(block.instance)
 			
 			# Uncomment this block to make the first south wall you see be a portal block
 			#if portal_block == null && x == 10 && block.walls[GridDirection.SOUTH]:
@@ -584,12 +596,12 @@ func _generate_maze(allow_bad_mazes: bool = false):
 					block.instance.add_spike()
 			
 			blocks_built += 1
-			if blocks_built % 25 == 0:
-				_emit_load_changed("Added " + str(blocks_built) + " of " + str(blocks_count))
+			_emit_load_changed("Added " + str(blocks_built) + " of " + str(blocks_count))
 	if portal_block:
 		portal_block.instance.enable_portal(portal_exit_block.instance)
 		portal_exit_block.instance.set_as_portal_exit()
 	_add_bird()
+	add_child.call_deferred(dynamic_root)
 	return _maze_block_position_to_center_in_scene_space(start_x, start_y)
 		
 func _maze_block_position_to_center_in_scene_space(x: int, y: int) -> Vector2i:
@@ -647,7 +659,7 @@ func _new_snake(dx: int, dy: int, start_x_pos: float, start_y_pos: float, snake_
 	snake.init_snek(dx, dy, WEST_SNAKE_EDGE, EAST_SNAKE_EDGE, NORTH_SNAKE_EDGE, SOUTH_SNAKE_EDGE)
 	snake.attach_player(player)
 	snake.connect("collided_with_player", _on_snake_hit)
-	add_child.call_deferred(snake)
+	dynamic_root.add_child(snake)
 	snakes.push_back(snake)
 	
 func _new_bird(dx: int, dy: int, target: Vector2i, start_x_pos: float, start_y_pos: float, bird_rot_deg: float = 0.0):
@@ -660,7 +672,7 @@ func _new_bird(dx: int, dy: int, target: Vector2i, start_x_pos: float, start_y_p
 	bird.attach_player(player)
 	bird.connect("player_dropped", _on_player_dropped_by_bird)
 	print("Added bird at " + str(bird.position))
-	self.add_child.call_deferred(bird)
+	dynamic_root.add_child(bird)
 	
 func _percent_chance_of_map_block():
 	match difficulty:

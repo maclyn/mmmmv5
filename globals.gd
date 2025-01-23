@@ -1,3 +1,4 @@
+@tool
 extends Node
 
 class_name Constants
@@ -12,6 +13,10 @@ const Saver = preload("res://saver.gd")
 
 var saver = Saver.new()
 var tick_count: int
+var shader_update_thread: Thread = null
+var shutting_down: bool = false
+var start_time_s: float = 0
+var shader_time_ms: int = 0
 
 func get_saver() -> Object:
 	return saver
@@ -25,16 +30,32 @@ func emulate_mobile() -> bool:
 func is_debug() -> bool:
 	return OS.has_feature("editor")
 	
-func wait_for_ready(node: Node) -> void:
-	if node.is_node_ready():
-		return
-	await node.ready
+func time_ms() -> int:
+	return shader_time_ms
 
 func _ready() -> void:
 	#ProjectSettings.set_restart_if_changed("input_devices/pointing/emulate_touch_from_mouse", true)
 	#ProjectSettings.set_setting("input_devices/pointing/emulate_touch_from_mouse", emulate_mobile())
 	#ProjectSettings.save()
-	pass
+	
+	start_time_s = Time.get_unix_time_from_system()
+	shader_update_thread = Thread.new()
+	shader_update_thread.start(_update_shader_time)
 
 func _process(_delta: float) -> void:
 	tick_count += 1
+		
+func _update_shader_time() -> void:
+	while not shutting_down:
+		var delta = Time.get_unix_time_from_system() - start_time_s
+		var now_ms = int(delta * 1000.0)
+		if now_ms != shader_time_ms:
+			shader_time_ms = now_ms
+			RenderingServer.global_shader_parameter_set("time_ms", shader_time_ms)
+	call_deferred("_join_shader_update_thread")
+	
+func _join_shader_update_thread():
+	shader_update_thread.wait_to_finish()
+
+func _exit_tree() -> void:
+	shutting_down = true

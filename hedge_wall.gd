@@ -1,7 +1,8 @@
 @tool
 extends StaticBody3D
 
-@export var map_scene: PackedScene
+var map_scene = preload("res://map_frame.tscn")
+
 @export var direction: String
 
 func rotate_mesh(rotation_rad: float):
@@ -10,7 +11,7 @@ func rotate_mesh(rotation_rad: float):
 func add_map(tex: Texture2D, pin_x_units: float, pin_y_units: float):
 	var new_map = map_scene.instantiate()
 	new_map.replace_map_material(tex, pin_x_units, pin_y_units)
-	$MapContainer.add_child.call_deferred(new_map)
+	$MapContainer.add_child(new_map)
 	
 func remove_map():
 	if $MapContainer.get_child_count() > 0:

@@ -9,8 +9,9 @@ signal at_spike()
 signal cheat()
 signal look_direction_changed(position: Vector3, rotation_y: float)
 
-@export var camera_sun: PackedScene
-@export var camera_moon: PackedScene
+var camera_sun = preload("res://player_camera_sun.tscn")
+var camera_moon = preload("res://player_camera_moon.tscn")
+
 var sensitivity = 0.0007
 var min_angle = -PI / 2
 var max_angle = PI / 2
