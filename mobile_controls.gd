@@ -3,6 +3,8 @@ extends Control
 signal h_swipe(delta_x: float)
 signal main_menu()
 
+const DEBUG_MOBILE_CONTROLS = false
+
 const UNSET_TOUCH_IDX = -1
 const RUN_BOUNDARY_PCT = 0.15
 const DEAD_ZONE_PCT = 0.05
@@ -29,55 +31,62 @@ func _input(event: InputEvent) -> void:
 				joystick_touch_down_idx = event_index
 			elif _is_point_in_control(pos, $JumpRect):
 				jump_touch_down_idx = event_index
-				Input.action_press("jump")
+				_press_key("jump")
 			elif drag_idx == UNSET_TOUCH_IDX:
 				drag_idx = event_index
 				drag_idx_last_pos = event.position
 		else:
+			# Equivalent to ACTION_UP
 			if event.index == joystick_touch_down_idx:
 				joystick_touch_down_idx = UNSET_TOUCH_IDX
-				Input.action_release("walk")
-				Input.action_release("backwards")
-				Input.action_release("forward")
-				Input.action_release("strafe_left")
-				Input.action_release("strafe_right")
+				_release_key("walk")
+				_release_key("backwards")
+				_release_key("forward")
+				_release_key("strafe_left")
+				_release_key("strafe_right")
 			elif event.index == jump_touch_down_idx:
 				jump_touch_down_idx = UNSET_TOUCH_IDX
-				Input.action_release("jump")
+				_release_key("jump")
 			elif event.index == drag_idx:
 				drag_idx = UNSET_TOUCH_IDX
 				drag_idx_last_pos = Vector2.ZERO
 	elif event is InputEventScreenDrag:
+		# Equivalent to ACTION_MOVE
 		var pos = event.position
 		if event.index == joystick_touch_down_idx:
 			var pct_x = _pct_of_x(pos)
 			var pct_y = _pct_of_y(pos)
-			if absf(pct_x - 0.5) > absf(pct_y - 0.5):
-				Input.action_release("backwards")
-				Input.action_release("forward")
-				if pct_x > (0.5 - RUN_BOUNDARY_PCT) || pct_x < (0.5 + RUN_BOUNDARY_PCT):
-					Input.action_release("walk")
-				else:
-					Input.action_press("walk")
-				if pct_x < (0.5 - DEAD_ZONE_PCT):
-					Input.action_release("strafe_right")
-					Input.action_press("strafe_left")
-				elif pct_x > (0.5 + DEAD_ZONE_PCT):
-					Input.action_release("strafe_left")
-					Input.action_press("strafe_right")
+			if DEBUG_MOBILE_CONTROLS:
+				print("X: " + str(pct_x) + " Y:" + str(pct_y))
+			
+			var should_run = abs(pct_x - 0.5) > RUN_BOUNDARY_PCT \
+				|| abs(pct_y - 0.5) > RUN_BOUNDARY_PCT
+			if should_run:
+				_release_key("walk")
 			else:
-				Input.action_release("strafe_left")
-				Input.action_release("strafe_right")
-				if pct_y > (0.5 - RUN_BOUNDARY_PCT) || pct_y < (0.5 + RUN_BOUNDARY_PCT):
-					Input.action_release("walk")
+				_press_key("walk")
+			
+			if abs(pct_x - 0.5) > DEAD_ZONE_PCT:
+				if pct_x < 0.5:
+					_release_key("strafe_right")
+					_press_key("strafe_left")
 				else:
-					Input.action_press("walk")
-				if pct_y < (0.5 - DEAD_ZONE_PCT):
-					Input.action_release("backwards")
-					Input.action_press("forward")
-				elif pct_y > (0.5 + DEAD_ZONE_PCT):
-					Input.action_release("forward")
-					Input.action_press("backwards")
+					_release_key("strafe_left")
+					_press_key("strafe_right")
+			else:
+				_release_key("strafe_left")
+				_release_key("strafe_right")
+
+			if abs(pct_y - 0.5) > DEAD_ZONE_PCT:
+				if pct_y > 0.5:
+					_release_key("forward")
+					_press_key("backwards")
+				else:
+					_release_key("backwards")
+					_press_key("forward")
+			else:
+				_release_key("backwards")
+				_release_key("forward")
 		elif event.index == drag_idx:
 			var x_range = get_viewport_rect().size.abs().x
 			if x_range <= 0:
@@ -129,22 +138,12 @@ func _pct_of_y(point: Vector2) -> float:
 		return 1.0
 	return raw_pct
 
-	#if use_input_actions:
-		## Release actions
-		#if output.x >= 0 and Input.is_action_pressed(action_left):
-			#Input.action_release(action_left)
-		#if output.x <= 0 and Input.is_action_pressed(action_right):
-			#Input.action_release(action_right)
-		#if output.y >= 0 and Input.is_action_pressed(action_up):
-			#Input.action_release(action_up)
-		#if output.y <= 0 and Input.is_action_pressed(action_down):
-			#Input.action_release(action_down)
-		## Press actions
-		#if output.x < 0:
-			#Input.action_press(action_left, -output.x)
-		#if output.x > 0:
-			#Input.action_press(action_right, output.x)
-		#if output.y < 0:
-			#Input.action_press(action_up, -output.y)
-		#if output.y > 0:
-			#Input.action_press(action_down, output.y)
+func _press_key(key: String):
+	if DEBUG_MOBILE_CONTROLS:
+		print("Pressing " + key)
+	Input.action_press(key)
+	
+func _release_key(key: String):
+	if DEBUG_MOBILE_CONTROLS:
+		print("Releasing " + key)
+	Input.action_release(key)
