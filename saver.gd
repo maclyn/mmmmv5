@@ -35,7 +35,7 @@ func compare_to_last_high_score_and_maybe_update(score: int) -> bool:
 		return true
 		
 	var old_score = json.data[SCORE_KEY]
-	if old_score > score:
+	if old_score >= score:
 		# Lower than old high score
 		return false
 		
