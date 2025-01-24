@@ -1,4 +1,3 @@
-@tool
 extends Node
 
 class_name Constants
@@ -13,6 +12,7 @@ const Saver = preload("res://saver.gd")
 
 var saver = Saver.new()
 var tick_count: int
+var last_handled_back_notif: int = 0
 var shader_update_thread: Thread = null
 var shutting_down: bool = false
 var start_time_s: float = 0
@@ -32,6 +32,12 @@ func is_debug() -> bool:
 	
 func time_ms() -> int:
 	return shader_time_ms
+
+func on_back_notif_receieved() -> bool:
+	var now = Time.get_ticks_msec()
+	var should_handle = (now - last_handled_back_notif) > 250
+	last_handled_back_notif = now
+	return should_handle
 
 func _ready() -> void:
 	#ProjectSettings.set_restart_if_changed("input_devices/pointing/emulate_touch_from_mouse", true)

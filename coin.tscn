@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://dgfi77s875upv"]
+
+[ext_resource type="Script" path="res://coin.gd" id="1_s7g5w"]
+[ext_resource type="PackedScene" uid="uid://dp2u7kiuwtljd" path="res://models/coin.glb" id="2_adlr3"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_fwkmu"]
+height = 0.1
+
+[node name="Coin" type="StaticBody3D" groups=["coin_group"]]
+transform = Transform3D(0.5, 0, 0, 0, -2.18557e-08, -0.5, 0, 0.5, -2.18557e-08, -0.154734, -1.975, -0.327662)
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("1_s7g5w")
+
+[node name="CoinCollider" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
+shape = SubResource("CylinderShape3D_fwkmu")
+
+[node name="CoinSurface" parent="." instance=ExtResource("2_adlr3")]

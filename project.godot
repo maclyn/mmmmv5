@@ -12,6 +12,8 @@ config_version=5
 
 config/name="MMMMv5"
 run/main_scene="res://root.tscn"
+config/auto_accept_quit=false
+config/quit_on_go_back=false
 config/features=PackedStringArray("4.3", "Mobile")
 config/icon="res://icon.svg"
 
@@ -24,6 +26,7 @@ Globals="*res://globals.gd"
 window/size/viewport_width=1280
 window/size/viewport_height=720
 window/stretch/mode="viewport"
+window/vsync/vsync_mode=2
 
 [global_group]
 
@@ -34,6 +37,7 @@ player_group=""
 portal_group=""
 quicksand_group=""
 spike_group=""
+coin_group=""
 
 [gui]
 

@@ -83,7 +83,7 @@ size = 150.0
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 42, 1, -2)
 
 [node name="GameTimer" type="Timer" parent="."]
-wait_time = 216.0
+wait_time = 176.0
 one_shot = true
 
 [node name="HUD" type="Control" parent="."]
@@ -103,7 +103,7 @@ offset_bottom = 80.0
 grow_horizontal = 2
 theme_override_fonts/font = ExtResource("7_eeir4")
 theme_override_font_sizes/font_size = 48
-text = "2:04:9"
+text = "0:00:0"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -168,7 +168,6 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="LoadingContainer" type="PanelContainer" parent="HUD"]
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -180,6 +179,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_fvyei")
 [node name="LoadingLabel" type="Label" parent="HUD/LoadingContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
+text = "Added 368 of 368"
 horizontal_alignment = 1
 uppercase = true
 
@@ -216,6 +216,7 @@ stream = ExtResource("16_5rnqv")
 [connection signal="on_load_changed" from="Maze" to="." method="_on_maze_on_load_changed"]
 [connection signal="on_loaded" from="Maze" to="." method="_on_maze_load_complete"]
 [connection signal="on_snake_hit" from="Maze" to="." method="_on_snake_hit"]
+[connection signal="at_coin" from="Player" to="." method="_on_player_at_coin"]
 [connection signal="at_exit" from="Player" to="." method="_on_player_at_exit"]
 [connection signal="at_key" from="Player" to="." method="_on_player_at_key"]
 [connection signal="at_portal" from="Player" to="." method="_on_player_at_portal"]

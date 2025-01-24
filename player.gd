@@ -6,6 +6,7 @@ signal at_key()
 signal at_portal()
 signal at_quicksand()
 signal at_spike()
+signal at_coin()
 signal cheat()
 signal look_direction_changed(position: Vector3, rotation_y: float)
 
@@ -112,6 +113,10 @@ func _physics_process(delta: float) -> void:
 			at_quicksand.emit()
 		if collider.is_in_group("spike_group"):
 			at_spike.emit()
+		if collider.is_in_group("coin_group"):
+			if not collider.has_collided_before():
+				collider.remove_self()
+				at_coin.emit()
 	
 	_process_look(delta)
 	

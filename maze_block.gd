@@ -9,6 +9,7 @@ var _is_portal: bool = false
 var _is_portal_exit: bool = false
 var _has_spike: bool = false
 var _has_quicksand: bool = false
+var _has_coin: bool = true
 
 # Portal entrance state
 var _exit_portal: Node3D = null
@@ -40,6 +41,7 @@ func _ready():
 	_configure_portal_exit()
 	_configure_quicksand()
 	_configure_spike()
+	_configure_coin()
 
 func _process(delta: float) -> void:
 	if _is_portal && !_has_updated_updated_portal_tex:
@@ -74,7 +76,9 @@ func rotate_key_y(amount_in_rads: float):
 
 func add_key():
 	_is_key = true
+	_has_coin = false
 	_configure_key()
+	_configure_coin()
 	
 func hide_key():
 	_is_key = false
@@ -88,11 +92,9 @@ func _configure_key():
 
 func add_exit():
 	_is_exit = true
+	_has_coin = false
 	_configure_exit()
-	
-func hide_exit():
-	_is_exit = false
-	_configure_exit()
+	_configure_coin()
 	
 func _configure_exit():
 	if is_node_ready():
@@ -102,7 +104,9 @@ func _configure_exit():
 func enable_portal(exit_portal_maze_block: Node3D) -> void:
 	_is_portal = true
 	_exit_portal = exit_portal_maze_block
+	_has_coin = false
 	_configure_portal()
+	_configure_coin()
 	
 func drop_portal():
 	_is_portal = false
@@ -123,6 +127,9 @@ func get_portal_exit() -> Vector2:
 	
 func add_quicksand() -> void:
 	_has_quicksand = true
+	_has_coin = false
+	_configure_quicksand()
+	_configure_coin()
 	
 func _configure_quicksand():
 	if is_node_ready():
@@ -131,6 +138,9 @@ func _configure_quicksand():
 	
 func add_spike() -> void:
 	_has_spike = true
+	_has_coin = false
+	_configure_spike()
+	_configure_coin()
 	
 func _configure_spike():
 	if is_node_ready():
@@ -152,6 +162,15 @@ func _configure_portal_exit():
 		add_child(_portal_node)
 		_portal_node.set_camera_position(basis_for_cam)
 		_has_setup_portal_exit_viewport = true
+		
+func _configure_coin():
+	if is_node_ready():
+		$Coin/CoinCollider.disabled = !_has_coin
+		$Coin/CoinSurface.visible = _has_coin
+		if _has_coin:
+			# Randomly drop it somewhere on the floor
+			$Coin.position.x = randf_range(-1.25, 1.25)
+			$Coin.position.z = randf_range(-1.25, 1.25)
 	
 func get_snapshot() -> Texture2D:
 	if _portal_node == null:

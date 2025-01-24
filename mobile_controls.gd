@@ -4,13 +4,20 @@ signal h_swipe(delta_x: float)
 signal main_menu()
 
 const UNSET_TOUCH_IDX = -1
-const RUN_BOUNDARY_PCT = 0.10
-const DEAD_ZONE_PCT = 0.10
+const RUN_BOUNDARY_PCT = 0.15
+const DEAD_ZONE_PCT = 0.05
 
 var joystick_touch_down_idx = UNSET_TOUCH_IDX
 var jump_touch_down_idx = UNSET_TOUCH_IDX
 var drag_idx = UNSET_TOUCH_IDX
 var drag_idx_last_pos = Vector2.ZERO
+
+func _notification(what: int) -> void:
+	if not visible:
+		return
+	if what == NOTIFICATION_WM_GO_BACK_REQUEST && Globals.on_back_notif_receieved():
+		print("Going back from game")
+		main_menu.emit()
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventScreenTouch:
@@ -23,22 +30,20 @@ func _input(event: InputEvent) -> void:
 			elif _is_point_in_control(pos, $JumpRect):
 				jump_touch_down_idx = event_index
 				Input.action_press("jump")
-			elif _is_point_in_control(pos, $QuitRect):
-				main_menu.emit()
 			elif drag_idx == UNSET_TOUCH_IDX:
 				drag_idx = event_index
 				drag_idx_last_pos = event.position
 		else:
 			if event.index == joystick_touch_down_idx:
 				joystick_touch_down_idx = UNSET_TOUCH_IDX
-				Input.action_release("run")
+				Input.action_release("walk")
 				Input.action_release("backwards")
 				Input.action_release("forward")
 				Input.action_release("strafe_left")
 				Input.action_release("strafe_right")
 			elif event.index == jump_touch_down_idx:
 				jump_touch_down_idx = UNSET_TOUCH_IDX
-				Input.action_release("ui_accept")
+				Input.action_release("jump")
 			elif event.index == drag_idx:
 				drag_idx = UNSET_TOUCH_IDX
 				drag_idx_last_pos = Vector2.ZERO
@@ -51,9 +56,9 @@ func _input(event: InputEvent) -> void:
 				Input.action_release("backwards")
 				Input.action_release("forward")
 				if pct_x > (0.5 - RUN_BOUNDARY_PCT) || pct_x < (0.5 + RUN_BOUNDARY_PCT):
-					Input.action_press("walk")
-				else:
 					Input.action_release("walk")
+				else:
+					Input.action_press("walk")
 				if pct_x < (0.5 - DEAD_ZONE_PCT):
 					Input.action_release("strafe_right")
 					Input.action_press("strafe_left")
@@ -64,9 +69,9 @@ func _input(event: InputEvent) -> void:
 				Input.action_release("strafe_left")
 				Input.action_release("strafe_right")
 				if pct_y > (0.5 - RUN_BOUNDARY_PCT) || pct_y < (0.5 + RUN_BOUNDARY_PCT):
-					Input.action_press("walk")
-				else:
 					Input.action_release("walk")
+				else:
+					Input.action_press("walk")
 				if pct_y < (0.5 - DEAD_ZONE_PCT):
 					Input.action_release("backwards")
 					Input.action_press("forward")

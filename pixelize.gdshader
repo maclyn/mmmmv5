@@ -11,7 +11,7 @@ global uniform int time_ms;
 void fragment() {
 	ivec2 tex_size = textureSize(TEXTURE, 0);
 	// What x, y cell are we in
-	int t = time_ms; // now 
+	int t = time_ms; // now
 	float x_cell_floor = float(tex_size.x) * 0.005;
 	float y_cell_floor = float(tex_size.y) * 0.005;
 	float x_cells = x_cell_floor;

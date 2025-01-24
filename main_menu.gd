@@ -7,6 +7,11 @@ func show_main_menu():
 	
 func hide_main_menu():
 	$Music.stop()
+	
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_GO_BACK_REQUEST && visible && Globals.on_back_notif_receieved():
+		print("Qutting due to back from main menu")
+		get_tree().quit()
 
 func _on_normal_button_pressed() -> void:
 	start_game.emit()

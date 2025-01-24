@@ -135,6 +135,10 @@ func _on_player_at_quicksand() -> void:
 func _on_player_at_spike() -> void:
 	_round_over(false)
 	
+func _on_player_at_coin() -> void:
+	score += 10
+	_update_score_label()
+	
 func _on_game_timer_timeout() -> void:
 	_round_over(false)
 
@@ -256,6 +260,7 @@ func _round_over(did_win: bool = false, skip_anim: bool = false) -> void:
 	$Music/SpookyMusicPlayer.stop()
 	$Music/NormalMusicPlayer.stop()
 	$Player.die()
+	$MobileControls.visible = false
 	if did_win:
 		$Music/WinPlayer.play()
 	else:
@@ -293,7 +298,7 @@ func _update_score_label():
 	$HUD/ScoreLabel.text = label
 
 func _on_mobile_controls_h_swipe(delta_x: float) -> void:
-	$Player.external_x_movement(delta_x)
+	$Player.external_x_movement(delta_x * 3.0)
 
 func _on_mobile_controls_main_menu() -> void:
 	_round_over(false, true)
