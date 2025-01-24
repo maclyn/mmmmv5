@@ -62,17 +62,29 @@ shortcut = SubResource("Shortcut_65fy5")
 shortcut_in_tooltip = false
 text = "(N)ew Game"
 
-[node name="Button" type="Button" parent="."]
+[node name="Mute" type="Button" parent="."]
 layout_mode = 1
 anchors_preset = -1
 anchor_right = 0.034
 anchor_bottom = 0.033
-offset_left = 1120.0
+offset_left = 1090.0
 offset_top = 27.0
 offset_right = 1206.48
 offset_bottom = 83.24
 theme = ExtResource("2_eh4l0")
 text = "Mute"
+
+[node name="Credits" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.034
+anchor_bottom = 0.033
+offset_left = 1090.0
+offset_top = 112.0
+offset_right = 1206.48
+offset_bottom = 168.24
+theme = ExtResource("2_eh4l0")
+text = "Credits"
 
 [node name="Music" type="AudioStreamPlayer3D" parent="."]
 stream = ExtResource("4_lgns7")
@@ -97,4 +109,5 @@ horizontal_alignment = 1
 
 [connection signal="visibility_changed" from="." to="." method="_on_visibility_changed"]
 [connection signal="pressed" from="HBoxContainer/NormalButton" to="." method="_on_normal_button_pressed"]
-[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]
+[connection signal="pressed" from="Mute" to="." method="_on_button_pressed"]
+[connection signal="pressed" from="Credits" to="." method="_on_credits_pressed"]
