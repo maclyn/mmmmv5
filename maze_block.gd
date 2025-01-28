@@ -167,10 +167,6 @@ func _configure_coin():
 	if is_node_ready():
 		$Coin/CoinCollider.disabled = !_has_coin
 		$Coin/CoinSurface.visible = _has_coin
-		if _has_coin:
-			# Randomly drop it somewhere on the floor
-			$Coin.position.x = randf_range(-1.25, 1.25)
-			$Coin.position.z = randf_range(-1.25, 1.25)
 	
 func get_snapshot() -> Texture2D:
 	if _portal_node == null:
