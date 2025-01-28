@@ -62,7 +62,7 @@ mesh = SubResource("PrismMesh_bg1dy")
 skeleton = NodePath("../..")
 
 [node name="EndMarker" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, 4, 78)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 74, 4, 78)
 layers = 524288
 cast_shadow = 0
 mesh = SubResource("CylinderMesh_60u6o")
