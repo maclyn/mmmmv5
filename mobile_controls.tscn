@@ -14,7 +14,7 @@ grow_vertical = 2
 script = ExtResource("1_0lbg5")
 
 [node name="JoystickRect" type="TextureRect" parent="."]
-texture_filter = 1
+texture_filter = 2
 texture_repeat = 1
 layout_mode = 0
 offset_left = 39.0
@@ -25,6 +25,8 @@ texture = ExtResource("2_ag7ut")
 expand_mode = 1
 
 [node name="JumpRect" type="TextureRect" parent="."]
+texture_filter = 2
+texture_repeat = 1
 layout_mode = 0
 offset_left = 1026.0
 offset_top = 458.0

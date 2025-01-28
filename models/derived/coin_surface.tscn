@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://itqvm4t03li3"]
+
+[ext_resource type="PackedScene" uid="uid://dp2u7kiuwtljd" path="res://models/coin.glb" id="1_x0ji5"]
+
+[node name="coin" instance=ExtResource("1_x0ji5")]
+
+[node name="Cylinder" parent="." index="0"]
+layers = 32768

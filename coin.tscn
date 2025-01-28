@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://dgfi77s875upv"]
 
 [ext_resource type="Script" path="res://coin.gd" id="1_s7g5w"]
-[ext_resource type="PackedScene" uid="uid://dp2u7kiuwtljd" path="res://models/coin.glb" id="2_adlr3"]
+[ext_resource type="PackedScene" uid="uid://itqvm4t03li3" path="res://models/derived/coin_surface.tscn" id="2_7lv1l"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_fwkmu"]
 height = 0.1
@@ -16,4 +16,4 @@ script = ExtResource("1_s7g5w")
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
 shape = SubResource("CylinderShape3D_fwkmu")
 
-[node name="CoinSurface" parent="." instance=ExtResource("2_adlr3")]
+[node name="CoinSurface" parent="." instance=ExtResource("2_7lv1l")]

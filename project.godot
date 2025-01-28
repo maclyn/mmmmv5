@@ -119,6 +119,7 @@ jump={
 
 [layer_names]
 
+3d_render/layer_16="objects_layer"
 3d_render/layer_17="enemies_layer"
 3d_render/layer_18="maze_layer"
 3d_render/layer_19="player_marker_layer"
