@@ -136,6 +136,7 @@ func _on_player_at_spike() -> void:
 	_round_over(false)
 	
 func _on_player_at_coin() -> void:
+	$Music/CoinPlayer.play()
 	score += 10
 	_update_score_label()
 	

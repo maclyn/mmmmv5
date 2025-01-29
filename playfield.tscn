@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://c5cq4nt0yl43t"]
+[gd_scene load_steps=24 format=3 uid="uid://c5cq4nt0yl43t"]
 
 [ext_resource type="Script" path="res://playfield.gd" id="1_de1dc"]
 [ext_resource type="Environment" uid="uid://cgibf3lqeqjis" path="res://map_environment_dark_scene.tres" id="3_g75ud"]
@@ -16,6 +16,7 @@
 [ext_resource type="AudioStream" uid="uid://be6cp3rm468km" path="res://sounds/win.wav" id="14_i02uq"]
 [ext_resource type="AudioStream" uid="uid://v18r4ijoell7" path="res://sounds/game_over.wav" id="15_a2rsm"]
 [ext_resource type="AudioStream" uid="uid://daglhrwcvln5r" path="res://sounds/key_pickup.mp3" id="16_5rnqv"]
+[ext_resource type="AudioStream" uid="uid://bkmu6nhf5ykxx" path="res://sounds/coin.mp3" id="17_b2c3j"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_hlfi2"]
 size = Vector3(5000, 0.1, 5000)
@@ -179,7 +180,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_fvyei")
 [node name="LoadingLabel" type="Label" parent="HUD/LoadingContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
-text = "Added 354 of 354"
+text = "Added 385 of 385"
 horizontal_alignment = 1
 uppercase = true
 
@@ -212,6 +213,9 @@ stream = ExtResource("15_a2rsm")
 
 [node name="KeyHitPlayer" type="AudioStreamPlayer" parent="Music"]
 stream = ExtResource("16_5rnqv")
+
+[node name="CoinPlayer" type="AudioStreamPlayer" parent="Music"]
+stream = ExtResource("17_b2c3j")
 
 [connection signal="on_load_changed" from="Maze" to="." method="_on_maze_on_load_changed"]
 [connection signal="on_loaded" from="Maze" to="." method="_on_maze_load_complete"]
