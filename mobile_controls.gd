@@ -77,26 +77,23 @@ func _process_finger_at_point(event: InputEvent) -> void:
 			_press_key("walk")
 		
 		if abs(pct_x - 0.5) > DEAD_ZONE_PCT:
+			_release_key("backwards")
+			_release_key("forward")
 			if pct_x < 0.5:
 				_release_key("strafe_right")
 				_press_key("strafe_left")
 			else:
 				_release_key("strafe_left")
 				_press_key("strafe_right")
-		else:
+		elif abs(pct_y - 0.5) > DEAD_ZONE_PCT:
 			_release_key("strafe_left")
 			_release_key("strafe_right")
-
-		if abs(pct_y - 0.5) > DEAD_ZONE_PCT:
 			if pct_y > 0.5:
 				_release_key("forward")
 				_press_key("backwards")
 			else:
 				_release_key("backwards")
 				_press_key("forward")
-		else:
-			_release_key("backwards")
-			_release_key("forward")
 	elif event.index == drag_idx:
 		var x_range = get_viewport_rect().size.abs().x
 		if x_range <= 0:
@@ -150,6 +147,8 @@ func _pct_of_y(point: Vector2) -> float:
 	
 func _set_control_is_pressed(control: TextureRect, is_pressed: bool) -> void:
 	control.self_modulate.a = 1.0 if is_pressed else 0.8
+	if is_pressed:
+		Input.vibrate_handheld(50, 0.2)
 
 func _press_key(key: String):
 	if DEBUG_MOBILE_CONTROLS:
