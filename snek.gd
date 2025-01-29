@@ -42,8 +42,6 @@ func _physics_process(delta: float) -> void:
 		new_pos.z = min_y
 		_reset_position(new_pos)
 	else:
-		if player_node != null && !spotted:
-			_check_spotted()
 		var collision = move_and_collide(
 			Vector3(x_delta, 0, z_delta),
 			false,
@@ -51,6 +49,8 @@ func _physics_process(delta: float) -> void:
 			false,
 			1)
 		if collision != null:
+			if !spotted:
+				_check_spotted()
 			if !spotted:
 				print("Droppping unfair collision with unspotted player")
 				_reset_position(start_pos)
@@ -83,15 +83,22 @@ func _reset_position(new_pos: Vector3):
 	spotted = false
 	
 func _check_spotted() -> void:
+	if player_node == null:
+		print("Player node is null")
+		return
+	
 	if !is_node_ready():
+		print("Node not ready")
 		return
 	
 	# Check in camera frustrum
 	if !on_screen:
+		print("Snake not on screen")
 		return
 		
 	# Check distance
 	if self.global_position.distance_to(player_node.global_position) > MAX_DIST_FOR_VALID_HIT:
+		print("Too far")
 		return
 	
 	# Make sure not behind wall
@@ -103,6 +110,7 @@ func _check_spotted() -> void:
 	query.hit_from_inside = false
 	var result = space_state.intersect_ray(query)
 	if result.size() < 1:
+		print("Ray didn't intersect")
 		return
 	var collider = result["collider"]
 	if collider.is_in_group("player_group"):

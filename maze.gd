@@ -291,7 +291,7 @@ func show_path_out() -> void:
 	
 # player is actually the pivot node for the player
 func attach_player(player: Node3D, player_instance: Node3D) -> void:
-	player = player
+	self.player = player
 	if bird != null:
 		bird.attach_player(player_instance)
 	

@@ -245,6 +245,10 @@ func _on_first_frame():
 		$HUD/MiniMapContainer/MiniMap.texture = minimap_atlas_texture
 	
 func _on_snake_hit():
+	print("hit snake!")
+	$Music/SnakeHissPlayer.play()
+	$Player.die()
+	await $Music/SnakeHissPlayer.finished
 	_round_over(false)
 
 func _round_over(did_win: bool = false, skip_anim: bool = false) -> void:
