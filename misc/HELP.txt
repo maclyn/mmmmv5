@@ -1,0 +1,11 @@
+Navigate through the maze to grab the key and run back to
+the lock in time to get to the next level.
+### Dangers ###
+Watch out for spikes, quicksand, and -- when you're running
+back -- snakes. 
+### Power-ups ###
+Jump through a portal to maybe get a boost forward to 
+somewhere else in the maze. Pick up coins for more points.
+Consult the (rare) maps on the walls to find your way out.
+If you notice a bird, jump up to meet it to get a shortcut
+to the key.
