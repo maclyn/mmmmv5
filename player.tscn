@@ -1,6 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://3mh0fvm1jcci"]
+[gd_scene load_steps=5 format=3 uid="uid://3mh0fvm1jcci"]
 
 [ext_resource type="Script" path="res://player.gd" id="1_an2rx"]
+[ext_resource type="AudioStream" uid="uid://d2gg2ermq8b0a" path="res://sounds/quicksand.wav" id="2_gkhwn"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_kqxx0"]
 
@@ -25,3 +26,8 @@ mesh = SubResource("BoxMesh_5fti7")
 
 [node name="CameraRoot" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.86, 0)
+
+[node name="Sounds" type="Node3D" parent="."]
+
+[node name="QuicksandPlayer" type="AudioStreamPlayer" parent="Sounds"]
+stream = ExtResource("2_gkhwn")

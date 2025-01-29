@@ -4,6 +4,8 @@ extends Node3D
 signal on_snake_hit()
 signal on_load_changed(message: String)
 signal on_loaded(start_position: Vector2i)
+signal player_in_quicksand()
+signal player_out_of_quicksand()
 
 var maze_block_scene = preload("res://maze_block.tscn")
 var snake_scene = preload("res://snek.tscn")
@@ -294,6 +296,10 @@ func attach_player(player: Node3D, player_instance: Node3D) -> void:
 	self.player = player
 	if bird != null:
 		bird.attach_player(player_instance)
+	for x in blocks:
+		for y in blocks[x]:
+			var block = blocks[x][y]
+			block.instance.attach_player(player)
 	
 func update_player_marker(x: float, z: float, rotation_y: float):
 	$PlayerMarker.global_position = Vector3(x, 4, z)
@@ -600,6 +606,8 @@ func _generate_maze(allow_bad_mazes: bool = false):
 			elif randf_range(0.0, 1.0) > (1.0 - _percent_chance_of_quicksand_block()):
 				print("Added quicksand block at " + str(x) + ", " + str(y))
 				block.instance.add_quicksand()
+				block.instance.connect("player_in_quicksand", _emit_in_quicksand)
+				block.instance.connect("player_out_of_quicksand", _emit_out_of_quicksand)
 			elif randf_range(0.0, 1.0) > (1.0 - _percent_chance_of_spike_block()):
 				print("Added spike block at " + str(x) + ", " + str(y))
 				block.instance.add_spike()
@@ -756,3 +764,9 @@ func _emit_load_changed(msg: String) -> void:
 func _emit_loaded(start_position: Vector2i):
 	print("Emiting maze loaded with start_pos=" + str(start_position))
 	call_deferred("emit_signal", "on_loaded", start_position)
+
+func _emit_in_quicksand() -> void:
+	player_in_quicksand.emit()
+	
+func _emit_out_of_quicksand() -> void:
+	player_out_of_quicksand.emit()

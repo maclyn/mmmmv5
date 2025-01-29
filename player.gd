@@ -20,10 +20,13 @@ var max_angle = PI / 2
 const SPEED = 2.5
 const RUN_SPEED = SPEED * 3
 const JUMP_VELOCITY = 3
+const SINK_SPEED = 5.0
 
 var look_rotation = Vector2(0, PI)
 var cannot_move = false
 var captured_by_bird = false
+var in_quicksand = false
+var ground_node: StaticBody3D = null
 
 func restore_camera():
 	var camera = $CameraRoot.get_child(0)
@@ -58,6 +61,17 @@ func external_x_movement(delta_x: float):
 	look_rotation.x -= delta_x * sensitivity
 	look_rotation.x = clamp(look_rotation.x, min_angle, max_angle)
 
+func attach_ground(ground: Node3D):
+	ground_node = ground
+
+func on_enter_quicksand():
+	in_quicksand = true
+	ground_node.process_mode = Node.PROCESS_MODE_DISABLED
+	
+func on_exit_quicksand():
+	in_quicksand = false
+	ground_node.process_mode = Node.PROCESS_MODE_INHERIT
+
 func _ready():
 	if Engine.is_editor_hint():
 		set_camera(true, false)
@@ -73,31 +87,38 @@ func _physics_process(delta: float) -> void:
 	# Add the gravity.
 	if not is_on_floor():
 		velocity += get_gravity() * delta
+	
+	# Quicksand sinking
+	if in_quicksand:
+		velocity += get_gravity() * delta * 1.5
 
 	# Handle jump.
-	if Input.is_action_just_pressed("jump") and is_on_floor():
+	if Input.is_action_just_pressed("jump") and (is_on_floor() or in_quicksand):
 		velocity.y = JUMP_VELOCITY
 
-	var input_dir := Input.get_vector("strafe_left", "strafe_right", "forward", "backwards")
-	var direction := (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
-	var speed = SPEED if Input.is_action_pressed("walk") else RUN_SPEED
-	if direction:
-		velocity.x = direction.x * speed
-		velocity.z = direction.z * speed
-	else:
-		velocity.x = move_toward(velocity.x, 0, speed)
-		velocity.z = move_toward(velocity.z, 0, speed)
+	if not in_quicksand:
+		var input_dir := Input.get_vector("strafe_left", "strafe_right", "forward", "backwards")
+		var direction := (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+		var speed = SPEED if Input.is_action_pressed("walk") else RUN_SPEED
+		if direction:
+			velocity.x = direction.x * speed
+			velocity.z = direction.z * speed
+		else:
+			velocity.x = move_toward(velocity.x, 0, speed)
+			velocity.z = move_toward(velocity.z, 0, speed)
 
-	# Debug purposes only
-	var debug_dir := Input.get_vector("debug_east", "debug_west", "debug_south", "debug_north")
-	if debug_dir.length() > 0:
-		var debug_direction := (transform.basis * Vector3(debug_dir.x, 0, debug_dir.y)).normalized()
-		speed = RUN_SPEED * 2
-		velocity.x = debug_direction.x * speed
-		velocity.z = debug_direction.z * speed
+		# Debug purposes only
+		var debug_dir := Input.get_vector("debug_east", "debug_west", "debug_south", "debug_north")
+		if debug_dir.length() > 0:
+			var debug_direction := (transform.basis * Vector3(debug_dir.x, 0, debug_dir.y)).normalized()
+			speed = RUN_SPEED * 2
+			velocity.x = debug_direction.x * speed
+			velocity.z = debug_direction.z * speed
+	else:
+		velocity.x = 0
+		velocity.z = 0
 
 	move_and_slide()
-	
 	for collision_idx in range(get_slide_collision_count()):
 		var collision = get_slide_collision(collision_idx)
 		var collider = collision.get_collider()
@@ -109,14 +130,19 @@ func _physics_process(delta: float) -> void:
 			at_key.emit()
 		if collider.is_in_group("portal_group"):
 			at_portal.emit()
-		if collider.is_in_group("quicksand_group"):
-			at_quicksand.emit()
 		if collider.is_in_group("spike_group"):
 			at_spike.emit()
 		if collider.is_in_group("coin_group"):
 			if not collider.has_collided_before():
 				collider.remove_self()
 				at_coin.emit()
+	
+	if in_quicksand:
+		if !$Sounds/QuicksandPlayer.playing:
+				$Sounds/QuicksandPlayer.play()
+		if position.y < 0.25:
+			die()
+			at_quicksand.emit()
 	
 	_process_look(delta)
 	

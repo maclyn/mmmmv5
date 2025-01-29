@@ -1,6 +1,9 @@
 @tool
 extends Node3D
 
+signal player_in_quicksand()
+signal player_out_of_quicksand()
+
 # Block state
 var _is_key: bool = false
 var _key_rotation_rads: float = 0.0
@@ -18,6 +21,10 @@ var _exit_portal: Node3D = null
 var _has_setup_portal_exit_viewport: bool = false
 var _has_updated_updated_portal_tex: bool = false
 var _portal_node: SubViewport = null
+
+# Multi-mesh rendering state
+static var _has_configured_grass = false
+var _player_pivot: Node3D = null
 
 func _ready():
 	# Rotate the walls and corners randomly so the same texture 
@@ -42,6 +49,7 @@ func _ready():
 	_configure_quicksand()
 	_configure_spike()
 	_configure_coin()
+	_configure_grass()
 
 func _process(delta: float) -> void:
 	if _is_portal && !_has_updated_updated_portal_tex:
@@ -95,6 +103,9 @@ func add_exit():
 	_has_coin = false
 	_configure_exit()
 	_configure_coin()
+	
+func attach_player(player_pivot: Node3D):
+	_player_pivot = player_pivot
 	
 func _configure_exit():
 	if is_node_ready():
@@ -167,6 +178,29 @@ func _configure_coin():
 	if is_node_ready():
 		$Coin/CoinCollider.disabled = !_has_coin
 		$Coin/CoinSurface.visible = _has_coin
+		
+func _configure_grass():
+	if _has_configured_grass:
+		return
+	_has_configured_grass = true
+	print("Configuring grass...")
+	var mesh: MultiMesh = $GrassMultiMesh.multimesh
+	var center_of_block = Transform3D(Basis.IDENTITY, Vector3(0.0, -1.90, 0.0))
+	var instance_count = mesh.instance_count
+	var blade_units_per_edge = sqrt(instance_count)
+	var dist_between_units = 4.0 / blade_units_per_edge
+	var start_pos = dist_between_units / 2.0
+	var last_idx = 0
+	for x in blade_units_per_edge:
+		for z in blade_units_per_edge:
+			var idx = (x * blade_units_per_edge) + z
+			last_idx = idx
+			var transform = Transform3D(center_of_block)
+			transform.origin.x = (start_pos + (x * dist_between_units) + randf_range(-dist_between_units, dist_between_units)) - 2.0
+			transform.origin.z = (start_pos + (z * dist_between_units) + randf_range(-dist_between_units, dist_between_units)) - 2.0
+			transform.basis = Basis.IDENTITY.rotated(Vector3.UP, randf_range(0.0, TAU)).scaled(Vector3(1.0, randf_range(0.0, 2.0), 1.0))
+			mesh.set_instance_transform(idx, transform)
+	print("configured " + str(last_idx))
 	
 func get_snapshot() -> Texture2D:
 	if _portal_node == null:
@@ -221,3 +255,14 @@ func show_arrow(
 			$HedgeWallW.show_arrow(false)
 		else:
 			$HedgeWallW.show_arrow(true)
+
+
+func _on_quick_sand_body_entered(body: Node3D) -> void:
+	if body.is_in_group("player_group"):
+		print("Player in quicksand!")
+		player_in_quicksand.emit()
+
+func _on_quick_sand_body_exited(body: Node3D) -> void:
+	if body.is_in_group("player_group"):
+		print("Player out of quicksand!")
+		player_out_of_quicksand.emit()

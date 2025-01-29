@@ -43,6 +43,7 @@ func _ready():
 	var minimap_size = $HUD/MiniMapContainer.size.x
 	$HUD/MiniMapContainer.pivot_offset = Vector2(minimap_size / 2.0, minimap_size / 2.0)
 	$HUD/MiniMapContainer.rotation_degrees = 180.0
+	$Player.attach_ground($Ground)
 
 	if Engine.is_editor_hint():
 		print("Running playfield in editor")
@@ -130,6 +131,8 @@ func _on_player_at_portal() -> void:
 	$Player.global_position = Vector3(exit_xz.x, $Player.global_position.y, exit_xz.y)
 	
 func _on_player_at_quicksand() -> void:
+	# This fires once the player has sunk into the quicksand, not on initial
+	# hit
 	_round_over(false)
 	
 func _on_player_at_spike() -> void:
@@ -316,3 +319,10 @@ func _update_loading_screen(visible: bool, text: String = "") -> void:
 
 func _on_maze_on_load_changed(message: String) -> void:
 	_update_loading_screen(true, message)
+
+
+func _on_maze_player_in_quicksand() -> void:
+	$Player.on_enter_quicksand()
+
+func _on_maze_player_out_of_quicksand() -> void:
+	$Player.on_exit_quicksand()
