@@ -42,6 +42,8 @@ func _ready():
 	$HedgeCornerNW.rotate_z(PI if randi_range(0, 1) == 0 else 0.0)
 	$HedgeCornerNW.rotate_y((PI / 2) * randi_range(0, 4))
 	
+	$GrassMultiMesh.rotate(Vector3.UP, randi_range(0, 4) * (PI / 2.0))
+	
 	_configure_key()
 	_configure_exit()
 	_configure_portal()
@@ -50,6 +52,9 @@ func _ready():
 	_configure_spike()
 	_configure_coin()
 	_configure_grass()
+	
+func _exit_tree() -> void:
+	_has_configured_grass = false
 
 func _process(delta: float) -> void:
 	if _is_portal && !_has_updated_updated_portal_tex:
@@ -194,9 +199,9 @@ func _configure_grass():
 		"high":
 			instance_count_for_detail_level = 6400
 	var mesh: MultiMesh = $GrassMultiMesh.multimesh
-	mesh.instance_count = instance_count_for_detail_level
+	mesh.visible_instance_count = instance_count_for_detail_level
 	var center_of_block = Transform3D(Basis.IDENTITY, Vector3(0.0, -1.90, 0.0))
-	var instance_count = mesh.instance_count
+	var instance_count = mesh.visible_instance_count
 	var blade_units_per_edge = sqrt(instance_count)
 	var dist_between_units = 4.0 / blade_units_per_edge
 	var start_pos = dist_between_units / 2.0
@@ -210,7 +215,7 @@ func _configure_grass():
 			transform.origin.z = (start_pos + (z * dist_between_units) + randf_range(-dist_between_units, dist_between_units)) - 2.0
 			transform.basis = Basis.IDENTITY.rotated(Vector3.UP, randf_range(0.0, TAU)).scaled(Vector3(1.0, randf_range(0.0, 2.0), 1.0))
 			mesh.set_instance_transform(idx, transform)
-	print("configured " + str(last_idx))
+	print("Configured " + str(last_idx + 1) + " grass clumps")
 	
 func get_snapshot() -> Texture2D:
 	if _portal_node == null:
@@ -236,7 +241,6 @@ func show_arrow(
 	# This operates OPPOSITE to how you might think when in "exit" mode,
 	# since block->prev is the previous when walking to the key
 	# block->prev is actually block->next when exiting!
-	$InPathBlock.visible = true
 	if dir_from_prev_north: # is_next_south
 		$HedgeWallE.show_arrow(false)
 		$HedgeWallW.show_arrow(true)

@@ -195,7 +195,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_fvyei")
 [node name="LoadingLabel" type="Label" parent="HUD/LoadingContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
-text = "Added 342 of 342"
+text = "Added 367 of 367"
 horizontal_alignment = 1
 uppercase = true
 
