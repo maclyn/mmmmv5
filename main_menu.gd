@@ -2,6 +2,17 @@ extends Control
 
 signal start_game()
 
+var _saver = Globals.get_saver()
+
+func _ready() -> void:
+	_apply_mute_mode(_saver.get_is_muted())
+	_apply_gfx_mode(_saver.get_graphics_mode())
+	_apply_high_score(_saver.get_high_score())
+	
+func _on_visibility_changed() -> void:
+	if visible:
+		_apply_high_score(_saver.get_high_score())
+
 func show_main_menu():
 	$Music.play()
 	
@@ -17,7 +28,33 @@ func _on_normal_button_pressed() -> void:
 	start_game.emit()
 
 func _on_button_pressed() -> void:
-	AudioServer.set_bus_mute(0, !AudioServer.is_bus_mute(0))
+	var is_muted = !AudioServer.is_bus_mute(0)
+	_saver.set_is_muted(is_muted)
+	_apply_mute_mode(is_muted)
+	
+func _apply_mute_mode(is_muted: bool):
+	$Mute.text = "Unmute" if is_muted else "Mute"
+	AudioServer.set_bus_mute(0, is_muted)
+	
+func _on_graphics_mode_pressed() -> void:
+	var curr_mode = _saver.get_graphics_mode()
+	var new_mode = "low"
+	match curr_mode:
+		"low":
+			new_mode = "medium"
+		"medium":
+			new_mode = "high"
+		"high":
+			new_mode = "low"
+	_saver.set_graphics_mode(new_mode)
+	_apply_gfx_mode(new_mode)
+	
+func _apply_gfx_mode(mode: String) -> void:
+	Globals.set_graphics_mode(mode)
+	$GraphicsMode.text = _gfx_mode_to_label(mode)
+	
+func _apply_high_score(high_score: int) -> void:
+	$HighScoreLabel.text = "High Score: " + str(high_score)
 	
 func _on_credits_pressed() -> void:
 	_show_text_dialog("Credits", "res://misc/CREDITS.txt")
@@ -25,11 +62,16 @@ func _on_credits_pressed() -> void:
 func _on_help_pressed() -> void:
 	_show_text_dialog("Help", "res://misc/HELP.txt")
 
-func _on_visibility_changed() -> void:
-	if visible:
-		var high_score = Globals.get_saver().get_high_score()
-		$HighScoreLabel.text = "High Score: " + str(high_score)
-		
+func _gfx_mode_to_label(mode: String):
+	match mode:
+		"low":
+			return "GFX-Low"
+		"medium":
+			return "GFX-Med"
+		"high":
+			return "GFX-High"
+	return ""
+
 func _show_text_dialog(title: String, path: String) -> void:
 	var file = FileAccess.open(path, FileAccess.READ)
 	var file_str = file.get_as_text()

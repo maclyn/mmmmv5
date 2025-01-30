@@ -7,7 +7,7 @@
 height = 0.1
 
 [node name="Coin" type="StaticBody3D" groups=["coin_group"]]
-transform = Transform3D(-0.149622, -0.425927, 0.214942, -0.439128, 0.0348935, -0.236535, 0.186492, -0.259555, -0.384515, -0.154734, -1.975, -0.327662)
+transform = Transform3D(-0.291797, -0.405737, 0.0152199, -0.0132415, 0.0282423, 0.499027, -0.405806, 0.290826, -0.0272273, -0.154734, -1.975, -0.327662)
 collision_layer = 4
 collision_mask = 0
 script = ExtResource("1_s7g5w")

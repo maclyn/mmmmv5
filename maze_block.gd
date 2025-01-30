@@ -183,8 +183,18 @@ func _configure_grass():
 	if _has_configured_grass:
 		return
 	_has_configured_grass = true
-	print("Configuring grass...")
+	var detail_level = Globals.get_saver().get_graphics_mode()
+	print("Configuring grass with detail_level " + detail_level)
+	var instance_count_for_detail_level = 16
+	match detail_level:
+		"low":
+			instance_count_for_detail_level = 256
+		"medium":
+			instance_count_for_detail_level = 1024
+		"high":
+			instance_count_for_detail_level = 6400
 	var mesh: MultiMesh = $GrassMultiMesh.multimesh
+	mesh.instance_count = instance_count_for_detail_level
 	var center_of_block = Transform3D(Basis.IDENTITY, Vector3(0.0, -1.90, 0.0))
 	var instance_count = mesh.instance_count
 	var blade_units_per_edge = sqrt(instance_count)

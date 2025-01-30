@@ -32,7 +32,7 @@ material = SubResource("StandardMaterial3D_tjh0m")
 size = Vector2(250, 250)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8uvfo"]
-albedo_color = Color(0, 0.54902, 0.207843, 1)
+albedo_color = Color(0, 0.611765, 0.184314, 1)
 uv1_scale = Vector3(500, 500, 500)
 texture_filter = 5
 
@@ -195,7 +195,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_fvyei")
 [node name="LoadingLabel" type="Label" parent="HUD/LoadingContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
-text = "Added 382 of 382"
+text = "Added 342 of 342"
 horizontal_alignment = 1
 uppercase = true
 

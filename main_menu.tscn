@@ -48,9 +48,9 @@ texture = ExtResource("1_wbcnh")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
 layout_mode = 0
-offset_left = 34.0
+offset_left = 33.0
 offset_top = 600.0
-offset_right = 1241.0
+offset_right = 1247.0
 offset_bottom = 700.0
 alignment = 1
 
@@ -67,22 +67,35 @@ layout_mode = 1
 anchors_preset = -1
 anchor_right = 0.034
 anchor_bottom = 0.033
-offset_left = 1090.0
-offset_top = 27.0
-offset_right = 1206.48
-offset_bottom = 83.24
+offset_left = 34.0
+offset_top = 127.0
+offset_right = 150.48
+offset_bottom = 183.24
 theme = ExtResource("2_eh4l0")
 text = "Mute"
+
+[node name="GraphicsMode" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.034
+anchor_bottom = 0.033
+offset_left = 34.0
+offset_top = 27.0
+offset_right = 150.48
+offset_bottom = 83.24
+theme = ExtResource("2_eh4l0")
+text = "GFX 
+Low"
 
 [node name="Credits" type="Button" parent="."]
 layout_mode = 1
 anchors_preset = -1
 anchor_right = 0.034
 anchor_bottom = 0.033
-offset_left = 1090.0
-offset_top = 112.0
-offset_right = 1206.48
-offset_bottom = 168.24
+offset_left = 1087.0
+offset_top = 127.0
+offset_right = 1203.48
+offset_bottom = 183.24
 theme = ExtResource("2_eh4l0")
 text = "Credits"
 
@@ -91,10 +104,10 @@ layout_mode = 1
 anchors_preset = -1
 anchor_right = 0.034
 anchor_bottom = 0.033
-offset_left = 1090.0
-offset_top = 196.0
-offset_right = 1206.48
-offset_bottom = 252.24
+offset_left = 1087.0
+offset_top = 27.0
+offset_right = 1203.48
+offset_bottom = 83.24
 theme = ExtResource("2_eh4l0")
 text = "Help"
 
@@ -122,5 +135,6 @@ horizontal_alignment = 1
 [connection signal="visibility_changed" from="." to="." method="_on_visibility_changed"]
 [connection signal="pressed" from="HBoxContainer/NormalButton" to="." method="_on_normal_button_pressed"]
 [connection signal="pressed" from="Mute" to="." method="_on_button_pressed"]
+[connection signal="pressed" from="GraphicsMode" to="." method="_on_graphics_mode_pressed"]
 [connection signal="pressed" from="Credits" to="." method="_on_credits_pressed"]
 [connection signal="pressed" from="Help" to="." method="_on_help_pressed"]

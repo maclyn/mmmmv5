@@ -11,6 +11,7 @@ enum GameDifficulty {
 const Saver = preload("res://saver.gd")
 
 var saver = Saver.new()
+var graphics_mode: String = "low"
 var tick_count: int
 var last_handled_back_notif: int = 0
 var shader_update_thread: Thread = null
@@ -20,6 +21,9 @@ var shader_time_ms: int = 0
 
 func get_saver() -> Object:
 	return saver
+	
+func set_graphics_mode(mode: String):
+	graphics_mode = mode
 
 func is_mobile() -> bool:
 	return OS.get_name() == "Android" || OS.get_name() == "iOS" || emulate_mobile()

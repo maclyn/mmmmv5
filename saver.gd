@@ -6,48 +6,68 @@ const SETTINGS_FILE = "user://settings.save"
 const SCORE_KEY = "score"
 const MUTE_KEY = "mute"
 
+const GFX_KEY = "gfx_mode"
+const GFX_VALUE_LOW = "low"
+const GFX_VALUE_MEDIUM = "medium"
+const GFX_VALUE_HIGH = "high"
+
+func get_graphics_mode() -> String:
+	return _get_key_from_file(SETTINGS_FILE, GFX_KEY, GFX_VALUE_MEDIUM)
+
+func set_graphics_mode(new_mode: String):
+	_save_key_to_file(SETTINGS_FILE, GFX_KEY, new_mode)
+	
+func get_is_muted() -> bool:
+	return _get_key_from_file(SETTINGS_FILE, MUTE_KEY, false)
+	
+func set_is_muted(is_muted: bool) -> void:
+	_save_key_to_file(SETTINGS_FILE, MUTE_KEY, is_muted)
+	
 func get_high_score() -> int:
-	if !FileAccess.file_exists(SAVE_FILE):
-		return 0
-	var save_file = FileAccess.open(SAVE_FILE, FileAccess.READ)
-	var json_string = save_file.get_as_text()
-	var json = JSON.new()
-	var parse_result = json.parse(json_string)
-	if not parse_result == OK:
-		return 0
-	if not SCORE_KEY in json.data:
-		return 0
-	return json.data[SCORE_KEY]
+	return _get_key_from_file(SAVE_FILE, SCORE_KEY, 0)
 
 # Returns true on new high score
 func compare_to_last_high_score_and_maybe_update(score: int) -> bool:
-	if !FileAccess.file_exists(SAVE_FILE):
-		_create_new_save_file(score)
-		return true
- 
-	var save_file = FileAccess.open(SAVE_FILE, FileAccess.READ_WRITE)
-	var json_string = save_file.get_as_text()
-	var json = JSON.new()
-	var parse_result = json.parse(json_string)
-	if not parse_result == OK || not SCORE_KEY in json.data:
-		print("Parse error; resetting save: ", json.get_error_message(), " in ", json_string, " at line ", json.get_error_line())
-		_create_new_save_file(score)
-		return true
-		
-	var old_score = json.data[SCORE_KEY]
+	var old_score = _get_key_from_file(SAVE_FILE, SCORE_KEY, 0)
 	if old_score >= score:
 		# Lower than old high score
 		return false
 		
 	# We did better; update
-	json.data[SCORE_KEY] = score
-	var to_str = JSON.stringify(json.data)
-	save_file.resize(0)
-	save_file.store_string(to_str)
+	_save_key_to_file(SAVE_FILE, SCORE_KEY, score)
 	return true
 	
-func _create_new_save_file(score: int):
-	var new_save = FileAccess.open(SAVE_FILE, FileAccess.WRITE)
+func _get_key_from_file(file_path: String, key: Variant, default: Variant) -> Variant:
+	if !FileAccess.file_exists(file_path):
+		return default
+	var file = FileAccess.open(file_path, FileAccess.READ)
+	var json_string = file.get_as_text()
+	var json = JSON.new()
+	var parse_result = json.parse(json_string)
+	if not parse_result == OK:
+		return default
+	if not key in json.data:
+		return default
+	return json.data[key]
+	
+func _save_key_to_file(file_path: String, key: Variant, value: Variant) -> void:
+	if !FileAccess.file_exists(file_path):
+		_create_empty_file(file_path)
+	var file = FileAccess.open(file_path, FileAccess.READ_WRITE)
+	var json_string = file.get_as_text()
+	var json = JSON.new()
+	var parse_result_error = json.parse(json_string)
 	var dict = {}
-	dict[SCORE_KEY] = score
-	new_save.store_line(JSON.stringify(dict))
+	if parse_result_error != Error.OK:
+		_create_empty_file(file_path)
+	else:
+		dict = json.data
+	dict[key] = value
+	var to_str = JSON.stringify(dict)
+	file.resize(0)
+	file.store_string(to_str)
+	
+func _create_empty_file(file_path: String):
+	var new_file = FileAccess.open(file_path, FileAccess.WRITE)
+	var dict = {}
+	new_file.store_line(JSON.stringify(dict))
