@@ -1,7 +1,7 @@
 [gd_scene load_steps=7 format=4 uid="uid://8ggdbjul8d5x"]
 
 [ext_resource type="PackedScene" uid="uid://ri4yqdh5wvda" path="res://models/corner.glb" id="1_upwqp"]
-[ext_resource type="Texture2D" uid="uid://de0wya7b36aog" path="res://textures/corner_Hedge_wall.png" id="2_0h3kf"]
+[ext_resource type="Texture2D" uid="uid://coj5w4j1jpugp" path="res://textures/hedge.png" id="2_il5ad"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_lrh3x"]
 size = Vector3(0.2, 4, 0.2)
@@ -9,8 +9,9 @@ size = Vector3(0.2, 4, 0.2)
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1l4ya"]
 resource_name = "Cube2_auv"
 cull_mode = 2
-albedo_texture = ExtResource("2_0h3kf")
-texture_filter = 0
+albedo_texture = ExtResource("2_il5ad")
+uv1_scale = Vector3(3, 3, 1)
+texture_filter = 5
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_l6o1p"]
 _surfaces = [{

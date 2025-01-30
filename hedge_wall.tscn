@@ -1,17 +1,17 @@
 [gd_scene load_steps=9 format=4 uid="uid://8jlfvxcekk5b"]
 
 [ext_resource type="Script" path="res://hedge_wall.gd" id="1_b1m0m"]
+[ext_resource type="Texture2D" uid="uid://coj5w4j1jpugp" path="res://textures/hedge.png" id="3_hkvsy"]
 [ext_resource type="PackedScene" uid="uid://bnaev4n1m6mwa" path="res://models/hedge_wall.glb" id="3_s56yf"]
-[ext_resource type="Texture2D" uid="uid://jg3ym8is1e51" path="res://textures/hedge_wall_Hedge_wall.png" id="4_iprly"]
 [ext_resource type="PackedScene" uid="uid://bst5ewg35addv" path="res://models/maze_arrow.glb" id="5_iojbm"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_k7ovi"]
 resource_name = "Cube2_auv"
 cull_mode = 2
-albedo_texture = ExtResource("4_iprly")
+albedo_texture = ExtResource("3_hkvsy")
 roughness = 0.858579
-texture_filter = 0
-texture_repeat = false
+uv1_scale = Vector3(3, 3, 0)
+texture_filter = 5
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_xqlux"]
 _surfaces = [{

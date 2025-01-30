@@ -24,6 +24,7 @@ var _portal_node: SubViewport = null
 
 # Multi-mesh rendering state
 static var _has_configured_grass = false
+static var _has_configured_hedges = false
 var _player_pivot: Node3D = null
 
 func _ready():
@@ -52,6 +53,7 @@ func _ready():
 	_configure_spike()
 	_configure_coin()
 	_configure_grass()
+	_configure_hedge()
 	
 func _exit_tree() -> void:
 	_has_configured_grass = false
@@ -71,12 +73,19 @@ func _physics_process(_delta: float) -> void:
 
 func configure_walls(north: bool, east: bool, south: bool, west: bool):
 	$HedgeWallN.visible = north
+	$HedgeMultiMeshes/HedgeWallNMultiMesh.visible = north
 	$HedgeWallN.get_node("CollisionShape3D").disabled = !north
+	
 	$HedgeWallE.visible = east
+	$HedgeMultiMeshes/HedgeWallEMultiMesh.visible = east
 	$HedgeWallE.get_node("CollisionShape3D").disabled = !east
+	
 	$HedgeWallS.visible = south
+	$HedgeMultiMeshes/HedgeWallSMultiMesh.visible = south
 	$HedgeWallS.get_node("CollisionShape3D").disabled = !south
+	
 	$HedgeWallW.visible = west
+	$HedgeMultiMeshes/HedgeWallWMultiMesh.visible = west
 	$HedgeWallW.get_node("CollisionShape3D").disabled = !west
 	
 func get_south_wall() -> Node3D:
@@ -216,6 +225,91 @@ func _configure_grass():
 			transform.basis = Basis.IDENTITY.rotated(Vector3.UP, randf_range(0.0, TAU)).scaled(Vector3(1.0, randf_range(0.0, 2.0), 1.0))
 			mesh.set_instance_transform(idx, transform)
 	print("Configured " + str(last_idx + 1) + " grass clumps")
+	
+func _configure_hedge() -> void:
+	if _has_configured_hedges:
+		return
+	_has_configured_hedges = true
+	var detail_level = Globals.get_saver().get_graphics_mode()
+	print("Configuring hedges with detail_level " + detail_level)
+	var instance_count_for_detail_level = 16
+	match detail_level:
+		"low":
+			instance_count_for_detail_level = 64
+		"medium":
+			instance_count_for_detail_level = 1024
+		"high":
+			instance_count_for_detail_level = 2304
+	_configure_hedge_wall($HedgeMultiMeshes/HedgeWallWMultiMesh, false, false, instance_count_for_detail_level)
+	_configure_hedge_wall($HedgeMultiMeshes/HedgeWallEMultiMesh, false, true, instance_count_for_detail_level)
+	_configure_hedge_wall($HedgeMultiMeshes/HedgeWallSMultiMesh, true, false, instance_count_for_detail_level)
+	_configure_hedge_wall($HedgeMultiMeshes/HedgeWallNMultiMesh, true, true, instance_count_for_detail_level)
+
+# is_x is really "plants on the xy plane"
+# !is_x is really "plants on the yz plane"
+func _configure_hedge_wall(wall_node: MultiMeshInstance3D, is_x: bool, is_e: bool, count: int):
+	var mesh: MultiMesh = wall_node.multimesh
+	mesh.visible_instance_count = count
+	var center_of_block = Transform3D(Basis.IDENTITY, Vector3.ZERO)
+	
+	# Each wall will have one fixed unit (the "edge" of the wall)
+	if is_x:
+		if is_e:
+			center_of_block.origin.z = -1.8
+		else:
+			center_of_block.origin.z = 1.8
+	else:
+		if is_e:
+			center_of_block.origin.x = 1.8
+		else:
+			center_of_block.origin.x = -1.8
+			
+	var instance_count = mesh.visible_instance_count
+	var units_per_edge = sqrt(instance_count)
+	var dist_between_units = 4.0 / units_per_edge
+	var start_pos = dist_between_units / 2.0
+	var last_idx = 0
+	for i in units_per_edge:
+		for y in units_per_edge:
+			# Choose a point on the right (xy or yz) plane
+			var idx = (i * units_per_edge) + y
+			last_idx = idx
+			var transform = Transform3D(center_of_block)
+			var i_pos = (start_pos + (i * dist_between_units) + randf_range(-dist_between_units, dist_between_units)) - 2.0
+			if is_x:
+				transform.origin.x = i_pos
+			else:
+				transform.origin.z = i_pos
+			transform.origin.y = (start_pos + (y * dist_between_units) + randf_range(-dist_between_units, dist_between_units)) - 2.0
+			
+			# Scale the model up
+			var scale = randf_range(4.0, 6.0)
+			var basis = Basis.IDENTITY
+			if is_x:
+				basis = basis.scaled(Vector3(1.0, scale, scale))
+			else:
+				basis = basis.scaled(Vector3(1.0, scale, scale))
+				
+			# Rotate to face the right direction
+			if is_x:
+				if not is_e:
+					transform.basis = basis.rotated(Vector3.UP, PI / 2.0)
+				else:
+					transform.basis = basis.rotated(Vector3.UP, PI * 1.5)
+			else:
+				if is_e:
+					basis = basis.rotated(Vector3.UP, PI)
+					
+			# Rotate randomly around the center of the model to add some
+			# flair to it
+			if is_x:
+				#transform.basis = basis.rotated(Vector3.UP, randf_range(0.0, PI))
+				pass
+			else:
+				# Rotate along the front axis
+				transform.basis = basis.rotated(Vector3.RIGHT, randf_range(0.0, TAU))
+			mesh.set_instance_transform(idx, transform)
+	print("Configured " + str(last_idx + 1) + " hedge plant clumps")
 	
 func get_snapshot() -> Texture2D:
 	if _portal_node == null:
