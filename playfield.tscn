@@ -1,8 +1,8 @@
-[gd_scene load_steps=25 format=3 uid="uid://c5cq4nt0yl43t"]
+[gd_scene load_steps=27 format=3 uid="uid://c5cq4nt0yl43t"]
 
 [ext_resource type="Script" path="res://playfield.gd" id="1_de1dc"]
 [ext_resource type="Environment" uid="uid://cgibf3lqeqjis" path="res://map_environment_dark_scene.tres" id="3_g75ud"]
-[ext_resource type="Texture2D" uid="uid://qbont3rna5ge" path="res://textures/grass.png" id="5_4c4o8"]
+[ext_resource type="Texture2D" uid="uid://bkqstndul4u2b" path="res://textures/grass05.png" id="4_vttfp"]
 [ext_resource type="PackedScene" uid="uid://cp28gjjsjws27" path="res://maze.tscn" id="6_cy60q"]
 [ext_resource type="PackedScene" uid="uid://3mh0fvm1jcci" path="res://player.tscn" id="6_qmkiw"]
 [ext_resource type="FontFile" uid="uid://b88ckwrmql0l8" path="res://assets/Flexi_IBM_VGA_False_437.ttf" id="7_eeir4"]
@@ -20,16 +20,25 @@
 [ext_resource type="AudioStream" uid="uid://bn84vevlohuiu" path="res://sounds/540162__schreibsel__snake-hissing.wav" id="18_qpw22"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_hlfi2"]
-size = Vector3(5000, 0.1, 5000)
+size = Vector3(250, 0.1, 250)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tjh0m"]
-albedo_texture = ExtResource("5_4c4o8")
-uv1_scale = Vector3(50, 50, 50)
-texture_filter = 1
+albedo_texture = ExtResource("4_vttfp")
+uv1_scale = Vector3(500, 500, 500)
+texture_filter = 5
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_ls18c"]
 material = SubResource("StandardMaterial3D_tjh0m")
-size = Vector2(2000, 2000)
+size = Vector2(250, 250)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8uvfo"]
+albedo_color = Color(0, 0.54902, 0.207843, 1)
+uv1_scale = Vector3(500, 500, 500)
+texture_filter = 5
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_cbeox"]
+material = SubResource("StandardMaterial3D_8uvfo")
+size = Vector2(250, 250)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rgj6w"]
 border_width_left = 12
@@ -62,15 +71,20 @@ default_map_env = ExtResource("13_03e11")
 dark_map_env = ExtResource("3_g75ud")
 
 [node name="Ground" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, 40)
 
 [node name="GroundCollider" type="CollisionShape3D" parent="Ground"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0)
 shape = SubResource("BoxShape3D_hlfi2")
 
 [node name="GroundMesh" type="MeshInstance3D" parent="Ground"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.876257, -0.0332108, -0.201639)
-layers = 131072
+layers = 32768
 mesh = SubResource("PlaneMesh_ls18c")
+
+[node name="GroundMeshForCamera" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.033, 0)
+layers = 131072
+mesh = SubResource("PlaneMesh_cbeox")
 
 [node name="Maze" parent="." instance=ExtResource("6_cy60q")]
 
@@ -181,7 +195,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_fvyei")
 [node name="LoadingLabel" type="Label" parent="HUD/LoadingContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
-text = "Added 385 of 385"
+text = "Added 382 of 382"
 horizontal_alignment = 1
 uppercase = true
 
