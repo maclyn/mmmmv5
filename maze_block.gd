@@ -1,4 +1,3 @@
-@tool
 extends Node3D
 
 signal player_in_quicksand()
@@ -45,6 +44,10 @@ func _ready():
 	
 	$GrassMultiMesh.rotate(Vector3.UP, randi_range(0, 4) * (PI / 2.0))
 	
+	if Engine.is_editor_hint() && get_parent() == null:
+		print("Null scene, so probably rooted in editor; enabling N + E walls")
+		configure_walls(true, true, false, false)
+	
 	_configure_key()
 	_configure_exit()
 	_configure_portal()
@@ -57,6 +60,7 @@ func _ready():
 	
 func _exit_tree() -> void:
 	_has_configured_grass = false
+	_has_configured_hedges = false
 
 func _process(delta: float) -> void:
 	if _is_portal && !_has_updated_updated_portal_tex:
@@ -73,19 +77,19 @@ func _physics_process(_delta: float) -> void:
 
 func configure_walls(north: bool, east: bool, south: bool, west: bool):
 	$HedgeWallN.visible = north
-	$HedgeMultiMeshes/HedgeWallNMultiMesh.visible = north
+	$HedgeMultiMeshes/HedgeWallNMultiMesh.visible = false #north
 	$HedgeWallN.get_node("CollisionShape3D").disabled = !north
 	
 	$HedgeWallE.visible = east
-	$HedgeMultiMeshes/HedgeWallEMultiMesh.visible = east
+	$HedgeMultiMeshes/HedgeWallEMultiMesh.visible = false #east
 	$HedgeWallE.get_node("CollisionShape3D").disabled = !east
 	
 	$HedgeWallS.visible = south
-	$HedgeMultiMeshes/HedgeWallSMultiMesh.visible = south
+	$HedgeMultiMeshes/HedgeWallSMultiMesh.visible = false #south
 	$HedgeWallS.get_node("CollisionShape3D").disabled = !south
 	
 	$HedgeWallW.visible = west
-	$HedgeMultiMeshes/HedgeWallWMultiMesh.visible = west
+	$HedgeMultiMeshes/HedgeWallWMultiMesh.visible = false # west
 	$HedgeWallW.get_node("CollisionShape3D").disabled = !west
 	
 func get_south_wall() -> Node3D:
@@ -197,7 +201,7 @@ func _configure_grass():
 	if _has_configured_grass:
 		return
 	_has_configured_grass = true
-	var detail_level = Globals.get_saver().get_graphics_mode()
+	var detail_level = _get_detail_level()
 	print("Configuring grass with detail_level " + detail_level)
 	var instance_count_for_detail_level = 16
 	match detail_level:
@@ -230,20 +234,112 @@ func _configure_hedge() -> void:
 	if _has_configured_hedges:
 		return
 	_has_configured_hedges = true
-	var detail_level = Globals.get_saver().get_graphics_mode()
+	var detail_level = _get_detail_level()
 	print("Configuring hedges with detail_level " + detail_level)
 	var instance_count_for_detail_level = 16
+	var instance_count_for_all_corners = 24
+	var corner_face_instance_count_width = 1
+	var corner_face_instance_count_height = 3
 	match detail_level:
 		"low":
-			instance_count_for_detail_level = 64
+			instance_count_for_detail_level = 256
+			instance_count_for_all_corners = 192
+			corner_face_instance_count_width = 1
+			corner_face_instance_count_height = 24
 		"medium":
-			instance_count_for_detail_level = 1024
+			instance_count_for_detail_level = 576
+			instance_count_for_all_corners = 256
+			corner_face_instance_count_width = 1
+			corner_face_instance_count_height = 32
 		"high":
-			instance_count_for_detail_level = 2304
+			instance_count_for_detail_level = 1600
+			instance_count_for_all_corners = 768
+			corner_face_instance_count_width = 2
+			corner_face_instance_count_height = 48
 	_configure_hedge_wall($HedgeMultiMeshes/HedgeWallWMultiMesh, false, false, instance_count_for_detail_level)
 	_configure_hedge_wall($HedgeMultiMeshes/HedgeWallEMultiMesh, false, true, instance_count_for_detail_level)
 	_configure_hedge_wall($HedgeMultiMeshes/HedgeWallSMultiMesh, true, false, instance_count_for_detail_level)
 	_configure_hedge_wall($HedgeMultiMeshes/HedgeWallNMultiMesh, true, true, instance_count_for_detail_level)
+	
+	var corner_face_item_count = corner_face_instance_count_width * corner_face_instance_count_height
+	# Everything facing "in" (facing E/W)
+	var setup_count = _apply_hedge_around_corner(  # NE, facing W
+		-1.98, # xz_start -- this must grow *positively*
+		-1.79, # fixed value (x)
+		false, # is_xy plane (no, yz)
+		0, # rotation 
+		0, # start_idx
+		corner_face_instance_count_width,
+		corner_face_instance_count_height
+	)
+	setup_count = _apply_hedge_around_corner(  # SE, facing W
+		1.82, # xz_start
+		-1.79, # fixed value (x)
+		false, # is_xy plane (no, yz)
+		0, # rotation 
+		setup_count + 1, # start_idx
+		corner_face_instance_count_width,
+		corner_face_instance_count_height
+	)
+	setup_count = _apply_hedge_around_corner(  # NW, facing E
+		-1.98, # xz_start
+		1.79, # fixed value (x)
+		false, # is_xy plane (no, yz)
+		PI, # rotation 
+		setup_count + 1, # start_idx
+		corner_face_instance_count_width,
+		corner_face_instance_count_height
+	)
+	setup_count = _apply_hedge_around_corner(  # SW, facing E
+		1.82, # xz_start
+		1.79, # fixed value (x)
+		false, # is_xy plane (no, yz)
+		PI, # rotation 
+		setup_count + 1, # start_idx
+		corner_face_instance_count_width,
+		corner_face_instance_count_height
+	)
+	
+	# Everything facing "out" (N/S)
+	setup_count = _apply_hedge_around_corner(  # NE, facing N
+		-1.98, # xz_start -- this must grow *positively*
+		1.81, # fixed value (z)
+		true, # is_xy plane (no, yz)
+		PI * 1.5, # rotation 
+		setup_count + 1, # start_idx
+		corner_face_instance_count_width,
+		corner_face_instance_count_height
+	)
+	setup_count = _apply_hedge_around_corner(  # NW, facing N
+		1.82, # xz_start -- this must grow *positively*
+		1.81, # fixed value (z)
+		true, # is_xy plane (no, yz)
+		PI * 1.5, # rotation 
+		setup_count + 1, # start_idx
+		corner_face_instance_count_width,
+		corner_face_instance_count_height
+	)
+	setup_count = _apply_hedge_around_corner(  # SW, facing S
+		-1.98, # xz_start -- this must grow *positively*
+		1.81, # fixed value (z)
+		true, # is_xy plane (no, yz)
+		PI * 0.5, # rotation 
+		setup_count + 1, # start_idx
+		corner_face_instance_count_width,
+		corner_face_instance_count_height
+	)
+	setup_count = _apply_hedge_around_corner(  # SE, facing S
+		1.82, # xz_start -- this must grow *positively*
+		1.81, # fixed value (z)
+		true, # is_xy plane (no, yz)
+		PI * 0.5, # rotation 
+		setup_count + 1, # start_idx
+		corner_face_instance_count_width,
+		corner_face_instance_count_height
+	)
+
+	print("count: " + str(setup_count))
+	$HedgeMultiMeshes/HedgeCornerMultiMesh.multimesh.visible_instance_count = setup_count
 
 # is_x is really "plants on the xy plane"
 # !is_x is really "plants on the yz plane"
@@ -266,8 +362,10 @@ func _configure_hedge_wall(wall_node: MultiMeshInstance3D, is_x: bool, is_e: boo
 			
 	var instance_count = mesh.visible_instance_count
 	var units_per_edge = sqrt(instance_count)
-	var dist_between_units = 4.0 / units_per_edge
-	var start_pos = dist_between_units / 2.0
+	var dist_between_units_x = 3.6 / units_per_edge
+	var dist_between_units_y = 4.0 / units_per_edge
+	var start_pos_x = 0.2
+	var start_pos_y = dist_between_units_y / 2.0
 	var last_idx = 0
 	for i in units_per_edge:
 		for y in units_per_edge:
@@ -275,15 +373,15 @@ func _configure_hedge_wall(wall_node: MultiMeshInstance3D, is_x: bool, is_e: boo
 			var idx = (i * units_per_edge) + y
 			last_idx = idx
 			var transform = Transform3D(center_of_block)
-			var i_pos = (start_pos + (i * dist_between_units) + randf_range(-dist_between_units, dist_between_units)) - 2.0
+			var i_pos = (start_pos_x + (i * dist_between_units_x) + randf_range(-dist_between_units_x, dist_between_units_x)) - 2.0
 			if is_x:
 				transform.origin.x = i_pos
 			else:
 				transform.origin.z = i_pos
-			transform.origin.y = (start_pos + (y * dist_between_units) + randf_range(-dist_between_units, dist_between_units)) - 2.0
+			transform.origin.y = (start_pos_y + (y * dist_between_units_y) + randf_range(-dist_between_units_y, dist_between_units_y)) - 2.0
 			
 			# Scale the model up
-			var scale = randf_range(4.0, 6.0)
+			var scale = randf_range(8.0, 10.0)
 			var basis = Basis.IDENTITY
 			if is_x:
 				basis = basis.scaled(Vector3(1.0, scale, scale))
@@ -310,6 +408,50 @@ func _configure_hedge_wall(wall_node: MultiMeshInstance3D, is_x: bool, is_e: boo
 				transform.basis = basis.rotated(Vector3.RIGHT, randf_range(0.0, TAU))
 			mesh.set_instance_transform(idx, transform)
 	print("Configured " + str(last_idx + 1) + " hedge plant clumps")
+
+# Returns: number of items setup
+func _apply_hedge_around_corner(
+	xz_start: float,
+	fixed_plane_value: float,
+	is_xy_plane: bool,
+	rotation_amount: float,
+	start_idx: int,
+	item_count_width: int,
+	item_count_height: int
+) -> int:
+	var mesh: MultiMesh = $HedgeMultiMeshes/HedgeCornerMultiMesh.multimesh
+	var space_between_height_items = 3.96 / float(item_count_height)
+	var half_height = space_between_height_items / 2.0
+	var space_between_width_items = 0.16 / (item_count_width)
+	var half_width = space_between_width_items / 2.0
+	for width_idx in item_count_width:
+		for height_idx in item_count_height:
+			print("W/H: " + str(width_idx) + "x" + str(height_idx))
+			var instance_idx = start_idx + (width_idx * item_count_height) + height_idx
+			var y_val = (0.1 + half_height + (height_idx * space_between_height_items)) - 2.0
+			var xz_val = xz_start + half_width + (width_idx * space_between_width_items)
+			var scale = randf_range(8.0, 10.0)
+			var origin = Vector3(
+				xz_val if is_xy_plane else fixed_plane_value,
+				y_val,
+				fixed_plane_value if is_xy_plane else xz_val
+			)
+			print("Origin: " + str(origin))
+			var basis = Basis.IDENTITY
+			if is_xy_plane:
+				basis = basis \
+					.rotated(Vector3.UP, rotation_amount) \
+					.rotated(Vector3.FORWARD, randf_range(0.0, TAU)) \
+					.scaled(Vector3(scale, scale, scale))
+			else:
+				basis = basis \
+					.rotated(Vector3.UP, rotation_amount) \
+					.rotated(Vector3.RIGHT, randf_range(0.0, TAU)) \
+					.scaled(Vector3(scale, scale, scale))
+			var transform = Transform3D(basis, origin)
+			print("idx = " + str(instance_idx))
+			mesh.set_instance_transform(instance_idx, transform)
+	return start_idx + (item_count_width * item_count_height)
 	
 func get_snapshot() -> Texture2D:
 	if _portal_node == null:
@@ -374,3 +516,8 @@ func _on_quick_sand_body_exited(body: Node3D) -> void:
 	if body.is_in_group("player_group"):
 		print("Player out of quicksand!")
 		player_out_of_quicksand.emit()
+
+func _get_detail_level() -> String:
+	if Engine.is_editor_hint():
+		return "high"
+	return Globals.get_saver().get_graphics_mode()

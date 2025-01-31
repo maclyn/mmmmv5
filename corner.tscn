@@ -1,15 +1,15 @@
-[gd_scene load_steps=7 format=4 uid="uid://8ggdbjul8d5x"]
+[gd_scene load_steps=6 format=4 uid="uid://8ggdbjul8d5x"]
 
 [ext_resource type="PackedScene" uid="uid://ri4yqdh5wvda" path="res://models/corner.glb" id="1_upwqp"]
-[ext_resource type="Texture2D" uid="uid://coj5w4j1jpugp" path="res://textures/hedge.png" id="2_il5ad"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_lrh3x"]
 size = Vector3(0.2, 4, 0.2)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1l4ya"]
 resource_name = "Cube2_auv"
+transparency = 1
 cull_mode = 2
-albedo_texture = ExtResource("2_il5ad")
+albedo_color = Color(0.705882, 0.0431373, 0.470588, 0)
 uv1_scale = Vector3(3, 3, 1)
 texture_filter = 5
 
