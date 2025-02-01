@@ -257,19 +257,19 @@ func _configure_hedge() -> void:
 	match detail_level:
 		"low":
 			instance_count_for_detail_level = 256
+			instance_count_for_all_corners = 128
+			corner_face_instance_count_width = 1
+			corner_face_instance_count_height = 8
+		"medium":
+			instance_count_for_detail_level = 576
 			instance_count_for_all_corners = 384
 			corner_face_instance_count_width = 1
 			corner_face_instance_count_height = 24
-		"medium":
-			instance_count_for_detail_level = 576
-			instance_count_for_all_corners = 512
-			corner_face_instance_count_width = 1
-			corner_face_instance_count_height = 32
 		"high":
 			instance_count_for_detail_level = 1600
-			instance_count_for_all_corners = 1536
-			corner_face_instance_count_width = 2
-			corner_face_instance_count_height = 48
+			instance_count_for_all_corners = 1152
+			corner_face_instance_count_width = 1
+			corner_face_instance_count_height = 72
 	_configure_hedge_wall($HedgeMultiMeshes/HedgeWallWMultiMesh, false, false, instance_count_for_detail_level)
 	_configure_hedge_wall($HedgeMultiMeshes/HedgeWallEMultiMesh, false, true, instance_count_for_detail_level)
 	_configure_hedge_wall($HedgeMultiMeshes/HedgeWallSMultiMesh, true, false, instance_count_for_detail_level)
@@ -294,6 +294,18 @@ func _configure_hedge() -> void:
 		1.80, -2.0, 1.80, -2.0, # Good
 		-2.0, -2.0, -2.0, -2.0 # Good
 	]
+	var xz_clamp_starts = [
+		1.83, 1.83, 1.83, 1.83,
+		-1.97, 1.83, -1.97, 1.83,
+		1.83, -1.97, 1.83, -1.97,
+		-1.97, -1.97, -1.97, -1.97
+	]
+	var xz_clamp_ends = [
+		1.97, 1.97, 1.97, 1.97,
+		-1.83, 1.97, -1.97, 1.97,
+		1.97, -1.83, 1.97, -1.83,
+		-1.83, -1.83, -1.83, -1.83
+	]
 	var fixed_values = [
 		2.0, 2.0, 1.8, 1.8, # Good
 		1.80, -1.8, 2.0, -2.0, # Good
@@ -312,6 +324,8 @@ func _configure_hedge() -> void:
 		print("Configuring hedge corner at " + labels[idx] + " facing " + direction_facing)
 		decals_setup_count = _apply_hedge_around_corner(
 			xz_starts[idx],
+			xz_clamp_starts[idx],
+			xz_clamp_ends[idx],
 			fixed_values[idx],
 			direction_facing == "N" || direction_facing == "S",
 			rotations[idx],
@@ -361,6 +375,7 @@ func _configure_hedge_wall(wall_node: MultiMeshInstance3D, is_x: bool, is_e: boo
 			else:
 				transform.origin.z = i_pos
 			transform.origin.y = (start_pos_y + (y * dist_between_units_y) + randf_range(-dist_between_units_y, dist_between_units_y)) - 2.0
+			transform.origin.y = clamp(transform.origin.y, -1.98, 1.98)
 			
 			# Scale the model up
 			var scale = randf_range(8.0, 10.0)
@@ -394,6 +409,8 @@ func _configure_hedge_wall(wall_node: MultiMeshInstance3D, is_x: bool, is_e: boo
 # Returns: number of items setup
 func _apply_hedge_around_corner(
 	xz_start: float,
+	xz_clamp_start: float,
+	xz_clamp_end: float,
 	fixed_plane_value: float,
 	is_xy_plane: bool,
 	rotation_amount: float,
@@ -410,12 +427,20 @@ func _apply_hedge_around_corner(
 		for height_idx in item_count_height:
 			var instance_idx = start_idx + (width_idx * item_count_height) + height_idx
 			#print("IDX/W/H: " + str(instance_idx) + " / " + str(width_idx) + "x" + str(height_idx))
-			var y_val = (0.1 + half_height + (height_idx * space_between_height_items)) - 2.0
-			var xz_val = xz_start + half_width + (width_idx * space_between_width_items)
+			var y_val = (0.1 + half_height + (height_idx * space_between_height_items)) \
+				+ randf_range(-space_between_height_items, space_between_height_items) \
+				- 2.0
+			var xz_val = xz_start + half_width + (width_idx * space_between_width_items) \
+				+ randf_range(-space_between_width_items, space_between_width_items)
+			xz_val = \
+				clamp(
+					xz_val,
+					xz_clamp_start if xz_clamp_start <= xz_clamp_end else xz_clamp_end,
+					xz_clamp_end if xz_clamp_end >= xz_clamp_start else xz_clamp_start)
 			var scale = randf_range(8.0, 10.0)
 			var origin = Vector3(
 				xz_val if is_xy_plane else fixed_plane_value,
-				y_val,
+				clamp(y_val, -1.98, 1.98),
 				fixed_plane_value if is_xy_plane else xz_val
 			)
 			#print("Origin: " + str(origin))
