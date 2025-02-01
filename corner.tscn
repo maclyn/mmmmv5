@@ -7,9 +7,8 @@ size = Vector3(0.2, 4, 0.2)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1l4ya"]
 resource_name = "Cube2_auv"
-transparency = 1
 cull_mode = 2
-albedo_color = Color(0.705882, 0.0431373, 0.470588, 0)
+albedo_color = Color(0.38758, 0.753906, 0.295704, 0)
 uv1_scale = Vector3(3, 3, 1)
 texture_filter = 5
 

@@ -3,6 +3,12 @@ extends Node3D
 signal player_in_quicksand()
 signal player_out_of_quicksand()
 
+const HIDE_WALLS = true
+const HIDE_WALL_DECALS = true
+const HIDE_CORNERS = false
+const HIDE_CORNER_DECALS = false
+const DISABLE_WALL_COLLISIONS = true
+
 # Block state
 var _is_key: bool = false
 var _key_rotation_rads: float = 0.0
@@ -76,21 +82,29 @@ func _physics_process(_delta: float) -> void:
 		$Spike.rotation.y = cos(secs * 4.0)
 
 func configure_walls(north: bool, east: bool, south: bool, west: bool):
-	$HedgeWallN.visible = north
-	$HedgeMultiMeshes/HedgeWallNMultiMesh.visible = north
-	$HedgeWallN.get_node("CollisionShape3D").disabled = !north
+#const HIDE_HEDGE_DECALS = false
 	
-	$HedgeWallE.visible = east
-	$HedgeMultiMeshes/HedgeWallEMultiMesh.visible = east
-	$HedgeWallE.get_node("CollisionShape3D").disabled = !east
+	$HedgeWallN.visible = north && !HIDE_WALLS
+	$HedgeMultiMeshes/HedgeWallNMultiMesh.visible = north && !HIDE_WALL_DECALS
+	$HedgeWallN.get_node("CollisionShape3D").disabled = !north || DISABLE_WALL_COLLISIONS
 	
-	$HedgeWallS.visible = south
-	$HedgeMultiMeshes/HedgeWallSMultiMesh.visible = south
-	$HedgeWallS.get_node("CollisionShape3D").disabled = !south
+	$HedgeWallE.visible = east && !HIDE_WALLS
+	$HedgeMultiMeshes/HedgeWallEMultiMesh.visible = east && !HIDE_WALL_DECALS
+	$HedgeWallE.get_node("CollisionShape3D").disabled = !east || DISABLE_WALL_COLLISIONS
 	
-	$HedgeWallW.visible = west
-	$HedgeMultiMeshes/HedgeWallWMultiMesh.visible = west
-	$HedgeWallW.get_node("CollisionShape3D").disabled = !west
+	$HedgeWallS.visible = south && !HIDE_WALLS
+	$HedgeMultiMeshes/HedgeWallSMultiMesh.visible = south && !HIDE_WALL_DECALS
+	$HedgeWallS.get_node("CollisionShape3D").disabled = !south || DISABLE_WALL_COLLISIONS
+	
+	$HedgeWallW.visible = west && !HIDE_WALLS
+	$HedgeMultiMeshes/HedgeWallWMultiMesh.visible = west && !HIDE_WALL_DECALS
+	$HedgeWallW.get_node("CollisionShape3D").disabled = !west || DISABLE_WALL_COLLISIONS
+	
+	$HedgeCornerNE.visible = !HIDE_CORNERS
+	$HedgeCornerNW.visible = !HIDE_CORNERS
+	$HedgeCornerSW.visible = !HIDE_CORNERS
+	$HedgeCornerSE.visible = !HIDE_CORNERS
+	$HedgeMultiMeshes/HedgeCornerMultiMesh.visible = !HIDE_CORNER_DECALS
 	
 func get_south_wall() -> Node3D:
 	assert(is_node_ready())
@@ -260,168 +274,48 @@ func _configure_hedge() -> void:
 	_configure_hedge_wall($HedgeMultiMeshes/HedgeWallEMultiMesh, false, true, instance_count_for_detail_level)
 	_configure_hedge_wall($HedgeMultiMeshes/HedgeWallSMultiMesh, true, false, instance_count_for_detail_level)
 	_configure_hedge_wall($HedgeMultiMeshes/HedgeWallNMultiMesh, true, true, instance_count_for_detail_level)
-	
-	var corner_face_item_count = corner_face_instance_count_width * corner_face_instance_count_height
-	
+		
 	# Everything facing "in" (facing E/W)
-	
-	var setup_count = _apply_hedge_around_corner(  # NE, facing W
-		-1.98, # xz_start -- this must grow *positively*
-		-1.79, # fixed value (x)
-		false, # is_xy plane (no, yz)
-		0, # rotation 
-		0, # start_idx
-		corner_face_instance_count_width,
-		corner_face_instance_count_height
-	)
-	setup_count = _apply_hedge_around_corner(  # NE, facing E
-		-1.98, # xz_start -- this must grow *positively*
-		-1.99, # fixed value (x)
-		false, # is_xy plane (no, yz)
-		PI, # rotation 
-		0, # start_idx
-		corner_face_instance_count_width,
-		corner_face_instance_count_height
-	)
-	
-	setup_count = _apply_hedge_around_corner(  # SE, facing W
-		1.82, # xz_start
-		-1.79, # fixed value (x)
-		false, # is_xy plane (no, yz)
-		0, # rotation 
-		setup_count + 1, # start_idx
-		corner_face_instance_count_width,
-		corner_face_instance_count_height
-	)
-	setup_count = _apply_hedge_around_corner(  # SE, facing E
-		1.82, # xz_start
-		-1.99, # fixed value (x)
-		false, # is_xy plane (no, yz)
-		PI, # rotation 
-		setup_count + 1, # start_idx
-		corner_face_instance_count_width,
-		corner_face_instance_count_height
-	)
-	
-	setup_count = _apply_hedge_around_corner(  # NW, facing E
-		-1.98, # xz_start
-		1.79, # fixed value (x)
-		false, # is_xy plane (no, yz)
-		PI, # rotation 
-		setup_count + 1, # start_idx
-		corner_face_instance_count_width,
-		corner_face_instance_count_height
-	)
-	setup_count = _apply_hedge_around_corner(  # NW, facing W
-		-1.98, # xz_start
-		1.99, # fixed value (x)
-		false, # is_xy plane (no, yz)
-		0.0, # rotation 
-		setup_count + 1, # start_idx
-		corner_face_instance_count_width,
-		corner_face_instance_count_height
-	)
-	
-	setup_count = _apply_hedge_around_corner(  # SW, facing E
-		1.82, # xz_start
-		1.79, # fixed value (x)
-		false, # is_xy plane (no, yz)
-		PI, # rotation 
-		setup_count + 1, # start_idx
-		corner_face_instance_count_width,
-		corner_face_instance_count_height
-	)
-	setup_count = _apply_hedge_around_corner(  # SW, facing W
-		1.82, # xz_start
-		1.99, # fixed value (x)
-		false, # is_xy plane (no, yz)
-		0.0, # rotation 
-		setup_count + 1, # start_idx
-		corner_face_instance_count_width,
-		corner_face_instance_count_height
-	)
-	
-	# Everything facing "out" (N/S)
-	
-	setup_count = _apply_hedge_around_corner(  # SE, facing N
-		-1.98, # xz_start -- this must grow *positively*
-		1.81, # fixed value (z)
-		true, # is_xy plane (no, yz)
-		PI * 1.5, # rotation 
-		setup_count + 1, # start_idx
-		corner_face_instance_count_width,
-		corner_face_instance_count_height
-	)
-	setup_count = _apply_hedge_around_corner(  # SE, facing S
-		-1.98, # xz_start -- this must grow *positively*
-		1.99, # fixed value (z)
-		true, # is_xy plane (no, yz)
-		PI * 0.5, # rotation 
-		setup_count + 1, # start_idx
-		corner_face_instance_count_width,
-		corner_face_instance_count_height
-	)
-	
-	setup_count = _apply_hedge_around_corner(  # SW, facing N
-		1.82, # xz_start -- this must grow *positively*
-		1.81, # fixed value (z)
-		true, # is_xy plane (no, yz)
-		PI * 1.5, # rotation 
-		setup_count + 1, # start_idx
-		corner_face_instance_count_width,
-		corner_face_instance_count_height
-	)
-	setup_count = _apply_hedge_around_corner(  # SW, facing S
-		1.82, # xz_start -- this must grow *positively*
-		1.99, # fixed value (z)
-		true, # is_xy plane (no, yz)
-		PI * 0.5, # rotation 
-		setup_count + 1, # start_idx
-		corner_face_instance_count_width,
-		corner_face_instance_count_height
-	)
-	
-	setup_count = _apply_hedge_around_corner(  # NW, facing N
-		-1.98, # xz_start -- this must grow *positively*
-		-1.81, # fixed value (z)
-		true, # is_xy plane (no, yz)
-		PI * 1.5, # rotation 
-		setup_count + 1, # start_idx
-		corner_face_instance_count_width,
-		corner_face_instance_count_height
-	)
-	setup_count = _apply_hedge_around_corner(  # NW, facing S
-		-1.98, # xz_start -- this must grow *positively*
-		-1.99, # fixed value (z)
-		true, # is_xy plane (no, yz)
-		PI * 0.5, # rotation 
-		setup_count + 1, # start_idx
-		corner_face_instance_count_width,
-		corner_face_instance_count_height
-	)
-	
-	# TODO: fix
-	setup_count = _apply_hedge_around_corner(  # NE, facing N
-		-1.82, # xz_start -- this must grow *positively*
-		-1.81, # fixed value (z)
-		true, # is_xy plane (no, yz)
-		PI * 1.5, # rotation 
-		setup_count + 1, # start_idx
-		corner_face_instance_count_width,
-		corner_face_instance_count_height
-	)
-	setup_count = _apply_hedge_around_corner(  # NE, facing S
-		-1.82, # xz_start -- this must grow *positively*
-		-1.99, # fixed value (z)
-		true, # is_xy plane (no, yz)
-		PI * 0.5, # rotation 
-		setup_count + 1, # start_idx
-		corner_face_instance_count_width,
-		corner_face_instance_count_height
-	)
+	var labels = [
+		"SE", "SE", "SE", "SE", # Good
+		"SW", "SW", "SW", "SW",
+		#"NE", "NE", "NE", "NE",
+		#"NW", "NW", "NW", "NW"
+	]
+	var directions_facing = [
+		"S", "E", "N", "W", # Good
+		"S", "E", "N", "W", # EW -> ok
+		#"S", "E", "N", "W",
+		#"S", "E", "N", "W",
+	]
+	var xz_starts = [
+		1.80, 1.80, 1.80, 1.80, # Good
+		-2.0, 1.80, -2.0, 1.80
+	]
+	var fixed_values = [
+		2.0, 2.0, 1.8, 1.8, # Good
+		1.80, -1.8, 2.0, -2.0
+	]
+	var rotations = [
+		PI * 1.5, 0.0, PI * 0.5, PI,
+		PI * 0.5, 0.0, PI * 1.5, PI
+	]
+	var decals_setup_count = 0
+	for idx in labels.size():
+		var direction_facing = directions_facing[idx]
+		print("Configuring hedge corner at " + labels[idx] + " facing " + direction_facing)
+		decals_setup_count = _apply_hedge_around_corner(
+			xz_starts[idx],
+			fixed_values[idx],
+			direction_facing == "N" || direction_facing == "S",
+			rotations[idx],
+			decals_setup_count,
+			corner_face_instance_count_width,
+			corner_face_instance_count_height
+		)
 
-	print("count: " + str(setup_count))
-	$HedgeMultiMeshes/HedgeCornerMultiMesh.multimesh.visible_instance_count = setup_count
+	print("Hedge corner decals setup: " + str(decals_setup_count))
+	$HedgeMultiMeshes/HedgeCornerMultiMesh.multimesh.visible_instance_count = decals_setup_count
 
 # is_x is really "plants on the xy plane"
 # !is_x is really "plants on the yz plane"
@@ -508,11 +402,11 @@ func _apply_hedge_around_corner(
 	var half_width = space_between_width_items / 2.0
 	for width_idx in item_count_width:
 		for height_idx in item_count_height:
-			print("W/H: " + str(width_idx) + "x" + str(height_idx))
 			var instance_idx = start_idx + (width_idx * item_count_height) + height_idx
+			print("IDX/W/H: " + str(instance_idx) + " / " + str(width_idx) + "x" + str(height_idx))
 			var y_val = (0.1 + half_height + (height_idx * space_between_height_items)) - 2.0
 			var xz_val = xz_start + half_width + (width_idx * space_between_width_items)
-			var scale = randf_range(8.0, 10.0)
+			var scale = 4.0 # randf_range(8.0, 10.0)
 			var origin = Vector3(
 				xz_val if is_xy_plane else fixed_plane_value,
 				y_val,
@@ -531,7 +425,6 @@ func _apply_hedge_around_corner(
 					.rotated(Vector3.RIGHT, randf_range(0.0, TAU)) \
 					.scaled(Vector3(scale, scale, scale))
 			var transform = Transform3D(basis, origin)
-			print("idx = " + str(instance_idx))
 			mesh.set_instance_transform(instance_idx, transform)
 	return start_idx + (item_count_width * item_count_height)
 	
