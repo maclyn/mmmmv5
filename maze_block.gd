@@ -77,19 +77,19 @@ func _physics_process(_delta: float) -> void:
 
 func configure_walls(north: bool, east: bool, south: bool, west: bool):
 	$HedgeWallN.visible = north
-	$HedgeMultiMeshes/HedgeWallNMultiMesh.visible = false #north
+	$HedgeMultiMeshes/HedgeWallNMultiMesh.visible = north
 	$HedgeWallN.get_node("CollisionShape3D").disabled = !north
 	
 	$HedgeWallE.visible = east
-	$HedgeMultiMeshes/HedgeWallEMultiMesh.visible = false #east
+	$HedgeMultiMeshes/HedgeWallEMultiMesh.visible = east
 	$HedgeWallE.get_node("CollisionShape3D").disabled = !east
 	
 	$HedgeWallS.visible = south
-	$HedgeMultiMeshes/HedgeWallSMultiMesh.visible = false #south
+	$HedgeMultiMeshes/HedgeWallSMultiMesh.visible = south
 	$HedgeWallS.get_node("CollisionShape3D").disabled = !south
 	
 	$HedgeWallW.visible = west
-	$HedgeMultiMeshes/HedgeWallWMultiMesh.visible = false # west
+	$HedgeMultiMeshes/HedgeWallWMultiMesh.visible = west
 	$HedgeWallW.get_node("CollisionShape3D").disabled = !west
 	
 func get_south_wall() -> Node3D:
@@ -262,7 +262,9 @@ func _configure_hedge() -> void:
 	_configure_hedge_wall($HedgeMultiMeshes/HedgeWallNMultiMesh, true, true, instance_count_for_detail_level)
 	
 	var corner_face_item_count = corner_face_instance_count_width * corner_face_instance_count_height
+	
 	# Everything facing "in" (facing E/W)
+	
 	var setup_count = _apply_hedge_around_corner(  # NE, facing W
 		-1.98, # xz_start -- this must grow *positively*
 		-1.79, # fixed value (x)
@@ -272,6 +274,16 @@ func _configure_hedge() -> void:
 		corner_face_instance_count_width,
 		corner_face_instance_count_height
 	)
+	setup_count = _apply_hedge_around_corner(  # NE, facing E
+		-1.98, # xz_start -- this must grow *positively*
+		-1.99, # fixed value (x)
+		false, # is_xy plane (no, yz)
+		PI, # rotation 
+		0, # start_idx
+		corner_face_instance_count_width,
+		corner_face_instance_count_height
+	)
+	
 	setup_count = _apply_hedge_around_corner(  # SE, facing W
 		1.82, # xz_start
 		-1.79, # fixed value (x)
@@ -281,6 +293,16 @@ func _configure_hedge() -> void:
 		corner_face_instance_count_width,
 		corner_face_instance_count_height
 	)
+	setup_count = _apply_hedge_around_corner(  # SE, facing E
+		1.82, # xz_start
+		-1.99, # fixed value (x)
+		false, # is_xy plane (no, yz)
+		PI, # rotation 
+		setup_count + 1, # start_idx
+		corner_face_instance_count_width,
+		corner_face_instance_count_height
+	)
+	
 	setup_count = _apply_hedge_around_corner(  # NW, facing E
 		-1.98, # xz_start
 		1.79, # fixed value (x)
@@ -290,6 +312,16 @@ func _configure_hedge() -> void:
 		corner_face_instance_count_width,
 		corner_face_instance_count_height
 	)
+	setup_count = _apply_hedge_around_corner(  # NW, facing W
+		-1.98, # xz_start
+		1.99, # fixed value (x)
+		false, # is_xy plane (no, yz)
+		0.0, # rotation 
+		setup_count + 1, # start_idx
+		corner_face_instance_count_width,
+		corner_face_instance_count_height
+	)
+	
 	setup_count = _apply_hedge_around_corner(  # SW, facing E
 		1.82, # xz_start
 		1.79, # fixed value (x)
@@ -299,7 +331,15 @@ func _configure_hedge() -> void:
 		corner_face_instance_count_width,
 		corner_face_instance_count_height
 	)
-	# TODO: ADD OPPOSITE DIRECTIONS HERE
+	setup_count = _apply_hedge_around_corner(  # SW, facing W
+		1.82, # xz_start
+		1.99, # fixed value (x)
+		false, # is_xy plane (no, yz)
+		0.0, # rotation 
+		setup_count + 1, # start_idx
+		corner_face_instance_count_width,
+		corner_face_instance_count_height
+	)
 	
 	# Everything facing "out" (N/S)
 	
