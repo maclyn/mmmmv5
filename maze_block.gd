@@ -243,17 +243,17 @@ func _configure_hedge() -> void:
 	match detail_level:
 		"low":
 			instance_count_for_detail_level = 256
-			instance_count_for_all_corners = 192
+			instance_count_for_all_corners = 384
 			corner_face_instance_count_width = 1
 			corner_face_instance_count_height = 24
 		"medium":
 			instance_count_for_detail_level = 576
-			instance_count_for_all_corners = 256
+			instance_count_for_all_corners = 512
 			corner_face_instance_count_width = 1
 			corner_face_instance_count_height = 32
 		"high":
 			instance_count_for_detail_level = 1600
-			instance_count_for_all_corners = 768
+			instance_count_for_all_corners = 1536
 			corner_face_instance_count_width = 2
 			corner_face_instance_count_height = 48
 	_configure_hedge_wall($HedgeMultiMeshes/HedgeWallWMultiMesh, false, false, instance_count_for_detail_level)
@@ -299,9 +299,11 @@ func _configure_hedge() -> void:
 		corner_face_instance_count_width,
 		corner_face_instance_count_height
 	)
+	# TODO: ADD OPPOSITE DIRECTIONS HERE
 	
 	# Everything facing "out" (N/S)
-	setup_count = _apply_hedge_around_corner(  # NE, facing N
+	
+	setup_count = _apply_hedge_around_corner(  # SE, facing N
 		-1.98, # xz_start -- this must grow *positively*
 		1.81, # fixed value (z)
 		true, # is_xy plane (no, yz)
@@ -310,7 +312,17 @@ func _configure_hedge() -> void:
 		corner_face_instance_count_width,
 		corner_face_instance_count_height
 	)
-	setup_count = _apply_hedge_around_corner(  # NW, facing N
+	setup_count = _apply_hedge_around_corner(  # SE, facing S
+		-1.98, # xz_start -- this must grow *positively*
+		1.99, # fixed value (z)
+		true, # is_xy plane (no, yz)
+		PI * 0.5, # rotation 
+		setup_count + 1, # start_idx
+		corner_face_instance_count_width,
+		corner_face_instance_count_height
+	)
+	
+	setup_count = _apply_hedge_around_corner(  # SW, facing N
 		1.82, # xz_start -- this must grow *positively*
 		1.81, # fixed value (z)
 		true, # is_xy plane (no, yz)
@@ -320,17 +332,47 @@ func _configure_hedge() -> void:
 		corner_face_instance_count_height
 	)
 	setup_count = _apply_hedge_around_corner(  # SW, facing S
-		-1.98, # xz_start -- this must grow *positively*
-		1.81, # fixed value (z)
+		1.82, # xz_start -- this must grow *positively*
+		1.99, # fixed value (z)
 		true, # is_xy plane (no, yz)
 		PI * 0.5, # rotation 
 		setup_count + 1, # start_idx
 		corner_face_instance_count_width,
 		corner_face_instance_count_height
 	)
-	setup_count = _apply_hedge_around_corner(  # SE, facing S
-		1.82, # xz_start -- this must grow *positively*
-		1.81, # fixed value (z)
+	
+	setup_count = _apply_hedge_around_corner(  # NW, facing N
+		-1.98, # xz_start -- this must grow *positively*
+		-1.81, # fixed value (z)
+		true, # is_xy plane (no, yz)
+		PI * 1.5, # rotation 
+		setup_count + 1, # start_idx
+		corner_face_instance_count_width,
+		corner_face_instance_count_height
+	)
+	setup_count = _apply_hedge_around_corner(  # NW, facing S
+		-1.98, # xz_start -- this must grow *positively*
+		-1.99, # fixed value (z)
+		true, # is_xy plane (no, yz)
+		PI * 0.5, # rotation 
+		setup_count + 1, # start_idx
+		corner_face_instance_count_width,
+		corner_face_instance_count_height
+	)
+	
+	# TODO: fix
+	setup_count = _apply_hedge_around_corner(  # NE, facing N
+		-1.82, # xz_start -- this must grow *positively*
+		-1.81, # fixed value (z)
+		true, # is_xy plane (no, yz)
+		PI * 1.5, # rotation 
+		setup_count + 1, # start_idx
+		corner_face_instance_count_width,
+		corner_face_instance_count_height
+	)
+	setup_count = _apply_hedge_around_corner(  # NE, facing S
+		-1.82, # xz_start -- this must grow *positively*
+		-1.99, # fixed value (z)
 		true, # is_xy plane (no, yz)
 		PI * 0.5, # rotation 
 		setup_count + 1, # start_idx
