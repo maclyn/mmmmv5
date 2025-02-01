@@ -178,6 +178,8 @@ func _configure_quicksand():
 	if is_node_ready():
 		$QuickSand/QuickSandCollider.disabled = !_has_quicksand
 		$QuickSand/QuickSandSurface.visible = _has_quicksand
+		$QuickSandGrassMultiMesh.visible = _has_quicksand
+		$GrassMultiMesh.visible = !_has_quicksand
 	
 func add_spike() -> void:
 	_has_spike = true
@@ -218,6 +220,7 @@ func _configure_grass():
 	var detail_level = _get_detail_level()
 	print("Configuring grass with detail_level " + detail_level)
 	var instance_count_for_detail_level = 16
+	var qs_instance_count_for_detail_level = 16
 	match detail_level:
 		"low":
 			instance_count_for_detail_level = 256
@@ -225,6 +228,7 @@ func _configure_grass():
 			instance_count_for_detail_level = 1024
 		"high":
 			instance_count_for_detail_level = 6400
+	
 	var mesh: MultiMesh = $GrassMultiMesh.multimesh
 	mesh.visible_instance_count = instance_count_for_detail_level
 	var center_of_block = Transform3D(Basis.IDENTITY, Vector3(0.0, -1.90, 0.0))
@@ -243,6 +247,24 @@ func _configure_grass():
 			transform.basis = Basis.IDENTITY.rotated(Vector3.UP, randf_range(0.0, TAU)).scaled(Vector3(1.0, randf_range(0.0, 2.0), 1.0))
 			mesh.set_instance_transform(idx, transform)
 	print("Configured " + str(last_idx + 1) + " grass clumps")
+	
+	# Quicksand covers 30.6% of the area
+	qs_instance_count_for_detail_level = int(0.694 * float(instance_count_for_detail_level))
+	var qsmesh = $QuickSandGrassMultiMesh.multimesh
+	qsmesh.visible_instance_count = qs_instance_count_for_detail_level
+	var blades_added = 0
+	while blades_added != qs_instance_count_for_detail_level:
+		var rx = randf_range(-2.0, 2.0)
+		var ry = randf_range(-2.0, 2.0)
+		# Drop anything in the circle
+		if pow(rx, 2) + pow(ry, 2) < pow(1.22, 2):
+			continue
+		var transform = Transform3D(center_of_block)
+		transform.origin.x = rx
+		transform.origin.z = ry
+		transform.basis = Basis.IDENTITY.rotated(Vector3.UP, randf_range(0.0, TAU)).scaled(Vector3(1.0, randf_range(0.0, 2.0), 1.0))
+		qsmesh.set_instance_transform(blades_added, transform)
+		blades_added += 1
 	
 func _configure_hedge() -> void:
 	if _has_configured_hedges:
