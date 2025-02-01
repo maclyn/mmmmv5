@@ -3,8 +3,8 @@ extends Node3D
 signal player_in_quicksand()
 signal player_out_of_quicksand()
 
-const HIDE_WALLS = true
-const HIDE_WALL_DECALS = true
+const HIDE_WALLS = false
+const HIDE_WALL_DECALS = false
 const HIDE_CORNERS = false
 const HIDE_CORNER_DECALS = false
 const DISABLE_WALL_COLLISIONS = true
@@ -275,30 +275,36 @@ func _configure_hedge() -> void:
 	_configure_hedge_wall($HedgeMultiMeshes/HedgeWallSMultiMesh, true, false, instance_count_for_detail_level)
 	_configure_hedge_wall($HedgeMultiMeshes/HedgeWallNMultiMesh, true, true, instance_count_for_detail_level)
 		
-	# Everything facing "in" (facing E/W)
+	# Splatter decals around the corners
 	var labels = [
 		"SE", "SE", "SE", "SE", # Good
-		"SW", "SW", "SW", "SW",
-		#"NE", "NE", "NE", "NE",
-		#"NW", "NW", "NW", "NW"
+		"SW", "SW", "SW", "SW", # Good
+		"NE", "NE", "NE", "NE", # Good
+		"NW", "NW", "NW", "NW" # Good
 	]
 	var directions_facing = [
 		"S", "E", "N", "W", # Good
-		"S", "E", "N", "W", # EW -> ok
-		#"S", "E", "N", "W",
-		#"S", "E", "N", "W",
+		"S", "E", "N", "W", # Good
+		"S", "E", "N", "W", # Good
+		"S", "E", "N", "W", # Good
 	]
 	var xz_starts = [
 		1.80, 1.80, 1.80, 1.80, # Good
-		-2.0, 1.80, -2.0, 1.80
+		-2.0, 1.80, -2.0, 1.80, # Good
+		1.80, -2.0, 1.80, -2.0, # Good
+		-2.0, -2.0, -2.0, -2.0 # Good
 	]
 	var fixed_values = [
 		2.0, 2.0, 1.8, 1.8, # Good
-		1.80, -1.8, 2.0, -2.0
+		1.80, -1.8, 2.0, -2.0, # Good
+		-2.0, 2.0, -1.80, 1.80, # Good
+		-1.80, -1.80, -2.0, -2.0 # Good
 	]
 	var rotations = [
-		PI * 1.5, 0.0, PI * 0.5, PI,
-		PI * 0.5, 0.0, PI * 1.5, PI
+		PI * 1.5, 0.0, PI * 0.5, PI, # Good
+		PI * 0.5, 0.0, PI * 1.5, PI, # Good
+		PI * 0.5, 0.0, PI * 1.5, PI, # Good
+		PI * 1.5, 0.0, PI * 0.5, PI, # Good
 	]
 	var decals_setup_count = 0
 	for idx in labels.size():
@@ -403,16 +409,16 @@ func _apply_hedge_around_corner(
 	for width_idx in item_count_width:
 		for height_idx in item_count_height:
 			var instance_idx = start_idx + (width_idx * item_count_height) + height_idx
-			print("IDX/W/H: " + str(instance_idx) + " / " + str(width_idx) + "x" + str(height_idx))
+			#print("IDX/W/H: " + str(instance_idx) + " / " + str(width_idx) + "x" + str(height_idx))
 			var y_val = (0.1 + half_height + (height_idx * space_between_height_items)) - 2.0
 			var xz_val = xz_start + half_width + (width_idx * space_between_width_items)
-			var scale = 4.0 # randf_range(8.0, 10.0)
+			var scale = randf_range(8.0, 10.0)
 			var origin = Vector3(
 				xz_val if is_xy_plane else fixed_plane_value,
 				y_val,
 				fixed_plane_value if is_xy_plane else xz_val
 			)
-			print("Origin: " + str(origin))
+			#print("Origin: " + str(origin))
 			var basis = Basis.IDENTITY
 			if is_xy_plane:
 				basis = basis \
