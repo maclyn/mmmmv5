@@ -13,7 +13,7 @@ var bird_scene = preload("res://birb.tscn")
 
 # Set to true to make it all possible block types/shapes visible early in 
 # the first maze
-const DEBUG_ALL_BLOCKS = true
+const DEBUG_ALL_BLOCKS = false
 
 # These values are tied to assets, and are measured in units
 # ANY CHANGES HERE NEED CORRESPONDING ASSET CHANGES TOO

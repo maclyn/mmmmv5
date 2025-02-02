@@ -227,7 +227,7 @@ func _configure_grass():
 		"medium":
 			instance_count_for_detail_level = 1024
 		"high":
-			instance_count_for_detail_level = 6400
+			instance_count_for_detail_level = 3600
 	
 	var mesh: MultiMesh = $GrassMultiMesh.multimesh
 	mesh.visible_instance_count = instance_count_for_detail_level
@@ -244,7 +244,9 @@ func _configure_grass():
 			var transform = Transform3D(center_of_block)
 			transform.origin.x = (start_pos + (x * dist_between_units) + randf_range(-dist_between_units, dist_between_units)) - 2.0
 			transform.origin.z = (start_pos + (z * dist_between_units) + randf_range(-dist_between_units, dist_between_units)) - 2.0
-			transform.basis = Basis.IDENTITY.rotated(Vector3.UP, randf_range(0.0, TAU)).scaled(Vector3(1.0, randf_range(0.0, 2.0), 1.0))
+			var grass_width_length = randf_range(1.0, 2.0)
+			var grass_height = randf_range(1.5, 2.0)
+			transform.basis = Basis.IDENTITY.rotated(Vector3.UP, randf_range(0.0, TAU)).scaled(Vector3(grass_width_length, grass_height, grass_width_length))
 			mesh.set_instance_transform(idx, transform)
 	print("Configured " + str(last_idx + 1) + " grass clumps")
 	

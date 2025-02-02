@@ -20,5 +20,5 @@ fog_enabled = true
 fog_mode = 1
 fog_density = 1.0
 fog_sky_affect = 0.1
-fog_depth_begin = 7.5
-fog_depth_end = 35.0
+fog_depth_begin = 5.0
+fog_depth_end = 25.0
