@@ -6,10 +6,6 @@ extends StaticBody3D
 var _is_arrow_showing = false
 var _is_map_showing = false
 
-func _process(delta: float) -> void:
-	_update_arrow_color($Arrows/ArrowContainerNW/maze_arrow/Cube_001)
-	_update_arrow_color($Arrows/ArrowContainerSE/maze_arrow/Cube_001)
-
 func rotate_mesh(rotation_rad: float):
 	$hedge_wall.rotation.z = rotation_rad
 
@@ -40,12 +36,3 @@ func _ready() -> void:
 
 func _apply_arrow_state() -> void:
 	$Arrows.visible = _is_arrow_showing
-
-func _update_arrow_color(mesh: MeshInstance3D) -> void:
-	if _is_arrow_showing || mesh.get_surface_override_material_count() < 1:
-		return
-	var mat: StandardMaterial3D = mesh.get_active_material(0)
-	# ping-pong between red and white
-	var amount = (sin(Time.get_ticks_msec() / 1000.0 * PI * 2.0) + 1.0) / 2.0
-	mat.albedo_color.g = amount
-	mat.albedo_color.b = amount

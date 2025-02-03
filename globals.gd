@@ -25,6 +25,25 @@ func get_saver() -> Object:
 	
 func set_graphics_mode(mode: String):
 	_graphics_mode = mode
+	var msaa_value = Viewport.MSAA_DISABLED
+	match mode:
+		"low":
+			msaa_value = Viewport.MSAA_DISABLED
+		"medium":
+			msaa_value = Viewport.MSAA_DISABLED
+		"high":
+			msaa_value = Viewport.MSAA_4X
+	get_viewport().msaa_3d = msaa_value
+	
+	# Weirdly stuttery without this
+	Engine.physics_jitter_fix = 0
+	Input.set_use_accumulated_input(false)
+	
+	# This makes the game a lot more responsive (at the cost of CPU consumption, but
+	# physics on this game are really easy, so we can eat it in most cases 
+	var refresh = DisplayServer.screen_get_refresh_rate()
+	if mode != "low":
+		Engine.physics_ticks_per_second = DisplayServer.screen_get_refresh_rate()
 	
 func get_graphics_mode():
 	return _graphics_mode

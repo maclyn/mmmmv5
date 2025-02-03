@@ -3,11 +3,12 @@ extends Node3D
 signal player_in_quicksand()
 signal player_out_of_quicksand()
 
+const DISABLE_DECALS = false
 const HIDE_WALLS = false
-const HIDE_WALL_DECALS = false
+const HIDE_WALL_DECALS = false || DISABLE_DECALS
 const HIDE_CORNERS = false
-const HIDE_CORNER_DECALS = false
-const DISABLE_WALL_COLLISIONS = true
+const HIDE_CORNER_DECALS = false || DISABLE_DECALS
+const DISABLE_WALL_COLLISIONS = false
 
 # Block state
 var _is_key: bool = false
@@ -230,43 +231,47 @@ func _configure_grass():
 			instance_count_for_detail_level = 3600
 	
 	var mesh: MultiMesh = $GrassMultiMesh.multimesh
-	mesh.visible_instance_count = instance_count_for_detail_level
-	var center_of_block = Transform3D(Basis.IDENTITY, Vector3(0.0, -1.90, 0.0))
-	var instance_count = mesh.visible_instance_count
-	var blade_units_per_edge = sqrt(instance_count)
-	var dist_between_units = 4.0 / blade_units_per_edge
-	var start_pos = dist_between_units / 2.0
-	var last_idx = 0
-	for x in blade_units_per_edge:
-		for z in blade_units_per_edge:
-			var idx = (x * blade_units_per_edge) + z
-			last_idx = idx
-			var transform = Transform3D(center_of_block)
-			transform.origin.x = (start_pos + (x * dist_between_units) + randf_range(-dist_between_units, dist_between_units)) - 2.0
-			transform.origin.z = (start_pos + (z * dist_between_units) + randf_range(-dist_between_units, dist_between_units)) - 2.0
-			var grass_width_length = randf_range(1.0, 2.0)
-			var grass_height = randf_range(1.5, 2.0)
-			transform.basis = Basis.IDENTITY.rotated(Vector3.UP, randf_range(0.0, TAU)).scaled(Vector3(grass_width_length, grass_height, grass_width_length))
-			mesh.set_instance_transform(idx, transform)
-	print("Configured " + str(last_idx + 1) + " grass clumps")
+	mesh.visible_instance_count = 0 if DISABLE_DECALS else instance_count_for_detail_level
+	if !DISABLE_DECALS:
+		var center_of_block = Transform3D(Basis.IDENTITY, Vector3(0.0, -1.90, 0.0))
+		var blade_units_per_edge = sqrt(instance_count_for_detail_level)
+		var dist_between_units = 4.0 / blade_units_per_edge
+		var start_pos = dist_between_units / 2.0
+		var last_idx = 0
+		for x in blade_units_per_edge:
+			for z in blade_units_per_edge:
+				var idx = (x * blade_units_per_edge) + z
+				last_idx = idx
+				var transform = Transform3D(center_of_block)
+				transform.origin.x = (start_pos + (x * dist_between_units) + randf_range(-dist_between_units, dist_between_units)) - 2.0
+				transform.origin.z = (start_pos + (z * dist_between_units) + randf_range(-dist_between_units, dist_between_units)) - 2.0
+				var grass_width_length = randf_range(1.0, 2.0)
+				var grass_height = randf_range(1.5, 2.0)
+				transform.basis = Basis.IDENTITY.rotated(Vector3.UP, randf_range(0.0, TAU)).scaled(Vector3(grass_width_length, grass_height, grass_width_length))
+				mesh.set_instance_transform(idx, transform)
+		print("Configured " + str(last_idx + 1) + " grass clumps")
 	
 	# Quicksand covers 30.6% of the area
 	qs_instance_count_for_detail_level = int(0.694 * float(instance_count_for_detail_level))
 	var qsmesh = $QuickSandGrassMultiMesh.multimesh
-	qsmesh.visible_instance_count = qs_instance_count_for_detail_level
-	var blades_added = 0
-	while blades_added != qs_instance_count_for_detail_level:
-		var rx = randf_range(-2.0, 2.0)
-		var ry = randf_range(-2.0, 2.0)
-		# Drop anything in the circle
-		if pow(rx, 2) + pow(ry, 2) < pow(1.22, 2):
-			continue
-		var transform = Transform3D(center_of_block)
-		transform.origin.x = rx
-		transform.origin.z = ry
-		transform.basis = Basis.IDENTITY.rotated(Vector3.UP, randf_range(0.0, TAU)).scaled(Vector3(1.0, randf_range(0.0, 2.0), 1.0))
-		qsmesh.set_instance_transform(blades_added, transform)
-		blades_added += 1
+	qsmesh.visible_instance_count = 0 if DISABLE_DECALS else qs_instance_count_for_detail_level
+	if !DISABLE_DECALS:
+		var blades_added = 0
+		var center_of_block = Transform3D(Basis.IDENTITY, Vector3(0.0, -1.90, 0.0))
+		while blades_added != qs_instance_count_for_detail_level:
+			var rx = randf_range(-2.0, 2.0)
+			var ry = randf_range(-2.0, 2.0)
+			# Drop anything in the circle
+			if pow(rx, 2) + pow(ry, 2) < pow(1.22, 2):
+				continue
+			var transform = Transform3D(center_of_block)
+			transform.origin.x = rx
+			transform.origin.z = ry
+			var grass_width_length = randf_range(1.0, 2.0)
+			var grass_height = randf_range(1.5, 2.0)
+			transform.basis = Basis.IDENTITY.rotated(Vector3.UP, randf_range(0.0, TAU)).scaled(Vector3(grass_width_length, grass_height, grass_width_length))
+			qsmesh.set_instance_transform(blades_added, transform)
+			blades_added += 1
 	
 func _configure_hedge() -> void:
 	if _has_configured_hedges:
@@ -365,7 +370,9 @@ func _configure_hedge() -> void:
 # !is_x is really "plants on the yz plane"
 func _configure_hedge_wall(wall_node: MultiMeshInstance3D, is_x: bool, is_e: bool, count: int):
 	var mesh: MultiMesh = wall_node.multimesh
-	mesh.visible_instance_count = count
+	mesh.visible_instance_count = 0 if DISABLE_DECALS else count
+	if DISABLE_DECALS:
+		return
 	var center_of_block = Transform3D(Basis.IDENTITY, Vector3.ZERO)
 	
 	# Each wall will have one fixed unit (the "edge" of the wall)
@@ -380,8 +387,7 @@ func _configure_hedge_wall(wall_node: MultiMeshInstance3D, is_x: bool, is_e: boo
 		else:
 			center_of_block.origin.x = -1.8
 			
-	var instance_count = mesh.visible_instance_count
-	var units_per_edge = sqrt(instance_count)
+	var units_per_edge = sqrt(count)
 	var dist_between_units_x = 3.6 / units_per_edge
 	var dist_between_units_y = 4.0 / units_per_edge
 	var start_pos_x = 0.2

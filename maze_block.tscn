@@ -368,7 +368,7 @@ visible = false
 layers = 65536
 
 [node name="Coin" parent="." instance=ExtResource("10_6g1h2")]
-transform = Transform3D(-0.489079, 0, -0.103925, 0, 0.5, 0, 0.103925, 0, -0.489079, 0, -0.75, 0)
+transform = Transform3D(-0.1551, 0, -0.475333, 0, 0.5, 0, 0.475333, 0, -0.1551, 0, -0.75, 0)
 
 [node name="GrassSurface" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.99, 0)
@@ -379,7 +379,9 @@ skeleton = NodePath("../GrassMultiMesh")
 [node name="GrassMultiMesh" type="MultiMeshInstance3D" parent="."]
 transform = Transform3D(9.4179e-07, 0, -1, 0, 1, 0, 1, 0, 9.4179e-07, 0, 0, 0)
 cast_shadow = 0
-visibility_range_end = 35.0
+visibility_range_end = 20.0
+visibility_range_end_margin = 5.0
+visibility_range_fade_mode = 1
 multimesh = SubResource("MultiMesh_wg703")
 
 [node name="QuickSandGrassMultiMesh" type="MultiMeshInstance3D" parent="."]
