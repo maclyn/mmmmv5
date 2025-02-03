@@ -7,14 +7,12 @@ signal player_out_of_quicksand()
 const DISABLE_DECALS = false
 # Jitter is the process of applying random movement (a little) to grass and 
 # hedges
-const DISABLE_JITTER = true
+static var DISABLE_JITTER = true
 const HIDE_WALLS = false
 const HIDE_WALL_DECALS = false || DISABLE_DECALS
 const HIDE_CORNERS = false
 const HIDE_CORNER_DECALS = false || DISABLE_DECALS
 const DISABLE_WALL_COLLISIONS = false
-
-const HEDGE_DECAL_DEFAULT_SIZE = 5.0
 
 # Block state
 var _is_key: bool = false
@@ -279,7 +277,7 @@ func _configure_grass():
 			var rx = randf_range(-2.0, 2.0)
 			var ry = randf_range(-2.0, 2.0)
 			# Drop anything in the circle
-			if pow(rx, 2) + pow(ry, 2) < pow(1.22, 2):
+			if pow(rx, 2) + pow(ry, 2) < pow(1.20, 2):
 				continue
 			var transform = Transform3D(center_of_block)
 			transform.origin.x = rx
@@ -450,15 +448,16 @@ func _configure_hedge_wall(wall_node: MultiMeshInstance3D, is_x: bool, is_e: boo
 			transform.origin.y = y_pos
 			
 			# Scale the model up
-			var scale = HEDGE_DECAL_DEFAULT_SIZE if DISABLE_JITTER \
+			var decal_scale = _hedge_decal_scale()
+			var scale = decal_scale if DISABLE_JITTER \
 				else randf_range( \
-					HEDGE_DECAL_DEFAULT_SIZE - (0.2 * HEDGE_DECAL_DEFAULT_SIZE),
-					HEDGE_DECAL_DEFAULT_SIZE + (0.2 * HEDGE_DECAL_DEFAULT_SIZE))
+					decal_scale - (0.2 * decal_scale),
+					decal_scale + (0.2 * decal_scale))
 			var basis = Basis.IDENTITY
 			if is_x:
-				basis = basis.scaled(Vector3(1.0, scale, scale))
+				basis = basis.scaled(Vector3(scale, scale, scale))
 			else:
-				basis = basis.scaled(Vector3(1.0, scale, scale))
+				basis = basis.scaled(Vector3(scale, scale, scale))
 				
 			# Rotate to face the right direction
 			if is_x:
@@ -494,15 +493,18 @@ func _apply_hedge_around_corner(
 	item_count_height: int
 ) -> int:
 	var mesh: MultiMesh = $HedgeMultiMeshes/HedgeCornerMultiMesh.multimesh
-	var space_between_height_items = 3.96 / float(item_count_height)
+	var space_between_height_items = 4.0 / float(item_count_height)
 	var half_height = space_between_height_items / 2.0
-	var space_between_width_items = 0.16 / (item_count_width)
+	var space_between_width_items = 0.20 / (item_count_width)
 	var half_width = space_between_width_items / 2.0
+	var decal_scale = _hedge_decal_scale()
+	var half_decal_scale = decal_scale / 2.0
+	var half_decal_size = _hedge_decal_rough_size()
 	for width_idx in item_count_width:
 		for height_idx in item_count_height:
 			var instance_idx = start_idx + (width_idx * item_count_height) + height_idx
 			#print("IDX/W/H: " + str(instance_idx) + " / " + str(width_idx) + "x" + str(height_idx))
-			var y_val = (0.1 + half_height + (height_idx * space_between_height_items)) - 2.0
+			var y_val = half_height + (height_idx * space_between_height_items) - 2.0
 			if !DISABLE_JITTER:
 				y_val += randf_range(-half_height, half_height)
 			var xz_val = xz_start + half_width + (width_idx * space_between_width_items)
@@ -514,14 +516,14 @@ func _apply_hedge_around_corner(
 					xz_clamp_start if xz_clamp_start <= xz_clamp_end else xz_clamp_end,
 					xz_clamp_end if xz_clamp_end >= xz_clamp_start else xz_clamp_start)
 			
-			var scale = HEDGE_DECAL_DEFAULT_SIZE if DISABLE_JITTER \
+			var scale = decal_scale if DISABLE_JITTER \
 				else randf_range( \
-					HEDGE_DECAL_DEFAULT_SIZE - (0.2 * HEDGE_DECAL_DEFAULT_SIZE),
-					HEDGE_DECAL_DEFAULT_SIZE + (0.2 * HEDGE_DECAL_DEFAULT_SIZE))
+					decal_scale - (0.2 * decal_scale),
+					decal_scale + (0.2 * decal_scale))
 					
 			var origin = Vector3(
 				xz_val if is_xy_plane else fixed_plane_value,
-				clamp(y_val, -1.98, 1.98),
+				clamp(y_val, -2.00 + half_decal_size, 2.00 - half_decal_size),
 				fixed_plane_value if is_xy_plane else xz_val
 			)
 			#print("Origin: " + str(origin))
@@ -603,6 +605,24 @@ func _on_quick_sand_body_exited(body: Node3D) -> void:
 	if body.is_in_group("player_group"):
 		print("Player out of quicksand!")
 		player_out_of_quicksand.emit()
+		
+func _hedge_decal_scale() -> float:
+	var size = 5.0
+	match _get_detail_level():
+		"min":
+			size = 0.0
+		"low":
+			size = 10.0
+		"medium":
+			size = 8.0
+		"high":
+			size = 6.0
+		"ultra":
+			size = 5.0
+	return size
+	
+func _hedge_decal_rough_size() -> float:
+	return 0.02 * _hedge_decal_scale()
 
 func _get_detail_level() -> String:
 	if Engine.is_editor_hint():

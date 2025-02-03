@@ -370,7 +370,7 @@ visible = false
 layers = 65536
 
 [node name="Coin" parent="." instance=ExtResource("10_6g1h2")]
-transform = Transform3D(-0.232233, 0, 0.442793, 0, 0.5, 0, -0.442793, 0, -0.232233, 0, -0.75, 0)
+transform = Transform3D(0.406604, 0, 0.290983, 0, 0.5, 0, -0.290983, 0, 0.406604, 0, -0.75, 0)
 
 [node name="GrassSurface" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.99, 0)
