@@ -637,7 +637,7 @@ func _add_snakes():
 		var should_snake = randf_range(0.0, 1.0) <= _percent_chance_of_snake_per_row_col() && (exit_block == null || x != exit_block.position.x)
 		if !should_snake:
 			continue
-		var north_to_south = randf_range(0.0, 1.0) > 0.5
+		var north_to_south = true # it's a little unfair to have them come at you from the wrong direction
 		var dx = 0
 		var dy = 1 if north_to_south else -1
 		var x_pos = _maze_block_position_to_center_in_scene_space(x, 0).x - (SNAKE_WIDTH / 2.0)

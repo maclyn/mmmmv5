@@ -400,24 +400,29 @@ func _configure_hedge() -> void:
 
 # is_x is really "plants on the xy plane"
 # !is_x is really "plants on the yz plane"
-func _configure_hedge_wall(wall_node: MultiMeshInstance3D, is_x: bool, is_e: bool, count: int):
+func _configure_hedge_wall(
+	wall_node: MultiMeshInstance3D,
+	is_xy_plane: bool,
+	is_e: bool,
+	count: int
+):
 	var mesh: MultiMesh = wall_node.multimesh
 	mesh.visible_instance_count = count
 	if count < 1:
 		return
 		
-	var center_of_block = Transform3D(Basis.IDENTITY, Vector3.ZERO)
+	var base_origin = Vector3.ZERO
 	# Each wall will have one fixed unit (the "edge" of the wall)
-	if is_x:
+	if is_xy_plane:
 		if is_e:
-			center_of_block.origin.z = -1.8
+			base_origin.z = -1.9 # -1.8 # + sin(Time.get_ticks_msec() / 1000.0)
 		else:
-			center_of_block.origin.z = 1.8
+			base_origin.z = 1.8
 	else:
 		if is_e:
-			center_of_block.origin.x = 1.8 # UNDER REVIEW
+			base_origin.x = 1.8
 		else:
-			center_of_block.origin.x = -1.8
+			base_origin.x = -1.8
 			
 	var units_per_edge = sqrt(count)
 	var dist_between_units_x = 3.6 / units_per_edge
@@ -431,59 +436,63 @@ func _configure_hedge_wall(wall_node: MultiMeshInstance3D, is_x: bool, is_e: boo
 	var half_decal_size = _hedge_decal_rough_size()
 	for i in units_per_edge:
 		for y in units_per_edge:
+			# Choose point on face
+			
 			# Choose x/z points 
 			var idx = (i * units_per_edge) + y
 			last_idx = idx
-			var transform = Transform3D(center_of_block)
+			var origin = Vector3(base_origin)
 			var i_pos = start_pos_x + (i * dist_between_units_x) - 2.0
 			if not DISABLE_JITTER:
 				i_pos += randf_range(-dist_between_units_x_half, dist_between_units_x_half)
-			
-			# Set fixed point
-			if is_x:
-				transform.origin.x = i_pos
+			if is_xy_plane:
+				origin.x = i_pos
 			else:
-				transform.origin.z = i_pos # UNDER REVIEW
-				
+				origin.z = i_pos
 			# Choose y point
 			var y_pos = start_pos_y + (y * dist_between_units_y) - half_decal_size - 2.0
 			if not DISABLE_JITTER:
 				y_pos += randf_range(-dist_between_units_y_half, dist_between_units_y_half)
 			y_pos = clamp(y_pos, -2.0 + half_decal_size, 2.0 - half_decal_size)
-			transform.origin.y = y_pos
+			origin.y = y_pos
 			
+			# Apply scaling and rotation
+			var basis = Basis.IDENTITY
+			# Rotate to face the right direction
+			if is_xy_plane:
+				if not is_e:
+					basis = basis.rotated(Vector3.UP, PI / 2.0)
+				else:
+					basis = basis.rotated(Vector3.UP, PI * 1.5)
+			else:
+				if is_e:
+					basis = basis.rotated(Vector3.UP, PI)
+				else:
+					basis = basis.rotated(Vector3.UP, 0.0)
+					
+			# Rotate randomly around the center of the model to add some
+			# flair to it
+			var rotation_amount = 0.0 if DISABLE_JITTER else randf_range(-TAU, TAU)
+			if is_xy_plane:
+				if is_e:
+					basis = basis.rotated(Vector3.FORWARD, rotation_amount)
+				else:
+					basis = basis.rotated(Vector3.BACK, rotation_amount)
+			else:
+				# Rotate along the front axis
+				if is_e:
+					basis = basis.rotated(Vector3.RIGHT, rotation_amount)
+				else:
+					basis = basis.rotated(Vector3.LEFT, rotation_amount)
+					
 			# Scale the model up
-
 			var scale = decal_scale if DISABLE_JITTER \
 				else randf_range( \
 					decal_scale - (0.2 * decal_scale),
 					decal_scale + (0.2 * decal_scale))
-			var basis = Basis.IDENTITY
-			if is_x:
-				basis = basis.scaled(Vector3(scale, scale, scale))
-			else:
-				basis = basis.scaled(Vector3(scale, scale, scale))
-				
-			# Rotate to face the right direction
-			if is_x:
-				if not is_e:
-					transform.basis = basis.rotated(Vector3.UP, PI / 2.0)
-				else:
-					transform.basis = basis.rotated(Vector3.UP, PI * 1.5)
-			else:
-				if is_e:
-					basis = basis.rotated(Vector3.UP, PI)
-					
-			# Rotate randomly around the center of the model to add some
-			# flair to it
-			if is_x:
-				# TODO: This needs to be rotated
-				# transform.basis = basis.rotated(Vector3.MODEL_LEFT, 0.0 if DISABLE_JITTER else randf_range(-TAU, TAU))
-				pass
-			else:
-				# Rotate along the front axis
-				transform.basis = basis.rotated(Vector3.RIGHT, 0.0 if DISABLE_JITTER else randf_range(-TAU, TAU))
-			mesh.set_instance_transform(idx, transform)
+			basis = basis.scaled(Vector3(scale, scale, scale))
+			
+			mesh.set_instance_transform(idx, Transform3D(basis, origin))
 	print("Configured " + str(last_idx + 1) + " hedge plant clumps")
 
 # Returns: number of items setup

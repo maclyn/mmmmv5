@@ -3,7 +3,7 @@ extends AnimatableBody3D
 
 signal collided_with_player()
 
-const SNAKE_SPEED_UNITS_PER_S = 7.0
+const SNAKE_SPEED_UNITS_PER_S = 5.0
 const MAX_DIST_FOR_VALID_HIT = 6.0
 
 var x_dir = 0
