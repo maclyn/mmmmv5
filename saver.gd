@@ -7,9 +7,11 @@ const SCORE_KEY = "score"
 const MUTE_KEY = "mute"
 
 const GFX_KEY = "gfx_mode"
+const GFX_VALUE_MIN = "min"
 const GFX_VALUE_LOW = "low"
 const GFX_VALUE_MEDIUM = "medium"
 const GFX_VALUE_HIGH = "high"
+const GFX_VALUE_ULTRA = "ultra"
 
 func get_graphics_mode() -> String:
 	return _get_key_from_file(

@@ -219,20 +219,27 @@ func _configure_grass():
 		return
 	_has_configured_grass = true
 	var detail_level = _get_detail_level()
+	if DISABLE_DECALS:
+		detail_level = "min"
 	print("Configuring grass with detail_level " + detail_level)
 	var instance_count_for_detail_level = 16
 	var qs_instance_count_for_detail_level = 16
 	match detail_level:
+		"min":
+			instance_count_for_detail_level = 0
 		"low":
 			instance_count_for_detail_level = 256
 		"medium":
 			instance_count_for_detail_level = 1024
 		"high":
 			instance_count_for_detail_level = 3600
+		"ultra":
+			instance_count_for_detail_level = 4900
+
 	
 	var mesh: MultiMesh = $GrassMultiMesh.multimesh
-	mesh.visible_instance_count = 0 if DISABLE_DECALS else instance_count_for_detail_level
-	if !DISABLE_DECALS:
+	mesh.visible_instance_count = instance_count_for_detail_level
+	if instance_count_for_detail_level > 0:
 		var center_of_block = Transform3D(Basis.IDENTITY, Vector3(0.0, -1.90, 0.0))
 		var blade_units_per_edge = sqrt(instance_count_for_detail_level)
 		var dist_between_units = 4.0 / blade_units_per_edge
@@ -252,10 +259,10 @@ func _configure_grass():
 		print("Configured " + str(last_idx + 1) + " grass clumps")
 	
 	# Quicksand covers 30.6% of the area
-	qs_instance_count_for_detail_level = int(0.694 * float(instance_count_for_detail_level))
 	var qsmesh = $QuickSandGrassMultiMesh.multimesh
-	qsmesh.visible_instance_count = 0 if DISABLE_DECALS else qs_instance_count_for_detail_level
-	if !DISABLE_DECALS:
+	qs_instance_count_for_detail_level = int(0.694 * float(instance_count_for_detail_level))
+	qsmesh.visible_instance_count = qs_instance_count_for_detail_level
+	if qs_instance_count_for_detail_level > 0:
 		var blades_added = 0
 		var center_of_block = Transform3D(Basis.IDENTITY, Vector3(0.0, -1.90, 0.0))
 		while blades_added != qs_instance_count_for_detail_level:
@@ -278,12 +285,19 @@ func _configure_hedge() -> void:
 		return
 	_has_configured_hedges = true
 	var detail_level = _get_detail_level()
+	if DISABLE_DECALS:
+		detail_level = "min"
 	print("Configuring hedges with detail_level " + detail_level)
 	var instance_count_for_detail_level = 16
 	var instance_count_for_all_corners = 24
 	var corner_face_instance_count_width = 1
 	var corner_face_instance_count_height = 3
 	match detail_level:
+		"min":
+			instance_count_for_detail_level = 0
+			instance_count_for_all_corners = 0
+			corner_face_instance_count_width = 0
+			corner_face_instance_count_height = 0
 		"low":
 			instance_count_for_detail_level = 256
 			instance_count_for_all_corners = 128
@@ -299,6 +313,11 @@ func _configure_hedge() -> void:
 			instance_count_for_all_corners = 1152
 			corner_face_instance_count_width = 1
 			corner_face_instance_count_height = 72
+		"ultra":
+			instance_count_for_detail_level = 2304
+			instance_count_for_all_corners = 1134
+			corner_face_instance_count_width = 1
+			corner_face_instance_count_height = 84
 	_configure_hedge_wall($HedgeMultiMeshes/HedgeWallWMultiMesh, false, false, instance_count_for_detail_level)
 	_configure_hedge_wall($HedgeMultiMeshes/HedgeWallEMultiMesh, false, true, instance_count_for_detail_level)
 	_configure_hedge_wall($HedgeMultiMeshes/HedgeWallSMultiMesh, true, false, instance_count_for_detail_level)
@@ -350,7 +369,9 @@ func _configure_hedge() -> void:
 	var decals_setup_count = 0
 	for idx in labels.size():
 		var direction_facing = directions_facing[idx]
-		print("Configuring hedge corner at " + labels[idx] + " facing " + direction_facing)
+		#print("Configuring hedge corner at " + labels[idx] + " facing " + direction_facing)
+		if corner_face_instance_count_height < 1 || corner_face_instance_count_width < 1:
+			continue
 		decals_setup_count = _apply_hedge_around_corner(
 			xz_starts[idx],
 			xz_clamp_starts[idx],
@@ -370,11 +391,11 @@ func _configure_hedge() -> void:
 # !is_x is really "plants on the yz plane"
 func _configure_hedge_wall(wall_node: MultiMeshInstance3D, is_x: bool, is_e: bool, count: int):
 	var mesh: MultiMesh = wall_node.multimesh
-	mesh.visible_instance_count = 0 if DISABLE_DECALS else count
-	if DISABLE_DECALS:
+	mesh.visible_instance_count = count
+	if count < 1:
 		return
+		
 	var center_of_block = Transform3D(Basis.IDENTITY, Vector3.ZERO)
-	
 	# Each wall will have one fixed unit (the "edge" of the wall)
 	if is_x:
 		if is_e:

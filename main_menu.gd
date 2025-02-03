@@ -40,12 +40,16 @@ func _on_graphics_mode_pressed() -> void:
 	var curr_mode = _saver.get_graphics_mode()
 	var new_mode = "low"
 	match curr_mode:
+		"min":
+			new_mode = "low"
 		"low":
 			new_mode = "medium"
 		"medium":
 			new_mode = "high"
 		"high":
-			new_mode = "low"
+			new_mode = "ultra"
+		"ultra":
+			new_mode = "min"
 	_saver.set_graphics_mode(new_mode)
 	_apply_gfx_mode(new_mode)
 	
@@ -64,12 +68,16 @@ func _on_help_pressed() -> void:
 
 func _gfx_mode_to_label(mode: String):
 	match mode:
+		"min":
+			return "GFX-Min"
 		"low":
 			return "GFX-Low"
 		"medium":
 			return "GFX-Med"
 		"high":
 			return "GFX-High"
+		"ultra":
+			return "GFX-Ultra"
 	return ""
 
 func _show_text_dialog(title: String, path: String) -> void:
