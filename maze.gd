@@ -338,6 +338,11 @@ func _ready() -> void:
 		print("Generating maze in editor")
 		build_new_maze_impl() # Threading leads to freezing on editor load
 
+func _unhandled_input(_event: InputEvent) -> void:
+	if Input.is_action_just_pressed("debug_graphics_change") && Globals.is_debug():
+		Globals.next_graphics_mode()
+		path_from_exit_to_entrance[0].instance.debug_reset_decals() # all decals are shared, so we just need 1
+
 func _movement_dir_as_xy_when_pointing_in_dir(movement: MovementDirection, direction: GridDirection) -> Vector2i:
 	var base_xy = _movement_dir_as_xy_when_pointing_north(movement)
 	match direction:

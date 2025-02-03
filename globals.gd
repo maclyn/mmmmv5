@@ -23,6 +23,21 @@ var _shader_time_ms: int = 0
 func get_saver() -> Object:
 	return _saver
 	
+func next_graphics_mode():
+	var new_mode = "min"
+	match _graphics_mode:
+		"min":
+			new_mode = "low"
+		"low":
+			new_mode = "medium"
+		"medium":
+			new_mode = "high"
+		"high":
+			new_mode = "ultra"
+		"ultra":
+			new_mode = "min"
+	set_graphics_mode(new_mode)
+	
 func set_graphics_mode(mode: String):
 	_graphics_mode = mode
 	var msaa_value = Viewport.MSAA_DISABLED

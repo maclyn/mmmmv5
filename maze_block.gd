@@ -1,14 +1,20 @@
+@tool
 extends Node3D
 
 signal player_in_quicksand()
 signal player_out_of_quicksand()
 
 const DISABLE_DECALS = false
+# Jitter is the process of applying random movement (a little) to grass and 
+# hedges
+const DISABLE_JITTER = true
 const HIDE_WALLS = false
 const HIDE_WALL_DECALS = false || DISABLE_DECALS
 const HIDE_CORNERS = false
 const HIDE_CORNER_DECALS = false || DISABLE_DECALS
 const DISABLE_WALL_COLLISIONS = false
+
+const HEDGE_DECAL_DEFAULT_SIZE = 5.0
 
 # Block state
 var _is_key: bool = false
@@ -51,10 +57,6 @@ func _ready():
 	
 	$GrassMultiMesh.rotate(Vector3.UP, randi_range(0, 4) * (PI / 2.0))
 	
-	if Engine.is_editor_hint() && get_parent() == null:
-		print("Null scene, so probably rooted in editor; enabling N + E walls")
-		configure_walls(true, true, false, false)
-	
 	_configure_key()
 	_configure_exit()
 	_configure_portal()
@@ -82,9 +84,7 @@ func _physics_process(_delta: float) -> void:
 		$Spike.position.y = ((sin(secs * 2.0) + 1)) - 3.0
 		$Spike.rotation.y = cos(secs * 4.0)
 
-func configure_walls(north: bool, east: bool, south: bool, west: bool):
-#const HIDE_HEDGE_DECALS = false
-	
+func configure_walls(north: bool, east: bool, south: bool, west: bool):	
 	$HedgeWallN.visible = north && !HIDE_WALLS
 	$HedgeMultiMeshes/HedgeWallNMultiMesh.visible = north && !HIDE_WALL_DECALS
 	$HedgeWallN.get_node("CollisionShape3D").disabled = !north || DISABLE_WALL_COLLISIONS
@@ -106,6 +106,12 @@ func configure_walls(north: bool, east: bool, south: bool, west: bool):
 	$HedgeCornerSW.visible = !HIDE_CORNERS
 	$HedgeCornerSE.visible = !HIDE_CORNERS
 	$HedgeMultiMeshes/HedgeCornerMultiMesh.visible = !HIDE_CORNER_DECALS
+	
+func debug_reset_decals() -> void:
+	_has_configured_grass = false
+	_has_configured_hedges = false
+	_configure_grass()
+	_configure_hedge()
 	
 func get_south_wall() -> Node3D:
 	assert(is_node_ready())
@@ -250,8 +256,12 @@ func _configure_grass():
 				var idx = (x * blade_units_per_edge) + z
 				last_idx = idx
 				var transform = Transform3D(center_of_block)
-				transform.origin.x = (start_pos + (x * dist_between_units) + randf_range(-dist_between_units, dist_between_units)) - 2.0
-				transform.origin.z = (start_pos + (z * dist_between_units) + randf_range(-dist_between_units, dist_between_units)) - 2.0
+				transform.origin.x = start_pos + (x * dist_between_units) - 2.0
+				if !DISABLE_JITTER:
+					transform.origin.x += randf_range(-dist_between_units, dist_between_units)
+				transform.origin.z = start_pos + (z * dist_between_units) - 2.0
+				if !DISABLE_JITTER:
+					transform.origin.z += randf_range(-dist_between_units, dist_between_units)
 				var grass_width_length = randf_range(1.0, 2.0)
 				var grass_height = randf_range(1.5, 2.0)
 				transform.basis = Basis.IDENTITY.rotated(Vector3.UP, randf_range(0.0, TAU)).scaled(Vector3(grass_width_length, grass_height, grass_width_length))
@@ -410,26 +420,40 @@ func _configure_hedge_wall(wall_node: MultiMeshInstance3D, is_x: bool, is_e: boo
 			
 	var units_per_edge = sqrt(count)
 	var dist_between_units_x = 3.6 / units_per_edge
+	var dist_between_units_x_half = dist_between_units_x / 2.0
 	var dist_between_units_y = 4.0 / units_per_edge
+	var dist_between_units_y_half = dist_between_units_y / 2.0
 	var start_pos_x = 0.2
 	var start_pos_y = dist_between_units_y / 2.0
 	var last_idx = 0
 	for i in units_per_edge:
 		for y in units_per_edge:
-			# Choose a point on the right (xy or yz) plane
+			# Choose x/z points 
 			var idx = (i * units_per_edge) + y
 			last_idx = idx
 			var transform = Transform3D(center_of_block)
-			var i_pos = (start_pos_x + (i * dist_between_units_x) + randf_range(-dist_between_units_x, dist_between_units_x)) - 2.0
+			var i_pos = start_pos_x + (i * dist_between_units_x) - 2.0
+			if not DISABLE_JITTER:
+				i_pos += randf_range(-dist_between_units_x_half, dist_between_units_x_half)
+			
+			# Set fixed point
 			if is_x:
 				transform.origin.x = i_pos
 			else:
 				transform.origin.z = i_pos
-			transform.origin.y = (start_pos_y + (y * dist_between_units_y) + randf_range(-dist_between_units_y, dist_between_units_y)) - 2.0
-			transform.origin.y = clamp(transform.origin.y, -1.98, 1.98)
+				
+			# Choose y point
+			var y_pos = start_pos_y + (y * dist_between_units_y) - 2.0
+			if not DISABLE_JITTER:
+				y_pos += randf_range(-dist_between_units_y_half, dist_between_units_y_half)
+			y_pos = clamp(y_pos, -1.98, 1.98)
+			transform.origin.y = y_pos
 			
 			# Scale the model up
-			var scale = randf_range(8.0, 10.0)
+			var scale = HEDGE_DECAL_DEFAULT_SIZE if DISABLE_JITTER \
+				else randf_range( \
+					HEDGE_DECAL_DEFAULT_SIZE - (0.2 * HEDGE_DECAL_DEFAULT_SIZE),
+					HEDGE_DECAL_DEFAULT_SIZE + (0.2 * HEDGE_DECAL_DEFAULT_SIZE))
 			var basis = Basis.IDENTITY
 			if is_x:
 				basis = basis.scaled(Vector3(1.0, scale, scale))
@@ -453,7 +477,7 @@ func _configure_hedge_wall(wall_node: MultiMeshInstance3D, is_x: bool, is_e: boo
 				pass
 			else:
 				# Rotate along the front axis
-				transform.basis = basis.rotated(Vector3.RIGHT, randf_range(0.0, TAU))
+				transform.basis = basis.rotated(Vector3.RIGHT, 0.0 if DISABLE_JITTER else randf_range(-TAU, TAU))
 			mesh.set_instance_transform(idx, transform)
 	print("Configured " + str(last_idx + 1) + " hedge plant clumps")
 
@@ -478,17 +502,23 @@ func _apply_hedge_around_corner(
 		for height_idx in item_count_height:
 			var instance_idx = start_idx + (width_idx * item_count_height) + height_idx
 			#print("IDX/W/H: " + str(instance_idx) + " / " + str(width_idx) + "x" + str(height_idx))
-			var y_val = (0.1 + half_height + (height_idx * space_between_height_items)) \
-				+ randf_range(-space_between_height_items, space_between_height_items) \
-				- 2.0
-			var xz_val = xz_start + half_width + (width_idx * space_between_width_items) \
-				+ randf_range(-space_between_width_items, space_between_width_items)
+			var y_val = (0.1 + half_height + (height_idx * space_between_height_items)) - 2.0
+			if !DISABLE_JITTER:
+				y_val += randf_range(-half_height, half_height)
+			var xz_val = xz_start + half_width + (width_idx * space_between_width_items)
+			if !DISABLE_JITTER:
+				xz_val += randf_range(-half_width, half_width)
 			xz_val = \
 				clamp(
 					xz_val,
 					xz_clamp_start if xz_clamp_start <= xz_clamp_end else xz_clamp_end,
 					xz_clamp_end if xz_clamp_end >= xz_clamp_start else xz_clamp_start)
-			var scale = randf_range(8.0, 10.0)
+			
+			var scale = HEDGE_DECAL_DEFAULT_SIZE if DISABLE_JITTER \
+				else randf_range( \
+					HEDGE_DECAL_DEFAULT_SIZE - (0.2 * HEDGE_DECAL_DEFAULT_SIZE),
+					HEDGE_DECAL_DEFAULT_SIZE + (0.2 * HEDGE_DECAL_DEFAULT_SIZE))
+					
 			var origin = Vector3(
 				xz_val if is_xy_plane else fixed_plane_value,
 				clamp(y_val, -1.98, 1.98),
@@ -499,12 +529,12 @@ func _apply_hedge_around_corner(
 			if is_xy_plane:
 				basis = basis \
 					.rotated(Vector3.UP, rotation_amount) \
-					.rotated(Vector3.FORWARD, randf_range(0.0, TAU)) \
+					.rotated(Vector3.FORWARD, 0.0 if DISABLE_JITTER else randf_range(-TAU, TAU)) \
 					.scaled(Vector3(scale, scale, scale))
 			else:
 				basis = basis \
 					.rotated(Vector3.UP, rotation_amount) \
-					.rotated(Vector3.RIGHT, randf_range(0.0, TAU)) \
+					.rotated(Vector3.RIGHT, 0.0 if DISABLE_JITTER else randf_range(-TAU, TAU)) \
 					.scaled(Vector3(scale, scale, scale))
 			var transform = Transform3D(basis, origin)
 			mesh.set_instance_transform(instance_idx, transform)
@@ -577,4 +607,4 @@ func _on_quick_sand_body_exited(body: Node3D) -> void:
 func _get_detail_level() -> String:
 	if Engine.is_editor_hint():
 		return "high"
-	return Globals.get_saver().get_graphics_mode()
+	return Globals.get_graphics_mode()
