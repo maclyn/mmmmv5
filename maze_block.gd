@@ -308,9 +308,9 @@ func _configure_hedge() -> void:
 			corner_face_instance_count_height = 0
 		"low":
 			instance_count_for_detail_level = 256
-			instance_count_for_all_corners = 128
+			instance_count_for_all_corners = 256
 			corner_face_instance_count_width = 1
-			corner_face_instance_count_height = 8
+			corner_face_instance_count_height = 16
 		"medium":
 			instance_count_for_detail_level = 576
 			instance_count_for_all_corners = 384
@@ -318,14 +318,14 @@ func _configure_hedge() -> void:
 			corner_face_instance_count_height = 24
 		"high":
 			instance_count_for_detail_level = 1600
-			instance_count_for_all_corners = 1152
+			instance_count_for_all_corners = 640
 			corner_face_instance_count_width = 1
-			corner_face_instance_count_height = 72
+			corner_face_instance_count_height = 40
 		"ultra":
 			instance_count_for_detail_level = 2304
-			instance_count_for_all_corners = 1134
-			corner_face_instance_count_width = 1
-			corner_face_instance_count_height = 84
+			instance_count_for_all_corners = 1536
+			corner_face_instance_count_width = 2
+			corner_face_instance_count_height = 48
 	_configure_hedge_wall($HedgeMultiMeshes/HedgeWallWMultiMesh, false, false, instance_count_for_detail_level)
 	_configure_hedge_wall($HedgeMultiMeshes/HedgeWallEMultiMesh, false, true, instance_count_for_detail_level)
 	_configure_hedge_wall($HedgeMultiMeshes/HedgeWallSMultiMesh, true, false, instance_count_for_detail_level)
@@ -350,17 +350,20 @@ func _configure_hedge() -> void:
 		1.80, -2.0, 1.80, -2.0, # Good
 		-2.0, -2.0, -2.0, -2.0 # Good
 	]
+	var half_decal_size = _hedge_decal_rough_size() / 2.0
 	var xz_clamp_starts = [
-		1.83, 1.83, 1.83, 1.83,
-		-1.97, 1.83, -1.97, 1.83,
-		1.83, -1.97, 1.83, -1.97,
-		-1.97, -1.97, -1.97, -1.97
+		1.80 , 1.80, 1.80, 1.80,
+		-2.00, 1.80, -2.00, 1.80,
+		1.80, -2.00, 1.80, -2.00,
+		-2.00, -2.00, -2.00, -2.00
 	]
+	for clamp_idx in xz_clamp_starts.size():
+		xz_clamp_starts[clamp_idx] += half_decal_size
 	var xz_clamp_ends = [
-		1.97, 1.97, 1.97, 1.97,
-		-1.83, 1.97, -1.97, 1.97,
-		1.97, -1.83, 1.97, -1.83,
-		-1.83, -1.83, -1.83, -1.83
+		2.00 - half_decal_size, 2.00 - half_decal_size, 2.00 - half_decal_size, 2.00 - half_decal_size,
+		-1.80 - half_decal_size, 2.00 - half_decal_size, -2.00 + half_decal_size, 2.00 - half_decal_size,
+		2.00 - half_decal_size, -1.80 - half_decal_size, 2.00 - half_decal_size, -1.80 - half_decal_size,
+		-1.80 - half_decal_size, -1.80 - half_decal_size, -1.80 - half_decal_size, -1.80 - half_decal_size
 	]
 	var fixed_values = [
 		2.0, 2.0, 1.8, 1.8, # Good
@@ -424,6 +427,8 @@ func _configure_hedge_wall(wall_node: MultiMeshInstance3D, is_x: bool, is_e: boo
 	var start_pos_x = 0.2
 	var start_pos_y = dist_between_units_y / 2.0
 	var last_idx = 0
+	var decal_scale = _hedge_decal_scale()
+	var half_decal_size = _hedge_decal_rough_size()
 	for i in units_per_edge:
 		for y in units_per_edge:
 			# Choose x/z points 
@@ -444,11 +449,11 @@ func _configure_hedge_wall(wall_node: MultiMeshInstance3D, is_x: bool, is_e: boo
 			var y_pos = start_pos_y + (y * dist_between_units_y) - 2.0
 			if not DISABLE_JITTER:
 				y_pos += randf_range(-dist_between_units_y_half, dist_between_units_y_half)
-			y_pos = clamp(y_pos, -1.98, 1.98)
+			y_pos = clamp(y_pos, -2.0 + half_decal_size, 2.0 - half_decal_size)
 			transform.origin.y = y_pos
 			
 			# Scale the model up
-			var decal_scale = _hedge_decal_scale()
+
 			var scale = decal_scale if DISABLE_JITTER \
 				else randf_range( \
 					decal_scale - (0.2 * decal_scale),
@@ -499,7 +504,7 @@ func _apply_hedge_around_corner(
 	var half_width = space_between_width_items / 2.0
 	var decal_scale = _hedge_decal_scale()
 	var half_decal_scale = decal_scale / 2.0
-	var half_decal_size = _hedge_decal_rough_size()
+	var half_decal_size = _hedge_decal_rough_size() / 2.0
 	for width_idx in item_count_width:
 		for height_idx in item_count_height:
 			var instance_idx = start_idx + (width_idx * item_count_height) + height_idx
@@ -507,9 +512,10 @@ func _apply_hedge_around_corner(
 			var y_val = half_height + (height_idx * space_between_height_items) - 2.0
 			if !DISABLE_JITTER:
 				y_val += randf_range(-half_height, half_height)
-			var xz_val = xz_start + half_width + (width_idx * space_between_width_items)
+			var xz_val = xz_start + (width_idx * space_between_width_items) + half_decal_size
 			if !DISABLE_JITTER:
 				xz_val += randf_range(-half_width, half_width)
+			# Clamp values already account for the size of the decal
 			xz_val = \
 				clamp(
 					xz_val,
