@@ -7,7 +7,7 @@ signal player_out_of_quicksand()
 const DISABLE_DECALS = false
 # Jitter is the process of applying random movement (a little) to grass and 
 # hedges
-static var DISABLE_JITTER = true
+static var DISABLE_JITTER = false
 const HIDE_WALLS = false
 const HIDE_WALL_DECALS = false || DISABLE_DECALS
 const HIDE_CORNERS = false
@@ -318,9 +318,9 @@ func _configure_hedge() -> void:
 			corner_face_instance_count_height = 24
 		"high":
 			instance_count_for_detail_level = 1600
-			instance_count_for_all_corners = 640
-			corner_face_instance_count_width = 1
-			corner_face_instance_count_height = 40
+			instance_count_for_all_corners = 1152
+			corner_face_instance_count_width = 2
+			corner_face_instance_count_height = 36
 		"ultra":
 			instance_count_for_detail_level = 2304
 			instance_count_for_all_corners = 1536
@@ -415,7 +415,7 @@ func _configure_hedge_wall(wall_node: MultiMeshInstance3D, is_x: bool, is_e: boo
 			center_of_block.origin.z = 1.8
 	else:
 		if is_e:
-			center_of_block.origin.x = 1.8
+			center_of_block.origin.x = 1.8 # UNDER REVIEW
 		else:
 			center_of_block.origin.x = -1.8
 			
@@ -443,10 +443,10 @@ func _configure_hedge_wall(wall_node: MultiMeshInstance3D, is_x: bool, is_e: boo
 			if is_x:
 				transform.origin.x = i_pos
 			else:
-				transform.origin.z = i_pos
+				transform.origin.z = i_pos # UNDER REVIEW
 				
 			# Choose y point
-			var y_pos = start_pos_y + (y * dist_between_units_y) - 2.0
+			var y_pos = start_pos_y + (y * dist_between_units_y) - half_decal_size - 2.0
 			if not DISABLE_JITTER:
 				y_pos += randf_range(-dist_between_units_y_half, dist_between_units_y_half)
 			y_pos = clamp(y_pos, -2.0 + half_decal_size, 2.0 - half_decal_size)
@@ -477,7 +477,8 @@ func _configure_hedge_wall(wall_node: MultiMeshInstance3D, is_x: bool, is_e: boo
 			# Rotate randomly around the center of the model to add some
 			# flair to it
 			if is_x:
-				#transform.basis = basis.rotated(Vector3.UP, randf_range(0.0, PI))
+				# TODO: This needs to be rotated
+				# transform.basis = basis.rotated(Vector3.MODEL_LEFT, 0.0 if DISABLE_JITTER else randf_range(-TAU, TAU))
 				pass
 			else:
 				# Rotate along the front axis
@@ -509,12 +510,12 @@ func _apply_hedge_around_corner(
 		for height_idx in item_count_height:
 			var instance_idx = start_idx + (width_idx * item_count_height) + height_idx
 			#print("IDX/W/H: " + str(instance_idx) + " / " + str(width_idx) + "x" + str(height_idx))
-			var y_val = half_height + (height_idx * space_between_height_items) - 2.0
+			var y_val = (height_idx * space_between_height_items) + half_height - half_decal_size - 2.0
 			if !DISABLE_JITTER:
 				y_val += randf_range(-half_height, half_height)
-			var xz_val = xz_start + (width_idx * space_between_width_items) + half_decal_size
+			var xz_val = xz_start + (width_idx * space_between_width_items) + half_width - half_decal_size
 			if !DISABLE_JITTER:
-				xz_val += randf_range(-half_width, half_width)
+				xz_val += randf_range(-space_between_width_items, space_between_width_items)
 			# Clamp values already account for the size of the decal
 			xz_val = \
 				clamp(
