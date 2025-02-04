@@ -7,8 +7,6 @@ func _ready() -> void:
 	get_tree().set_auto_accept_quit(!Globals.is_mobile())
 	
 func _unhandled_input(_event: InputEvent) -> void:
-	if Input.is_action_just_pressed("ui_cancel"):
-		get_tree().quit()
 	if Input.is_action_just_pressed("wireframe_mode") && Globals.is_debug():
 		var rs = get_viewport()
 		rs.debug_draw = (rs.debug_draw + 1) % 5

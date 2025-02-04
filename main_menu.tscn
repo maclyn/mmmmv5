@@ -41,75 +41,13 @@ anchors_preset = -1
 anchor_left = 0.15
 anchor_right = 0.85
 anchor_bottom = 0.629
-offset_bottom = -0.280029
+offset_left = 212.0
+offset_top = 100.0
+offset_right = 145.0
+offset_bottom = 100.12
 grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("1_wbcnh")
-
-[node name="HBoxContainer" type="HBoxContainer" parent="."]
-layout_mode = 0
-offset_left = 33.0
-offset_top = 600.0
-offset_right = 1247.0
-offset_bottom = 700.0
-alignment = 1
-
-[node name="NormalButton" type="Button" parent="HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme = ExtResource("2_eh4l0")
-shortcut = SubResource("Shortcut_65fy5")
-shortcut_in_tooltip = false
-text = "(N)ew Game"
-
-[node name="Mute" type="Button" parent="."]
-layout_mode = 1
-anchors_preset = -1
-anchor_right = 0.034
-anchor_bottom = 0.033
-offset_left = 34.0
-offset_top = 127.0
-offset_right = 200.48
-offset_bottom = 183.24
-theme = ExtResource("2_eh4l0")
-text = "Mute"
-
-[node name="GraphicsMode" type="Button" parent="."]
-layout_mode = 1
-anchors_preset = -1
-anchor_right = 0.034
-anchor_bottom = 0.033
-offset_left = 34.0
-offset_top = 27.0
-offset_right = 200.48
-offset_bottom = 83.24
-theme = ExtResource("2_eh4l0")
-text = "GFX 
-Low"
-
-[node name="Credits" type="Button" parent="."]
-layout_mode = 1
-anchors_preset = -1
-anchor_right = 0.034
-anchor_bottom = 0.033
-offset_left = 1041.0
-offset_top = 127.0
-offset_right = 1203.48
-offset_bottom = 183.24
-theme = ExtResource("2_eh4l0")
-text = "Credits"
-
-[node name="Help" type="Button" parent="."]
-layout_mode = 1
-anchors_preset = -1
-anchor_right = 0.034
-anchor_bottom = 0.033
-offset_left = 1041.0
-offset_top = 27.0
-offset_right = 1203.48
-offset_bottom = 83.24
-theme = ExtResource("2_eh4l0")
-text = "Help"
 
 [node name="Music" type="AudioStreamPlayer3D" parent="."]
 stream = ExtResource("4_lgns7")
@@ -121,10 +59,10 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -302.0
-offset_top = -199.0
-offset_right = 298.0
-offset_bottom = -163.0
+offset_left = -114.0
+offset_top = -141.0
+offset_right = 486.0
+offset_bottom = -105.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
@@ -132,9 +70,57 @@ theme_override_font_sizes/font_size = 36
 text = "No high score yet!"
 horizontal_alignment = 1
 
+[node name="Buttons" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 36.0
+offset_top = 23.0
+offset_right = 349.0
+offset_bottom = 691.0
+alignment = 1
+
+[node name="NormalButton" type="Button" parent="Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme = ExtResource("2_eh4l0")
+shortcut = SubResource("Shortcut_65fy5")
+shortcut_in_tooltip = false
+text = "(N)ew Game"
+
+[node name="GraphicsMode" type="Button" parent="Buttons"]
+layout_mode = 2
+size_flags_vertical = 3
+theme = ExtResource("2_eh4l0")
+text = "GFX-Low"
+
+[node name="Mute" type="Button" parent="Buttons"]
+layout_mode = 2
+size_flags_vertical = 3
+theme = ExtResource("2_eh4l0")
+text = "Mute"
+
+[node name="Help" type="Button" parent="Buttons"]
+layout_mode = 2
+size_flags_vertical = 3
+theme = ExtResource("2_eh4l0")
+text = "Help"
+
+[node name="Credits" type="Button" parent="Buttons"]
+layout_mode = 2
+size_flags_vertical = 3
+theme = ExtResource("2_eh4l0")
+text = "Credits"
+
+[node name="Quit" type="Button" parent="Buttons"]
+layout_mode = 2
+size_flags_vertical = 3
+theme = ExtResource("2_eh4l0")
+text = "Exit"
+
 [connection signal="visibility_changed" from="." to="." method="_on_visibility_changed"]
-[connection signal="pressed" from="HBoxContainer/NormalButton" to="." method="_on_normal_button_pressed"]
-[connection signal="pressed" from="Mute" to="." method="_on_button_pressed"]
-[connection signal="pressed" from="GraphicsMode" to="." method="_on_graphics_mode_pressed"]
-[connection signal="pressed" from="Credits" to="." method="_on_credits_pressed"]
-[connection signal="pressed" from="Help" to="." method="_on_help_pressed"]
+[connection signal="pressed" from="Buttons/NormalButton" to="." method="_on_normal_button_pressed"]
+[connection signal="pressed" from="Buttons/GraphicsMode" to="." method="_on_graphics_mode_pressed"]
+[connection signal="pressed" from="Buttons/Mute" to="." method="_on_button_pressed"]
+[connection signal="pressed" from="Buttons/Help" to="." method="_on_help_pressed"]
+[connection signal="pressed" from="Buttons/Credits" to="." method="_on_credits_pressed"]
+[connection signal="pressed" from="Buttons/Quit" to="." method="_on_quit_pressed"]

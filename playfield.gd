@@ -66,6 +66,10 @@ func _process(_delta: float) -> void:
 			_format_label_to_remaining_timer()
 			_update_minimap()
 			
+func _unhandled_input(_event: InputEvent) -> void:
+	if Input.is_action_just_pressed("ui_cancel") && game_state != GameState.GAME_OVER && game_state != GameState.NOT_STARTED:
+		_round_over(false, true)
+			
 func _update_minimap():
 	var player_pos = $Player.global_position
 	if minimap_atlas_texture != null:
@@ -272,7 +276,8 @@ func _round_over(did_win: bool = false, skip_anim: bool = false) -> void:
 	if did_win:
 		$Music/WinPlayer.play()
 	else:
-		$Music/LosePlayer.play()
+		if !skip_anim:
+			$Music/LosePlayer.play()
 	
 	if did_win:
 		# Dump the framebuffer into a texture

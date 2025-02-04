@@ -12,6 +12,10 @@ func _ready() -> void:
 func _on_visibility_changed() -> void:
 	if visible:
 		_apply_high_score(_saver.get_high_score())
+		
+func _unhandled_input(_event: InputEvent) -> void:
+	if Input.is_action_just_pressed("ui_cancel") && visible:
+		get_tree().quit()
 
 func show_main_menu():
 	$Music.play()
@@ -33,7 +37,7 @@ func _on_button_pressed() -> void:
 	_apply_mute_mode(is_muted)
 	
 func _apply_mute_mode(is_muted: bool):
-	$Mute.text = "Unmute" if is_muted else "Mute"
+	$Buttons/Mute.text = "Unmute" if is_muted else "Mute"
 	AudioServer.set_bus_mute(0, is_muted)
 	
 func _on_graphics_mode_pressed() -> void:
@@ -55,7 +59,7 @@ func _on_graphics_mode_pressed() -> void:
 	
 func _apply_gfx_mode(mode: String) -> void:
 	Globals.set_graphics_mode(mode)
-	$GraphicsMode.text = _gfx_mode_to_label(mode)
+	$Buttons/GraphicsMode.text = _gfx_mode_to_label(mode)
 	
 func _apply_high_score(high_score: int) -> void:
 	$HighScoreLabel.text = "High Score: " + str(high_score)
@@ -65,6 +69,9 @@ func _on_credits_pressed() -> void:
 	
 func _on_help_pressed() -> void:
 	_show_text_dialog("Help", "res://misc/HELP.txt")
+	
+func _on_quit_pressed() -> void:
+	get_tree().quit()
 
 func _gfx_mode_to_label(mode: String):
 	match mode:
