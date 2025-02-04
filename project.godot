@@ -15,7 +15,11 @@ run/main_scene="res://root.tscn"
 config/auto_accept_quit=false
 config/quit_on_go_back=false
 config/features=PackedStringArray("4.3", "Mobile")
-config/icon="res://icon.svg"
+boot_splash/bg_color=Color(0.6789, 0.68727, 0.93, 1)
+boot_splash/show_image=false
+boot_splash/image="res://textures/splash.png"
+boot_splash/use_filter=false
+config/icon="res://assets/mmmm_256.png"
 
 [autoload]
 
