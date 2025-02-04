@@ -1,11 +1,15 @@
-### Sounds ###
-Sly Piano Instrumental [Loop] - NearTheAtmoshphere
-Short Elevator Music Loop - BlondPanda
-backtrack1.wav - pcmac
-Voice_Crowd_Small_Expression_Applause_Cheer_Stereo (win) - Nox_Sound
-horn_fail_wahwah_2.wav (game over) - TaranP
-Chime (key) - schreibsel
-Sound 2.mp3 by GOSFX (coin) -- https://freesound.org/s/323402/ -- License: Attribution 3.0
-Snake hissing.mp3 by schreibsel (snake) -- https://freesound.org/s/540162/ -- License: Creative Commons 0
-Steps_Fine_Snow_Or_Sand_Strong_08 by BlondPanda (quicksand) -- https://freesound.org/s/778546/ -- License: Creative Commons 0
-Hedge wall -- Lamoot -- https://opengameart.org/content/regular-hedge
+Read each line as [Usecase]/[Asset + Author]/[URL]/[License]
+	CC0 = Creative Commons 0 License
+	A3.0 = Creative Commons Attribution 3.0 Unported
+----- AUDIO -----
+Spooky Music/ Sly Piano Instrumental [Loop] by NearTheAtmoshphere/ https://freesound.org/s/707613/ CC0 
+Normal Music/ Short Elevator Music Loop by BlondPanda/ https://freesound.org/s/659889/ CC0
+Main Menu Music/ backtrack1.wav by pcmac/ https://freesound.org/s/464535/ CC0
+Game Over/ horn_fail_wahwah_2.wav by TaranP/ https://freesound.org/s/362205/ / CC0
+Key Pickup/ Chime by schreibsel/ https://freesound.org/s/539915/ / CC0
+Win Sound/ Voice_Crowd_Small_Expression_Applause_Cheer_Stereo by Nox_Sound/ https://freesound.org/s/752709/ / CC0
+Coin Pickup/ Sound 2.mp3 by GOSFX/ https://freesound.org/s/323402/ / A3.0
+Snake Hiss/ Snake hissing.mp3 by schreibsel-- https://freesound.org/s/540162/ / CC0
+Quicksand/ Steps_Fine_Snow_Or_Sand_Strong_08 by BlondPanda/ https://freesound.org/s/778546/ / CC0
+----- TEXTURES -----
+grass05.pn texture by athile/ https://opengameart.org/content/seamless-grass-textures-20-pack / CC0

@@ -65,7 +65,7 @@ func _apply_high_score(high_score: int) -> void:
 	$HighScoreLabel.text = "High Score: " + str(high_score)
 	
 func _on_credits_pressed() -> void:
-	_show_text_dialog("Credits", "res://misc/CREDITS.txt")
+	_show_text_dialog("Credits", "res://misc/CREDITS.txt", 14)
 	
 func _on_help_pressed() -> void:
 	_show_text_dialog("Help", "res://misc/HELP.txt")
@@ -87,14 +87,14 @@ func _gfx_mode_to_label(mode: String):
 			return "GFX-Ultra"
 	return ""
 
-func _show_text_dialog(title: String, path: String) -> void:
+func _show_text_dialog(title: String, path: String, font_size: int = 20) -> void:
 	var file = FileAccess.open(path, FileAccess.READ)
 	var file_str = file.get_as_text()
 	var d = AcceptDialog.new()
 	d.title = title
 	d.dialog_text = file_str
 	d.ok_button_text = "Got it!"
-	d.get_label().add_theme_font_size_override("font_size", 20)
+	d.get_label().add_theme_font_size_override("font_size", font_size)
 	d.get_ok_button().add_theme_font_size_override("font_size", 28)
 	add_child(d)
 	d.popup_centered(Vector2i(300, 200))
