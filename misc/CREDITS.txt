@@ -1,6 +1,8 @@
 Read each line as [Usecase]/[Asset + Author]/[URL]/[License]
 	CC0 = Creative Commons 0 License
 	A3.0 = Creative Commons Attribution 3.0 Unported
+	A4.0 = Creative Commons Attribution 4.0 International
+
 ----- AUDIO -----
 Spooky Music/ Sly Piano Instrumental [Loop] by NearTheAtmoshphere/ https://freesound.org/s/707613/ CC0 
 Normal Music/ Short Elevator Music Loop by BlondPanda/ https://freesound.org/s/659889/ CC0
@@ -11,5 +13,6 @@ Win Sound/ Voice_Crowd_Small_Expression_Applause_Cheer_Stereo by Nox_Sound/ http
 Coin Pickup/ Sound 2.mp3 by GOSFX/ https://freesound.org/s/323402/ / A3.0
 Snake Hiss/ Snake hissing.mp3 by schreibsel-- https://freesound.org/s/540162/ / CC0
 Quicksand/ Steps_Fine_Snow_Or_Sand_Strong_08 by BlondPanda/ https://freesound.org/s/778546/ / CC0
+Spike/Scissor.wav by jjhouse4/ https://freesound.org/s/197989/ -- A4.0
 ----- TEXTURES -----
 grass05.pn texture by athile/ https://opengameart.org/content/seamless-grass-textures-20-pack / CC0

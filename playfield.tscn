@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3 uid="uid://c5cq4nt0yl43t"]
+[gd_scene load_steps=28 format=3 uid="uid://c5cq4nt0yl43t"]
 
 [ext_resource type="Script" path="res://playfield.gd" id="1_de1dc"]
 [ext_resource type="Environment" uid="uid://cgibf3lqeqjis" path="res://map_environment_dark_scene.tres" id="3_g75ud"]
@@ -18,6 +18,7 @@
 [ext_resource type="AudioStream" uid="uid://daglhrwcvln5r" path="res://sounds/key_pickup.mp3" id="16_5rnqv"]
 [ext_resource type="AudioStream" uid="uid://bkmu6nhf5ykxx" path="res://sounds/coin.mp3" id="17_b2c3j"]
 [ext_resource type="AudioStream" uid="uid://bn84vevlohuiu" path="res://sounds/540162__schreibsel__snake-hissing.wav" id="18_qpw22"]
+[ext_resource type="AudioStream" uid="uid://dt67bpa40r0ou" path="res://sounds/197989__jjhouse4__scissor.wav" id="19_i2c6f"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_hlfi2"]
 size = Vector3(250, 0.1, 250)
@@ -99,7 +100,7 @@ size = 150.0
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 42, 1, -2)
 
 [node name="GameTimer" type="Timer" parent="."]
-wait_time = 176.0
+wait_time = 172.0
 one_shot = true
 
 [node name="HUD" type="Control" parent="."]
@@ -119,7 +120,7 @@ offset_bottom = 80.0
 grow_horizontal = 2
 theme_override_fonts/font = ExtResource("7_eeir4")
 theme_override_font_sizes/font_size = 48
-text = "0:00:0"
+text = "0:14:8"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -184,6 +185,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="LoadingContainer" type="PanelContainer" parent="HUD"]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -195,7 +197,6 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_fvyei")
 [node name="LoadingLabel" type="Label" parent="HUD/LoadingContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
-text = "Added 376 of 376"
 horizontal_alignment = 1
 uppercase = true
 
@@ -234,6 +235,9 @@ stream = ExtResource("17_b2c3j")
 
 [node name="SnakeHissPlayer" type="AudioStreamPlayer" parent="Music"]
 stream = ExtResource("18_qpw22")
+
+[node name="SpikePlayer" type="AudioStreamPlayer" parent="Music"]
+stream = ExtResource("19_i2c6f")
 
 [connection signal="on_load_changed" from="Maze" to="." method="_on_maze_on_load_changed"]
 [connection signal="on_loaded" from="Maze" to="." method="_on_maze_load_complete"]

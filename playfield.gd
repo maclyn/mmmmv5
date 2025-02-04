@@ -140,6 +140,7 @@ func _on_player_at_quicksand() -> void:
 	_round_over(false)
 	
 func _on_player_at_spike() -> void:
+	$Music/SpikePlayer.play()
 	_round_over(false)
 	
 func _on_player_at_coin() -> void:
@@ -148,6 +149,7 @@ func _on_player_at_coin() -> void:
 	_update_score_label()
 	
 func _on_game_timer_timeout() -> void:
+	$Music/LosePlayer.play()
 	_round_over(false)
 
 func _format_label_to_remaining_timer():
@@ -221,13 +223,9 @@ func _on_maze_load_complete(start_position: Vector2i):
 		round_difficulty != Constants.GameDifficulty.SPOOKY,
 		round_difficulty == Constants.GameDifficulty.SPOOKY)
 	$Sun.visible = round_difficulty != Constants.GameDifficulty.SPOOKY
-	if round_difficulty != Constants.GameDifficulty.SPOOKY:
-		$Music/NormalMusicPlayer.play()
-	else:
-		$Music/SpookyMusicPlayer.play()
+
 	$Maze.set_map_env(default_map_env if round_difficulty != Constants.GameDifficulty.SPOOKY else dark_map_env)
 	$Maze.attach_player($Player/Pivot, $Player)
-	$GameTimer.start(_max_time_to_key_ms() / 1000.0)
 	_update_loading_screen(false)
 	if $HUD/NewRoundOverlay.texture != null:
 		# Don't cut off animation if there's still time left
@@ -238,6 +236,12 @@ func _on_maze_load_complete(start_position: Vector2i):
 		var tex: Texture2D = $HUD/NewRoundOverlay.texture
 		$HUD/NewRoundOverlay.texture = null
 		$HUD/NewRoundOverlay.visible = false
+	if !Engine.is_editor_hint():
+		if round_difficulty != Constants.GameDifficulty.SPOOKY:
+			$Music/NormalMusicPlayer.play()
+		else:
+			$Music/SpookyMusicPlayer.play()
+	$GameTimer.start(_max_time_to_key_ms() / 1000.0)
 	RenderingServer.request_frame_drawn_callback(_on_first_frame)
 	
 func _on_first_frame():
@@ -274,9 +278,6 @@ func _round_over(did_win: bool = false, skip_anim: bool = false) -> void:
 	$MobileControls.visible = false
 	if did_win:
 		$Music/WinPlayer.play()
-	else:
-		if !skip_anim:
-			$Music/LosePlayer.play()
 	
 	if did_win:
 		# Dump the framebuffer into a texture
