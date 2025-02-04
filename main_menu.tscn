@@ -82,6 +82,7 @@ alignment = 1
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+focus_neighbor_bottom = NodePath("../GraphicsMode")
 theme = ExtResource("2_eh4l0")
 shortcut = SubResource("Shortcut_65fy5")
 shortcut_in_tooltip = false
@@ -90,24 +91,32 @@ text = "(N)ew Game"
 [node name="GraphicsMode" type="Button" parent="Buttons"]
 layout_mode = 2
 size_flags_vertical = 3
+focus_neighbor_top = NodePath("../NormalButton")
+focus_neighbor_bottom = NodePath("../Mute")
 theme = ExtResource("2_eh4l0")
 text = "GFX-Low"
 
 [node name="Mute" type="Button" parent="Buttons"]
 layout_mode = 2
 size_flags_vertical = 3
+focus_neighbor_top = NodePath("../GraphicsMode")
+focus_neighbor_bottom = NodePath("../Help")
 theme = ExtResource("2_eh4l0")
 text = "Mute"
 
 [node name="Help" type="Button" parent="Buttons"]
 layout_mode = 2
 size_flags_vertical = 3
+focus_neighbor_top = NodePath("../Mute")
+focus_neighbor_bottom = NodePath("../Credits")
 theme = ExtResource("2_eh4l0")
 text = "Help"
 
 [node name="Credits" type="Button" parent="Buttons"]
 layout_mode = 2
 size_flags_vertical = 3
+focus_neighbor_top = NodePath("../Help")
+focus_neighbor_bottom = NodePath("../Quit")
 theme = ExtResource("2_eh4l0")
 text = "Credits"
 

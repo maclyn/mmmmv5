@@ -8,6 +8,7 @@ func _ready() -> void:
 	_apply_mute_mode(_saver.get_is_muted())
 	_apply_gfx_mode(_saver.get_graphics_mode())
 	_apply_high_score(_saver.get_high_score())
+	$Buttons/NormalButton.grab_focus()
 	
 func _on_visibility_changed() -> void:
 	if visible:
