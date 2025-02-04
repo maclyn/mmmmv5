@@ -10,7 +10,7 @@ func rotate_mesh(rotation_rad: float):
 	$hedge_wall.rotation.z = rotation_rad
 
 func add_map(tex: Texture2D, pin_x_units: float, pin_y_units: float):
-	var new_map = load("res://map_frame.tscn").instantiate()
+	var new_map = load("res://models/derived/map_frame.tscn").instantiate()
 	new_map.replace_map_material(tex, pin_x_units, pin_y_units)
 	$MapContainer.add_child(new_map)
 	_is_map_showing = true

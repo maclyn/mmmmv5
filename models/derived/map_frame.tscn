@@ -1,9 +1,9 @@
 [gd_scene load_steps=9 format=4 uid="uid://dryg3y1f6logi"]
 
-[ext_resource type="PackedScene" uid="uid://6fny1l3cjwr1" path="res://models/map_frame.glb" id="1_2jcg4"]
-[ext_resource type="Script" path="res://map_frame.gd" id="2_ve1w0"]
-[ext_resource type="Shader" path="res://map.gdshader" id="3_pgwon"]
-[ext_resource type="Texture2D" uid="uid://weoiaiefxjih" path="res://textures/map_marker.png" id="5_8y7ec"]
+[ext_resource type="PackedScene" uid="uid://6fny1l3cjwr1" path="res://models/map_frame.glb" id="1_sxlix"]
+[ext_resource type="Script" path="res://map_frame.gd" id="2_7ul2h"]
+[ext_resource type="Shader" path="res://shaders/map.gdshader" id="3_fn78y"]
+[ext_resource type="Texture2D" uid="uid://weoiaiefxjih" path="res://textures/map_marker.png" id="4_v118u"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5lyr7"]
 resource_name = "Frame_Material"
@@ -14,7 +14,7 @@ roughness = 0.613636
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_jeqjv"]
 resource_local_to_scene = true
 render_priority = 0
-shader = ExtResource("3_pgwon")
+shader = ExtResource("3_fn78y")
 shader_parameter/map_size_units = 124.0
 shader_parameter/maze_size_units = 80.0
 shader_parameter/x_center_units = 40.0
@@ -22,7 +22,7 @@ shader_parameter/y_center_units = 40.0
 shader_parameter/pin_x_units = 2.0
 shader_parameter/pin_y_units = 2.0
 shader_parameter/flip_pin_units = true
-shader_parameter/pin = ExtResource("5_8y7ec")
+shader_parameter/pin = ExtResource("4_v118u")
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_2oeql"]
 _surfaces = [{
@@ -79,9 +79,9 @@ _surfaces = [{
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_2oeql")
 
-[node name="map_frame" instance=ExtResource("1_2jcg4")]
+[node name="map_frame" instance=ExtResource("1_sxlix")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0)
-script = ExtResource("2_ve1w0")
+script = ExtResource("2_7ul2h")
 
 [node name="Cube" parent="." index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.0065, 0, 0)

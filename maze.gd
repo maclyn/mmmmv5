@@ -8,7 +8,7 @@ signal player_in_quicksand()
 signal player_out_of_quicksand()
 
 var maze_block_scene = preload("res://maze_block.tscn")
-var snake_scene = preload("res://snek.tscn")
+var snake_scene = preload("res://models/derived/snek.tscn")
 var bird_scene = preload("res://birb.tscn")
 
 # Set to true to make it all possible block types/shapes visible early in 

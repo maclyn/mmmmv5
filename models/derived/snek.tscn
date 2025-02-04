@@ -1,7 +1,7 @@
 [gd_scene load_steps=9 format=4 uid="uid://bd2uh8l2mcb1g"]
 
-[ext_resource type="Script" path="res://snek.gd" id="1_glx8t"]
-[ext_resource type="PackedScene" uid="uid://dvsw8ngvesm2x" path="res://models/snek.glb" id="1_ow6oc"]
+[ext_resource type="Script" path="res://snek.gd" id="1_ocp1a"]
+[ext_resource type="PackedScene" uid="uid://dvsw8ngvesm2x" path="res://models/snek.glb" id="2_4f6uu"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ftojm"]
 size = Vector3(2.62314, 0.117279, 0.147339)
@@ -106,13 +106,13 @@ shadow_mesh = SubResource("ArrayMesh_41o7g")
 [node name="Snek" type="AnimatableBody3D" groups=["enemy_group"]]
 collision_layer = 8
 collision_mask = 2
-script = ExtResource("1_glx8t")
+script = ExtResource("1_ocp1a")
 
 [node name="SnekCollider" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0251312, 0.0788737, 6.10352e-05)
 shape = SubResource("BoxShape3D_ftojm")
 
-[node name="SnekMesh" parent="." instance=ExtResource("1_ow6oc")]
+[node name="SnekMesh" parent="." instance=ExtResource("2_4f6uu")]
 transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0.198364, 0.060313, 0)
 
 [node name="body" parent="SnekMesh" index="0"]

@@ -7,7 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://3mh0fvm1jcci" path="res://player.tscn" id="6_qmkiw"]
 [ext_resource type="FontFile" uid="uid://b88ckwrmql0l8" path="res://assets/Flexi_IBM_VGA_False_437.ttf" id="7_eeir4"]
 [ext_resource type="Texture2D" uid="uid://cnftnuevfyaxl" path="res://textures/player_position.png" id="8_5jnvf"]
-[ext_resource type="Shader" path="res://pixelize.gdshader" id="9_fxjji"]
+[ext_resource type="Shader" path="res://shaders/pixelize.gdshader" id="9_fxjji"]
 [ext_resource type="PackedScene" uid="uid://dvaw2npxvr5ig" path="res://game_over.tscn" id="9_gsmfs"]
 [ext_resource type="PackedScene" uid="uid://bcbm4lb2vq0x6" path="res://mobile_controls.tscn" id="10_8lkyr"]
 [ext_resource type="AudioStream" uid="uid://x1ak4jiyioge" path="res://sounds/normal_music.wav" id="12_noj5f"]
