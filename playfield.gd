@@ -221,11 +221,10 @@ func _on_maze_load_complete(start_position: Vector2i):
 		round_difficulty != Constants.GameDifficulty.SPOOKY,
 		round_difficulty == Constants.GameDifficulty.SPOOKY)
 	$Sun.visible = round_difficulty != Constants.GameDifficulty.SPOOKY
-	if !Globals.is_debug():
-		if round_difficulty != Constants.GameDifficulty.SPOOKY:
-			$Music/NormalMusicPlayer.play()
-		else:
-			$Music/SpookyMusicPlayer.play()
+	if round_difficulty != Constants.GameDifficulty.SPOOKY:
+		$Music/NormalMusicPlayer.play()
+	else:
+		$Music/SpookyMusicPlayer.play()
 	$Maze.set_map_env(default_map_env if round_difficulty != Constants.GameDifficulty.SPOOKY else dark_map_env)
 	$Maze.attach_player($Player/Pivot, $Player)
 	$GameTimer.start(_max_time_to_key_ms() / 1000.0)

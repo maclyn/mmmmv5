@@ -239,7 +239,6 @@ func _configure_grass():
 			instance_count_for_detail_level = 3600
 		"ultra":
 			instance_count_for_detail_level = 4900
-
 	
 	var mesh: MultiMesh = $GrassMultiMesh.multimesh
 	mesh.visible_instance_count = instance_count_for_detail_level
@@ -303,29 +302,25 @@ func _configure_hedge() -> void:
 	match detail_level:
 		"min":
 			instance_count_for_detail_level = 0
-			instance_count_for_all_corners = 0
 			corner_face_instance_count_width = 0
 			corner_face_instance_count_height = 0
 		"low":
 			instance_count_for_detail_level = 256
-			instance_count_for_all_corners = 256
 			corner_face_instance_count_width = 1
 			corner_face_instance_count_height = 16
 		"medium":
 			instance_count_for_detail_level = 576
-			instance_count_for_all_corners = 384
 			corner_face_instance_count_width = 1
 			corner_face_instance_count_height = 24
 		"high":
 			instance_count_for_detail_level = 1600
-			instance_count_for_all_corners = 1280
 			corner_face_instance_count_width = 2
 			corner_face_instance_count_height = 40
 		"ultra":
-			instance_count_for_detail_level = 2304
-			instance_count_for_all_corners = 1536
-			corner_face_instance_count_width = 3
+			instance_count_for_detail_level = 2304 # 48x48
+			corner_face_instance_count_width = 3 
 			corner_face_instance_count_height = 48
+	instance_count_for_all_corners = corner_face_instance_count_height * corner_face_instance_count_width * 16
 	_configure_hedge_wall($HedgeMultiMeshes/HedgeWallWMultiMesh, false, false, instance_count_for_detail_level)
 	_configure_hedge_wall($HedgeMultiMeshes/HedgeWallEMultiMesh, false, true, instance_count_for_detail_level)
 	_configure_hedge_wall($HedgeMultiMeshes/HedgeWallSMultiMesh, true, false, instance_count_for_detail_level)
