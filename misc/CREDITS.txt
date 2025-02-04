@@ -5,8 +5,9 @@ Read each line as [Usecase]/[Asset + Author]/[URL]/[License]
 
 ----- AUDIO -----
 Spooky Music/ Sly Piano Instrumental [Loop] by NearTheAtmoshphere/ https://freesound.org/s/707613/ CC0 
-Normal Music/ Short Elevator Music Loop by BlondPanda/ https://freesound.org/s/659889/ CC0
-Main Menu Music/ backtrack1.wav by pcmac/ https://freesound.org/s/464535/ CC0
+Normal Music/ Relaxing Chiptune Music by Migfus20/ https://freesound.org/s/683268/ A4.0
+Normal Music (alt)/ Relaxing Chiptune Music by Migfus20/ https://freesound.org/s/679054/ A4.0
+Menu Music/ Chiptune Adventure Music by Migfus20/ https://freesound.org/s/683267/ A4.0
 Game Over/ horn_fail_wahwah_2.wav by TaranP/ https://freesound.org/s/362205/ / CC0
 Key Pickup/ Chime by schreibsel/ https://freesound.org/s/539915/ / CC0
 Win Sound/ Voice_Crowd_Small_Expression_Applause_Cheer_Stereo by Nox_Sound/ https://freesound.org/s/752709/ / CC0

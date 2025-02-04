@@ -237,10 +237,17 @@ func _on_maze_load_complete(start_position: Vector2i):
 		$HUD/NewRoundOverlay.texture = null
 		$HUD/NewRoundOverlay.visible = false
 	if !Engine.is_editor_hint():
-		if round_difficulty != Constants.GameDifficulty.SPOOKY:
+		if round_difficulty == Constants.GameDifficulty.EASY:
 			$Music/NormalMusicPlayer.play()
-		else:
+		elif round_difficulty == Constants.GameDifficulty.NORMAL:
+			$Music/NormalMusicPlayerAlt.play()
+		elif round_difficulty == Constants.GameDifficulty.SPOOKY:
 			$Music/SpookyMusicPlayer.play()
+		else:
+			if (round / 2) % 2 == 0:
+				$Music/NormalMusicPlayer.play()
+			else:
+				$Music/NormalMusicPlayerAlt.play()
 	$GameTimer.start(_max_time_to_key_ms() / 1000.0)
 	RenderingServer.request_frame_drawn_callback(_on_first_frame)
 	
@@ -274,6 +281,7 @@ func _round_over(did_win: bool = false, skip_anim: bool = false) -> void:
 	$GameTimer.stop()
 	$Music/SpookyMusicPlayer.stop()
 	$Music/NormalMusicPlayer.stop()
+	$Music/NormalMusicPlayerAlt.stop()
 	$Player.die()
 	$MobileControls.visible = false
 	if did_win:

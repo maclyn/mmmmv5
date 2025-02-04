@@ -19,10 +19,10 @@ func _unhandled_input(_event: InputEvent) -> void:
 		get_tree().quit()
 
 func show_main_menu():
-	$Music.play()
+	$MenuMusic.play()
 	
 func hide_main_menu():
-	$Music.stop()
+	$MenuMusic.stop()
 	
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_GO_BACK_REQUEST && visible && Globals.on_back_notif_receieved():
