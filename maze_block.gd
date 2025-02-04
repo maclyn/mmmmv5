@@ -614,6 +614,21 @@ func _on_quick_sand_body_exited(body: Node3D) -> void:
 	if body.is_in_group("player_group"):
 		print("Player out of quicksand!")
 		player_out_of_quicksand.emit()
+
+func _on_block_visible_notifier_screen_entered() -> void:
+	_set_decal_visibility(true)
+
+func _on_block_visible_notifier_screen_exited() -> void:
+	_set_decal_visibility(false)
+
+func _set_decal_visibility(is_visible: bool) -> void:
+	$GrassMultiMesh.visible = !_has_quicksand && is_visible
+	$QuickSandGrassMultiMesh.visible = _has_quicksand && is_visible
+	$HedgeMultiMeshes/HedgeCornerMultiMesh.visible = is_visible
+	$HedgeMultiMeshes/HedgeWallNMultiMesh.visible = $HedgeWallN.visible && is_visible
+	$HedgeMultiMeshes/HedgeWallSMultiMesh.visible = $HedgeWallS.visible && is_visible
+	$HedgeMultiMeshes/HedgeWallEMultiMesh.visible = $HedgeWallE.visible && is_visible
+	$HedgeMultiMeshes/HedgeWallWMultiMesh.visible = $HedgeWallW.visible && is_visible
 		
 func _hedge_decal_scale() -> float:
 	var size = 5.0
