@@ -13,6 +13,7 @@ const HIDE_WALL_DECALS = false || DISABLE_DECALS
 const HIDE_CORNERS = false
 const HIDE_CORNER_DECALS = false || DISABLE_DECALS
 const DISABLE_WALL_COLLISIONS = false
+const DISABLE_OCCLUSION = false
 
 # Block state
 var _is_key: bool = false
@@ -86,18 +87,22 @@ func configure_walls(north: bool, east: bool, south: bool, west: bool):
 	$HedgeWallN.visible = north && !HIDE_WALLS
 	$HedgeMultiMeshes/HedgeWallNMultiMesh.visible = north && !HIDE_WALL_DECALS
 	$HedgeWallN.get_node("CollisionShape3D").disabled = !north || DISABLE_WALL_COLLISIONS
+	$Occluders/OccluderN.visible = north && !DISABLE_OCCLUSION
 	
 	$HedgeWallE.visible = east && !HIDE_WALLS
 	$HedgeMultiMeshes/HedgeWallEMultiMesh.visible = east && !HIDE_WALL_DECALS
 	$HedgeWallE.get_node("CollisionShape3D").disabled = !east || DISABLE_WALL_COLLISIONS
+	$Occluders/OccluderE.visible = east && !DISABLE_OCCLUSION
 	
 	$HedgeWallS.visible = south && !HIDE_WALLS
 	$HedgeMultiMeshes/HedgeWallSMultiMesh.visible = south && !HIDE_WALL_DECALS
 	$HedgeWallS.get_node("CollisionShape3D").disabled = !south || DISABLE_WALL_COLLISIONS
+	$Occluders/OccluderS.visible = south && !DISABLE_OCCLUSION
 	
 	$HedgeWallW.visible = west && !HIDE_WALLS
 	$HedgeMultiMeshes/HedgeWallWMultiMesh.visible = west && !HIDE_WALL_DECALS
 	$HedgeWallW.get_node("CollisionShape3D").disabled = !west || DISABLE_WALL_COLLISIONS
+	$Occluders/OccluderW.visible = west && !DISABLE_OCCLUSION
 	
 	$HedgeCornerNE.visible = !HIDE_CORNERS
 	$HedgeCornerNW.visible = !HIDE_CORNERS
