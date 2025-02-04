@@ -415,7 +415,7 @@ func _configure_hedge_wall(
 	# Each wall will have one fixed unit (the "edge" of the wall)
 	if is_xy_plane:
 		if is_e:
-			base_origin.z = -1.9 # -1.8 # + sin(Time.get_ticks_msec() / 1000.0)
+			base_origin.z = -1.9 # Not sure why, but this works
 		else:
 			base_origin.z = 1.8
 	else:
@@ -429,11 +429,9 @@ func _configure_hedge_wall(
 	var dist_between_units_x_half = dist_between_units_x / 2.0
 	var dist_between_units_y = 4.0 / units_per_edge
 	var dist_between_units_y_half = dist_between_units_y / 2.0
-	var start_pos_x = 0.2
-	var start_pos_y = dist_between_units_y / 2.0
 	var last_idx = 0
 	var decal_scale = _hedge_decal_scale()
-	var half_decal_size = _hedge_decal_rough_size()
+	var half_decal_size = _hedge_decal_rough_size() / 2.0
 	for i in units_per_edge:
 		for y in units_per_edge:
 			# Choose point on face
@@ -442,7 +440,7 @@ func _configure_hedge_wall(
 			var idx = (i * units_per_edge) + y
 			last_idx = idx
 			var origin = Vector3(base_origin)
-			var i_pos = start_pos_x + (i * dist_between_units_x) - 2.0
+			var i_pos = dist_between_units_x_half + (i * dist_between_units_x) - 1.8
 			if not DISABLE_JITTER:
 				i_pos += randf_range(-dist_between_units_x_half, dist_between_units_x_half)
 			if is_xy_plane:
@@ -450,7 +448,7 @@ func _configure_hedge_wall(
 			else:
 				origin.z = i_pos
 			# Choose y point
-			var y_pos = start_pos_y + (y * dist_between_units_y) - half_decal_size - 2.0
+			var y_pos = (y * dist_between_units_y) + dist_between_units_y_half - half_decal_size - 2.0
 			if not DISABLE_JITTER:
 				y_pos += randf_range(-dist_between_units_y_half, dist_between_units_y_half)
 			y_pos = clamp(y_pos, -2.0 + half_decal_size, 2.0 - half_decal_size)
@@ -513,7 +511,6 @@ func _apply_hedge_around_corner(
 	var space_between_width_items = 0.20 / (item_count_width)
 	var half_width = space_between_width_items / 2.0
 	var decal_scale = _hedge_decal_scale()
-	var half_decal_scale = decal_scale / 2.0
 	var half_decal_size = _hedge_decal_rough_size() / 2.0
 	for width_idx in item_count_width:
 		for height_idx in item_count_height:
@@ -522,10 +519,11 @@ func _apply_hedge_around_corner(
 			var y_val = (height_idx * space_between_height_items) + half_height - half_decal_size - 2.0
 			if !DISABLE_JITTER:
 				y_val += randf_range(-half_height, half_height)
-			var xz_val = xz_start + (width_idx * space_between_width_items) + half_width - half_decal_size
+			var xz_val = xz_start + (width_idx * space_between_width_items) + half_width
 			if !DISABLE_JITTER:
 				xz_val += randf_range(-space_between_width_items, space_between_width_items)
 			# Clamp values already account for the size of the decal
+			
 			xz_val = \
 				clamp(
 					xz_val,
