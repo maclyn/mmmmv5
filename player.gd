@@ -10,10 +10,12 @@ signal at_coin()
 signal cheat()
 signal look_direction_changed(position: Vector3, rotation_y: float)
 
+const MOUSE_SENSITIVITY = 0.0007
+const JOYSTICK_SENSITIVITY = 0.04
+
 var camera_sun = preload("res://player_camera_sun.tscn")
 var camera_moon = preload("res://player_camera_moon.tscn")
 
-var sensitivity = 0.0007
 var min_angle = -PI / 2
 var max_angle = PI / 2
 
@@ -57,8 +59,8 @@ func bird_release():
 	captured_by_bird = false
 	
 func external_x_movement(delta_x: float):
-	look_rotation.y -= (delta_x * sensitivity)
-	look_rotation.x -= delta_x * sensitivity
+	look_rotation.y -= (delta_x * MOUSE_SENSITIVITY)
+	look_rotation.x -= delta_x * MOUSE_SENSITIVITY
 	look_rotation.x = clamp(look_rotation.x, min_angle, max_angle)
 
 func attach_ground(ground: Node3D):
@@ -97,8 +99,11 @@ func _physics_process(delta: float) -> void:
 		velocity.y = JUMP_VELOCITY
 
 	if not in_quicksand:
-		var input_dir := Input.get_vector("strafe_left", "strafe_right", "forward", "backwards")
-		var direction := (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+		var kb_input_dir := Input.get_vector("strafe_left", "strafe_right", "forward", "backwards")
+		var joystick_input_dir := Input.get_vector("joystick_left", "joystick_right", "joystick_up", "joystick_down")
+		var use_joystick = !joystick_input_dir.is_zero_approx()
+		var chosen_input_dir = joystick_input_dir if use_joystick else kb_input_dir
+		var direction := (transform.basis * Vector3(chosen_input_dir.x, 0, chosen_input_dir.y)).normalized()
 		var speed = SPEED if Input.is_action_pressed("walk") else RUN_SPEED
 		if direction:
 			velocity.x = direction.x * speed
@@ -144,13 +149,20 @@ func _physics_process(delta: float) -> void:
 			die()
 			at_quicksand.emit()
 	
+	if Input.is_action_pressed("right_joystick_left") || Input.is_action_pressed("right_joystick_right"):
+		var right_stick_vector = Input.get_vector("right_joystick_left", "right_joystick_right", "", "")
+		var delta_x = right_stick_vector.x
+		look_rotation.y -= (delta_x * JOYSTICK_SENSITIVITY)
+		look_rotation.x -= delta_x * JOYSTICK_SENSITIVITY
+		look_rotation.x = clamp(look_rotation.x, min_angle, max_angle)
+		
 	_process_look(delta)
 	
 func _input(event: InputEvent) -> void:
 	if Engine.is_editor_hint():
 		return
 	if event is InputEventMouseMotion and !Globals.is_mobile():
-		look_rotation.y -= (event.relative.x * sensitivity)
+		look_rotation.y -= (event.relative.x * MOUSE_SENSITIVITY)
 
 func _unhandled_input(_event: InputEvent) -> void:
 	if Engine.is_editor_hint() || !Globals.is_debug():
