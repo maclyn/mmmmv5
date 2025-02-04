@@ -109,7 +109,7 @@ func _physics_process(delta: float) -> void:
 
 		# Debug purposes only
 		var debug_dir := Input.get_vector("debug_east", "debug_west", "debug_south", "debug_north")
-		if debug_dir.length() > 0:
+		if debug_dir.length() > 0 && Globals.is_debug():
 			var debug_direction := (transform.basis * Vector3(debug_dir.x, 0, debug_dir.y)).normalized()
 			speed = RUN_SPEED * 2
 			velocity.x = debug_direction.x * speed

@@ -3,16 +3,22 @@ extends Control
 signal h_swipe(delta_x: float)
 signal main_menu()
 
-const DEBUG_MOBILE_CONTROLS = false
+const DEBUG_MOBILE_CONTROLS = true
 
 const UNSET_TOUCH_IDX = -1
-const RUN_BOUNDARY_PCT = 0.15
 const DEAD_ZONE_PCT = 0.05
 
 var joystick_touch_down_idx = UNSET_TOUCH_IDX
 var jump_touch_down_idx = UNSET_TOUCH_IDX
 var drag_idx = UNSET_TOUCH_IDX
 var drag_idx_last_pos = Vector2.ZERO
+
+var _start_position_joystick = Vector2.ZERO
+var _joystick_size = 0.0
+
+func _ready() -> void:
+	_start_position_joystick = $JoystickRect.position
+	_joystick_size = $JoystickRect.size.x
 
 func _notification(what: int) -> void:
 	if not visible:
@@ -44,12 +50,12 @@ func _input(event: InputEvent) -> void:
 			# Equivalent to ACTION_UP
 			if event.index == joystick_touch_down_idx:
 				joystick_touch_down_idx = UNSET_TOUCH_IDX
-				_release_key("walk")
-				_release_key("backwards")
-				_release_key("forward")
-				_release_key("strafe_left")
-				_release_key("strafe_right")
+				_release_key("joystick_right")
+				_release_key("joystick_left")
+				_release_key("joystick_up")
+				_release_key("joystick_down")
 				_set_control_is_pressed($JoystickRect, false)
+				$JoystickRect.position = _start_position_joystick
 			elif event.index == jump_touch_down_idx:
 				jump_touch_down_idx = UNSET_TOUCH_IDX
 				_release_key("jump")
@@ -69,31 +75,35 @@ func _process_finger_at_point(event: InputEvent) -> void:
 		if DEBUG_MOBILE_CONTROLS:
 			print("X: " + str(pct_x) + " Y:" + str(pct_y))
 		
-		var should_run = abs(pct_x - 0.5) > RUN_BOUNDARY_PCT \
-			|| abs(pct_y - 0.5) > RUN_BOUNDARY_PCT
-		if should_run:
-			_release_key("walk")
-		else:
-			_press_key("walk")
-		
 		if abs(pct_x - 0.5) > DEAD_ZONE_PCT:
-			_release_key("backwards")
-			_release_key("forward")
 			if pct_x < 0.5:
-				_release_key("strafe_right")
-				_press_key("strafe_left")
+				_release_key("joystick_right")
+				_press_key_with_strength("joystick_left", abs(pct_x - 0.5) / 0.5)
 			else:
-				_release_key("strafe_left")
-				_press_key("strafe_right")
-		elif abs(pct_y - 0.5) > DEAD_ZONE_PCT:
-			_release_key("strafe_left")
-			_release_key("strafe_right")
-			if pct_y > 0.5:
-				_release_key("forward")
-				_press_key("backwards")
+				_release_key("joystick_left")
+				_press_key_with_strength("joystick_right", abs(pct_x - 0.5) / 0.5)
+		else:
+			_release_key("joystick_left")
+			_release_key("joystick_right")
+				
+		if abs(pct_y - 0.5) > DEAD_ZONE_PCT:
+			if pct_y < 0.5:
+				_release_key("joystick_down")
+				_press_key_with_strength("joystick_up", abs(pct_y - 0.5) / 0.5)
 			else:
-				_release_key("backwards")
-				_press_key("forward")
+				_release_key("joystick_up")
+				_press_key_with_strength("joystick_down", abs(pct_y - 0.5) / 0.5)
+		else:
+			_release_key("joystick_up")
+			_release_key("joystick_down")
+			
+		# Move the joystick to match position
+		$JoystickRect.set_position(
+			Vector2(
+				_start_position_joystick.x + ((pct_x - 0.5) * (_joystick_size / 2.0)),
+				_start_position_joystick.y + ((pct_y - 0.5) * (_joystick_size / 2.0)),
+			)
+		)
 	elif event.index == drag_idx:
 		var x_range = get_viewport_rect().size.abs().x
 		if x_range <= 0:
@@ -112,7 +122,7 @@ func _is_point_in_control(point: Vector2, control: Control) -> bool:
 	return is_in_x and is_in_y
 	
 func _pct_of_x(point: Vector2) -> float:
-	var control = $JoystickRect
+	var control = $JoystickBG
 	var control_pos = control.global_position
 	var control_size = control.size
 	var control_scale = control.get_global_transform_with_canvas().get_scale()
@@ -154,6 +164,11 @@ func _press_key(key: String):
 	if DEBUG_MOBILE_CONTROLS:
 		print("Pressing " + key)
 	Input.action_press(key)
+	
+func _press_key_with_strength(key: String, strength: float):
+	if DEBUG_MOBILE_CONTROLS:
+		print("Pressing " + key + " with " + str(strength))
+	Input.action_press(key, strength)
 	
 func _release_key(key: String):
 	if DEBUG_MOBILE_CONTROLS:
