@@ -47,12 +47,16 @@ func set_graphics_mode(mode: String):
 		"low":
 			msaa_value = Viewport.MSAA_DISABLED
 		"medium":
-			msaa_value = Viewport.MSAA_2X
+			msaa_value = Viewport.MSAA_DISABLED
 		"high":
-			msaa_value = Viewport.MSAA_4X
+			msaa_value = Viewport.MSAA_2X
 		"ultra":
-			msaa_value = Viewport.MSAA_8X
+			msaa_value = Viewport.MSAA_4X
 	get_viewport().msaa_3d = msaa_value
+	if mode == "medium":
+		get_viewport().screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA
+	else:
+		get_viewport().screen_space_aa = Viewport.SCREEN_SPACE_AA_DISABLED
 	
 	# Weirdly stuttery without these
 	Engine.physics_jitter_fix = 0

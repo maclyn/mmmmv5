@@ -318,13 +318,13 @@ func _configure_hedge() -> void:
 			corner_face_instance_count_height = 24
 		"high":
 			instance_count_for_detail_level = 1600
-			instance_count_for_all_corners = 1152
+			instance_count_for_all_corners = 1280
 			corner_face_instance_count_width = 2
-			corner_face_instance_count_height = 36
+			corner_face_instance_count_height = 40
 		"ultra":
 			instance_count_for_detail_level = 2304
 			instance_count_for_all_corners = 1536
-			corner_face_instance_count_width = 2
+			corner_face_instance_count_width = 3
 			corner_face_instance_count_height = 48
 	_configure_hedge_wall($HedgeMultiMeshes/HedgeWallWMultiMesh, false, false, instance_count_for_detail_level)
 	_configure_hedge_wall($HedgeMultiMeshes/HedgeWallEMultiMesh, false, true, instance_count_for_detail_level)
@@ -350,7 +350,7 @@ func _configure_hedge() -> void:
 		1.80, -2.0, 1.80, -2.0, # Good
 		-2.0, -2.0, -2.0, -2.0 # Good
 	]
-	var half_decal_size = _hedge_decal_rough_size() / 2.0
+	var half_decal_size = _hedge_decal_rough_size() / 2.0 / 2.0
 	var xz_clamp_starts = [
 		1.80 , 1.80, 1.80, 1.80,
 		-2.00, 1.80, -2.00, 1.80,
@@ -626,13 +626,13 @@ func _hedge_decal_scale() -> float:
 		"min":
 			size = 0.0
 		"low":
-			size = 10.0
+			size = 12.0
 		"medium":
-			size = 8.0
+			size = 10.0
 		"high":
-			size = 6.0
+			size = 8.0
 		"ultra":
-			size = 5.0
+			size = 8.0
 	return size
 	
 func _hedge_decal_rough_size() -> float:
