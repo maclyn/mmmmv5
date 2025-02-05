@@ -60,13 +60,13 @@ func set_graphics_mode(mode: String):
 	
 	# Weirdly stuttery without these
 	Engine.physics_jitter_fix = 0
-	if mode != "min" && OS.get_name() != "Web":
+	if mode != "min" && Globals.is_web():
 		Input.set_use_accumulated_input(false)
 	
 	# This makes the game a lot more responsive (at the cost of CPU consumption, but
 	# physics on this game are really easy, so we can eat it in most cases 
 	var refresh = DisplayServer.screen_get_refresh_rate()
-	if mode != "low" && OS.get_name() != "Web":
+	if mode != "low" && Globals.is_web():
 		Engine.physics_ticks_per_second = DisplayServer.screen_get_refresh_rate()
 	
 func get_graphics_mode():
@@ -74,6 +74,12 @@ func get_graphics_mode():
 
 func is_mobile() -> bool:
 	return OS.get_name() == "Android" || OS.get_name() == "iOS" || emulate_mobile()
+	
+func is_web() -> bool:
+	return OS.get_name() == "Web" || emulate_web()
+	
+func emulate_web() -> bool:
+	return true
 	
 func emulate_mobile() -> bool:
 	return false
@@ -91,13 +97,17 @@ func on_back_notif_receieved() -> bool:
 	return should_handle
 
 func _ready() -> void:
-	#ProjectSettings.set_restart_if_changed("input_devices/pointing/emulate_touch_from_mouse", true)
-	#ProjectSettings.set_setting("input_devices/pointing/emulate_touch_from_mouse", emulate_mobile())
-	#ProjectSettings.save()
+	if !is_web():
+		_start_time_s = Time.get_unix_time_from_system()
+		_shader_update_thread = Thread.new()
+		_shader_update_thread.start(_update_shader_time)
+	else:
+		print("WARNING: Inside a web project; updating shader global time on main thread")
 	
-	_start_time_s = Time.get_unix_time_from_system()
-	_shader_update_thread = Thread.new()
-	_shader_update_thread.start(_update_shader_time)
+func _process(delta: float) -> void:
+	if is_web():
+		#_update_shader_time()
+		pass
 		
 func _update_shader_time() -> void:
 	while not _shutting_down:

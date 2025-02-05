@@ -8,7 +8,8 @@ func _ready() -> void:
 	_apply_mute_mode(_saver.get_is_muted())
 	_apply_gfx_mode(_saver.get_graphics_mode())
 	_apply_high_score(_saver.get_high_score())
-	$Buttons/NormalButton.grab_focus()
+	$Buttons/Quit.visible = !Globals.is_web()
+	show_main_menu()
 	
 func _on_visibility_changed() -> void:
 	if visible:
@@ -20,6 +21,7 @@ func _unhandled_input(_event: InputEvent) -> void:
 
 func show_main_menu():
 	$MenuMusic.play()
+	$Buttons/NormalButton.grab_focus()
 	
 func hide_main_menu():
 	$MenuMusic.stop()
@@ -52,7 +54,10 @@ func _on_graphics_mode_pressed() -> void:
 		"medium":
 			new_mode = "high"
 		"high":
-			new_mode = "ultra"
+			if Globals.is_web():
+				new_mode = "min"
+			else:
+				new_mode = "ultra"
 		"ultra":
 			new_mode = "min"
 	_saver.set_graphics_mode(new_mode)
@@ -72,6 +77,8 @@ func _on_help_pressed() -> void:
 	_show_text_dialog("Help", "res://misc/HELP.txt")
 	
 func _on_quit_pressed() -> void:
+	if Globals.is_web():
+		return
 	get_tree().quit()
 
 func _gfx_mode_to_label(mode: String):

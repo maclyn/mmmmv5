@@ -212,8 +212,12 @@ class MazeBlock:
 
 func build_new_maze(difficulty: Constants.GameDifficulty):
 	self.difficulty = difficulty
-	gen_thread = Thread.new()
-	gen_thread.start(build_new_maze_impl, Thread.PRIORITY_HIGH)
+	if Globals.is_web():
+		print("WARNING: Running in browser; threaded maze gen disabled")
+		build_new_maze_impl()
+	else:
+		gen_thread = Thread.new()
+		gen_thread.start(build_new_maze_impl, Thread.PRIORITY_HIGH)
 	
 func join_maze_gen_thread(start_position: Vector2i):
 	if gen_thread != null:
@@ -224,7 +228,6 @@ func join_maze_gen_thread(start_position: Vector2i):
 	$MapViewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 	if Engine.is_editor_hint():
 		print("Completed setup")
-		# show_path_out()
 	print("Background thread joined")
 		
 func build_new_maze_impl():
