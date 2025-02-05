@@ -230,7 +230,7 @@ func _configure_grass():
 	var detail_level = _get_detail_level()
 	if DISABLE_DECALS:
 		detail_level = "min"
-	print("Configuring grass with detail_level " + detail_level)
+	#print("Configuring grass with detail_level " + detail_level)
 	var instance_count_for_detail_level = 16
 	var qs_instance_count_for_detail_level = 16
 	match detail_level:
@@ -268,7 +268,7 @@ func _configure_grass():
 				var grass_height = randf_range(1.5, 2.0)
 				transform.basis = Basis.IDENTITY.rotated(Vector3.UP, randf_range(0.0, TAU)).scaled(Vector3(grass_width_length, grass_height, grass_width_length))
 				mesh.set_instance_transform(idx, transform)
-		print("Configured " + str(last_idx + 1) + " grass clumps")
+		#print("Configured " + str(last_idx + 1) + " grass clumps")
 	
 	# Quicksand covers 30.6% of the area
 	var qsmesh = $QuickSandGrassMultiMesh.multimesh
@@ -395,7 +395,7 @@ func _configure_hedge() -> void:
 			corner_face_instance_count_height
 		)
 
-	print("Hedge corner decals setup: " + str(decals_setup_count))
+	#print("Hedge corner decals setup: " + str(decals_setup_count))
 	$HedgeMultiMeshes/HedgeCornerMultiMesh.multimesh.visible_instance_count = decals_setup_count
 
 # is_x is really "plants on the xy plane"
@@ -491,7 +491,7 @@ func _configure_hedge_wall(
 			basis = basis.scaled(Vector3(scale, scale, scale))
 			
 			mesh.set_instance_transform(idx, Transform3D(basis, origin))
-	print("Configured " + str(last_idx + 1) + " hedge plant clumps")
+	#print("Configured " + str(last_idx + 1) + " hedge plant clumps")
 
 # Returns: number of items setup
 func _apply_hedge_around_corner(

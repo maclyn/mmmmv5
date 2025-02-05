@@ -211,7 +211,8 @@ func _start_new_round() -> void:
 	$Maze.build_new_maze(round_difficulty)
 	
 func _on_maze_load_complete(start_position: Vector2i):
-	$MobileControls.visible = !Engine.is_editor_hint() && Globals.is_mobile()
+	if Globals.is_mobile() || Globals.is_web():
+		$MobileControls.show_self()
 	$Player.position.x = start_position.x
 	$Player.position.z = start_position.y
 	$Player.respawn()
@@ -250,7 +251,7 @@ func _on_maze_load_complete(start_position: Vector2i):
 				$Music/NormalMusicPlayerAlt.play()
 	$GameTimer.start(_max_time_to_key_ms() / 1000.0)
 	RenderingServer.request_frame_drawn_callback(_on_first_frame)
-	
+
 func _on_first_frame():
 	$Maze.on_first_frame()
 	var overhead_image: Image = $Maze.get_overhead_camera_image().duplicate()
@@ -327,12 +328,12 @@ func _on_mobile_controls_main_menu() -> void:
 func _update_loading_screen(visible: bool, text: String = "") -> void:
 	if round > 1:
 		return
+	print("updating loading screen to visible=" + str(visible))
 	$HUD/LoadingContainer.visible = visible
 	$HUD/LoadingContainer/LoadingLabel.text = text
 
 func _on_maze_on_load_changed(message: String) -> void:
 	_update_loading_screen(true, message)
-
 
 func _on_maze_player_in_quicksand() -> void:
 	$Player.on_enter_quicksand()

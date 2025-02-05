@@ -15,6 +15,11 @@ var drag_idx_last_pos = Vector2.ZERO
 
 var _start_position_joystick = Vector2.ZERO
 var _joystick_size = 0.0
+var _has_seen_non_touch_input = false
+
+func show_self() -> void:
+	_has_seen_non_touch_input = false
+	visible = true
 
 func _ready() -> void:
 	_start_position_joystick = $JoystickRect.position
@@ -28,6 +33,8 @@ func _notification(what: int) -> void:
 		main_menu.emit()
 
 func _input(event: InputEvent) -> void:
+	if _has_seen_non_touch_input:
+		return
 	if event is InputEventScreenTouch:
 		var event_index = event.index
 		if event.pressed:
@@ -66,7 +73,17 @@ func _input(event: InputEvent) -> void:
 	elif event is InputEventScreenDrag:
 		# Equivalent to ACTION_MOVE
 		_process_finger_at_point(event)
-			
+	elif event is InputEventKey:
+		if (Input.is_action_pressed("backwards") ||
+			Input.is_action_pressed("forward") ||
+			Input.is_action_pressed("strafe_left") ||
+			Input.is_action_pressed("strafe_right") ||
+			Input.is_action_pressed("jump")
+		):
+			_set_has_alternate_controls()
+	elif event is InputEventJoypadButton || event is InputEventJoypadMotion:
+		_set_has_alternate_controls()
+			 
 func _process_finger_at_point(event: InputEvent) -> void:
 	var pos = event.position
 	if event.index == joystick_touch_down_idx:
@@ -174,3 +191,7 @@ func _release_key(key: String):
 	if DEBUG_MOBILE_CONTROLS:
 		print("Releasing " + key)
 	Input.action_release(key)
+
+func _set_has_alternate_controls() -> void:
+	_has_seen_non_touch_input = true
+	visible = false

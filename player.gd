@@ -11,6 +11,7 @@ signal cheat()
 signal look_direction_changed(position: Vector3, rotation_y: float)
 
 const MOUSE_SENSITIVITY = 0.0007
+const WEB_MOUSE_SENSITIVITY = 0.0021
 const JOYSTICK_SENSITIVITY = 0.04
 
 var camera_sun = preload("res://player_camera_sun.tscn")
@@ -162,7 +163,10 @@ func _input(event: InputEvent) -> void:
 	if Engine.is_editor_hint():
 		return
 	if event is InputEventMouseMotion and !Globals.is_mobile():
-		look_rotation.y -= (event.relative.x * MOUSE_SENSITIVITY)
+		if Globals.is_web():
+			look_rotation.y -= (event.relative.x * WEB_MOUSE_SENSITIVITY)
+		else:
+			look_rotation.y -= (event.relative.x * MOUSE_SENSITIVITY)
 
 func _unhandled_input(_event: InputEvent) -> void:
 	if Engine.is_editor_hint() || !Globals.is_debug():

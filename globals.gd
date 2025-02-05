@@ -1,3 +1,4 @@
+@tool
 extends Node
 
 class_name Constants
@@ -79,7 +80,7 @@ func is_web() -> bool:
 	return OS.get_name() == "Web" || emulate_web()
 	
 func emulate_web() -> bool:
-	return true
+	return false
 	
 func emulate_mobile() -> bool:
 	return false

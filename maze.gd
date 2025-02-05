@@ -14,6 +14,7 @@ var bird_scene = preload("res://birb.tscn")
 # Set to true to make it all possible block types/shapes visible early in 
 # the first maze
 const DEBUG_ALL_BLOCKS = false
+const VERBOSE_GEN = false
 
 # These values are tied to assets, and are measured in units
 # ANY CHANGES HERE NEED CORRESPONDING ASSET CHANGES TOO
@@ -233,6 +234,15 @@ func join_maze_gen_thread(start_position: Vector2i):
 func build_new_maze_impl():
 	var start_position = Vector2i.ZERO
 	_emit_load_changed("Building maze...")
+	if Globals.is_web():
+		# This is stupid, but it gives the main thread time to make the "show"
+		# of the HUD apply and not starve
+		
+		# await get_tree().create_timer(0.150).timeout
+		
+		# Unfortunately, if we do this, the "first frame" is going to be a 
+		# garbage frame for unclear reasons
+		pass
 	if Engine.is_editor_hint():
 		print("Building maze in editor")
 	while start_position == Vector2i.ZERO:
@@ -245,7 +255,6 @@ func build_new_maze_impl():
 
 func clear_maze() -> void:
 	if dynamic_root == null:
-		print("Will not clear maze witout dynamic_root set")
 		return
 	for x in blocks:
 		for y in blocks[x]:
@@ -586,7 +595,8 @@ func _generate_maze(allow_bad_mazes: bool = false):
 			# in first or last 2 blocks
 			# Add map (maybe)
 			if randf_range(0.0, 1.0) > (1.0 - _percent_chance_of_map_block()):
-				print("Added map block at " + str(x) + ", " + str(y))
+				if VERBOSE_GEN:
+					print("Added map block at " + str(x) + ", " + str(y))
 				map_blocks.push_back(block)
 				
 			# Maybe portal too?
@@ -613,14 +623,17 @@ func _generate_maze(allow_bad_mazes: bool = false):
 				if portal_exit_block == null:
 					portal_block = null
 				else:
-					print("Chose portal block at " + str(x) + ", " + str(y))
+					if VERBOSE_GEN:
+						print("Chose portal block at " + str(x) + ", " + str(y))
 			elif randf_range(0.0, 1.0) > (1.0 - _percent_chance_of_quicksand_block()):
-				print("Added quicksand block at " + str(x) + ", " + str(y))
+				if VERBOSE_GEN:
+					print("Added quicksand block at " + str(x) + ", " + str(y))
 				block.instance.add_quicksand()
 				block.instance.connect("player_in_quicksand", _emit_in_quicksand)
 				block.instance.connect("player_out_of_quicksand", _emit_out_of_quicksand)
 			elif randf_range(0.0, 1.0) > (1.0 - _percent_chance_of_spike_block()):
-				print("Added spike block at " + str(x) + ", " + str(y))
+				if VERBOSE_GEN:
+					print("Added spike block at " + str(x) + ", " + str(y))
 				block.instance.add_spike()
 	if portal_block:
 		portal_block.instance.enable_portal(portal_exit_block.instance)
@@ -770,7 +783,10 @@ func _on_player_dropped_by_bird():
 	dynamic_root.remove_child(bird)
 
 func _emit_load_changed(msg: String) -> void:
-	call_deferred("emit_signal", "on_load_changed", msg)
+	if Globals.is_web():
+		on_load_changed.emit(msg)
+	else:
+		call_deferred("emit_signal", "on_load_changed", msg)
 
 func _emit_loaded(start_position: Vector2i):
 	print("Emiting maze loaded with start_pos=" + str(start_position))
