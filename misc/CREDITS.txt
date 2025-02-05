@@ -16,4 +16,4 @@ Snake Hiss/ Snake hissing.mp3 by schreibsel-- https://freesound.org/s/540162/ / 
 Quicksand/ Steps_Fine_Snow_Or_Sand_Strong_08 by BlondPanda/ https://freesound.org/s/778546/ / CC0
 Spike/Scissor.wav by jjhouse4/ https://freesound.org/s/197989/ -- A4.0
 ----- TEXTURES -----
-grass05.pn texture by athile/ https://opengameart.org/content/seamless-grass-textures-20-pack / CC0
+grass05.png texture by athile/ https://opengameart.org/content/seamless-grass-textures-20-pack / CC0

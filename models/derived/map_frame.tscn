@@ -1,8 +1,8 @@
 [gd_scene load_steps=9 format=4 uid="uid://dryg3y1f6logi"]
 
 [ext_resource type="PackedScene" uid="uid://6fny1l3cjwr1" path="res://models/map_frame.glb" id="1_sxlix"]
-[ext_resource type="Script" path="res://map_frame.gd" id="2_7ul2h"]
-[ext_resource type="Shader" path="res://shaders/map.gdshader" id="3_fn78y"]
+[ext_resource type="Script" uid="uid://ca8bpma7o566e" path="res://map_frame.gd" id="2_7ul2h"]
+[ext_resource type="Shader" uid="uid://dq3gk058eq75p" path="res://shaders/map.gdshader" id="3_fn78y"]
 [ext_resource type="Texture2D" uid="uid://weoiaiefxjih" path="res://textures/map_marker.png" id="4_v118u"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5lyr7"]
@@ -15,6 +15,7 @@ roughness = 0.613636
 resource_local_to_scene = true
 render_priority = 0
 shader = ExtResource("3_fn78y")
+shader_parameter/pin = ExtResource("4_v118u")
 shader_parameter/map_size_units = 124.0
 shader_parameter/maze_size_units = 80.0
 shader_parameter/x_center_units = 40.0
@@ -22,7 +23,6 @@ shader_parameter/y_center_units = 40.0
 shader_parameter/pin_x_units = 2.0
 shader_parameter/pin_y_units = 2.0
 shader_parameter/flip_pin_units = true
-shader_parameter/pin = ExtResource("4_v118u")
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_2oeql"]
 _surfaces = [{

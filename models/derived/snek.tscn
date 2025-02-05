@@ -1,6 +1,6 @@
 [gd_scene load_steps=9 format=4 uid="uid://bd2uh8l2mcb1g"]
 
-[ext_resource type="Script" path="res://snek.gd" id="1_ocp1a"]
+[ext_resource type="Script" uid="uid://duoajcrwea6jh" path="res://snek.gd" id="1_ocp1a"]
 [ext_resource type="PackedScene" uid="uid://dvsw8ngvesm2x" path="res://models/snek.glb" id="2_4f6uu"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ftojm"]

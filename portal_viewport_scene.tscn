@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://bnw624k5v1brd"]
 
 [ext_resource type="Environment" uid="uid://denqkg16qhgyr" path="res://player_camera_sun_env.tres" id="1_85n34"]
-[ext_resource type="Script" path="res://portal_viewport_scene.gd" id="1_t6y7r"]
+[ext_resource type="Script" uid="uid://byg557hjjlgfv" path="res://portal_viewport_scene.gd" id="1_t6y7r"]
 
 [node name="PortalViewport" type="SubViewport"]
 render_target_update_mode = 1
