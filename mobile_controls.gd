@@ -20,6 +20,11 @@ var _has_seen_non_touch_input = false
 func show_self() -> void:
 	_has_seen_non_touch_input = false
 	visible = true
+	set_process_input(true)
+	
+func hide_self() -> void:
+	visible = false
+	set_process_input(false)
 
 func _ready() -> void:
 	_start_position_joystick = $JoystickRect.position

@@ -44,6 +44,7 @@ func _ready():
 	$HUD/MiniMapContainer.pivot_offset = Vector2(minimap_size / 2.0, minimap_size / 2.0)
 	$HUD/MiniMapContainer.rotation_degrees = 180.0
 	$Player.attach_ground($Ground)
+	$MobileControls.hide_self()
 
 	if Engine.is_editor_hint():
 		print("Running playfield in editor")
@@ -211,7 +212,7 @@ func _start_new_round() -> void:
 	$Maze.build_new_maze(round_difficulty)
 	
 func _on_maze_load_complete(start_position: Vector2i):
-	if Globals.is_mobile() || Globals.is_web():
+	if Globals.is_mobile() || Globals.is_mobile_web():
 		$MobileControls.show_self()
 	$Player.position.x = start_position.x
 	$Player.position.z = start_position.y
@@ -284,7 +285,7 @@ func _round_over(did_win: bool = false, skip_anim: bool = false) -> void:
 	$Music/NormalMusicPlayer.stop()
 	$Music/NormalMusicPlayerAlt.stop()
 	$Player.die()
-	$MobileControls.visible = false
+	$MobileControls.hide_self()
 	if did_win:
 		$Music/WinPlayer.play()
 	
@@ -328,7 +329,6 @@ func _on_mobile_controls_main_menu() -> void:
 func _update_loading_screen(visible: bool, text: String = "") -> void:
 	if round > 1:
 		return
-	print("updating loading screen to visible=" + str(visible))
 	$HUD/LoadingContainer.visible = visible
 	$HUD/LoadingContainer/LoadingLabel.text = text
 

@@ -61,13 +61,12 @@ func set_graphics_mode(mode: String):
 	
 	# Weirdly stuttery without these
 	Engine.physics_jitter_fix = 0
-	if mode != "min" && Globals.is_web():
-		Input.set_use_accumulated_input(false)
+	Input.set_use_accumulated_input(false)
 	
 	# This makes the game a lot more responsive (at the cost of CPU consumption, but
 	# physics on this game are really easy, so we can eat it in most cases 
 	var refresh = DisplayServer.screen_get_refresh_rate()
-	if mode != "low" && Globals.is_web():
+	if mode != "low" && !Globals.is_web():
 		Engine.physics_ticks_per_second = DisplayServer.screen_get_refresh_rate()
 	
 func get_graphics_mode():
@@ -78,6 +77,12 @@ func is_mobile() -> bool:
 	
 func is_web() -> bool:
 	return OS.get_name() == "Web" || emulate_web()
+	
+func is_mobile_web() -> bool:
+	return (OS.has_feature("web_ios") ||
+		OS.has_feature("web_android") ||
+		(!OS.has_feature("web_linuxbsd") && !OS.has_feature("web_macos") && !OS.has_feature("web_windows"))
+	)
 	
 func emulate_web() -> bool:
 	return false

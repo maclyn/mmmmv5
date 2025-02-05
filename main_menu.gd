@@ -3,7 +3,15 @@ extends Control
 signal start_game()
 
 var _saver = Globals.get_saver()
+var _using_mobile_web_kludge = Globals.is_mobile_web()
 
+func show_main_menu():
+	$MenuMusic.play()
+	$Buttons/NormalButton.grab_focus()
+	
+func hide_main_menu():
+	$MenuMusic.stop()
+	
 func _ready() -> void:
 	_apply_mute_mode(_saver.get_is_muted())
 	_apply_gfx_mode(_saver.get_graphics_mode())
@@ -15,21 +23,43 @@ func _on_visibility_changed() -> void:
 	if visible:
 		_apply_high_score(_saver.get_high_score())
 		
-func _unhandled_input(_event: InputEvent) -> void:
-	if Input.is_action_just_pressed("ui_cancel") && visible:
+func _unhandled_input(event: InputEvent) -> void:
+	if Input.is_action_just_pressed("ui_cancel") && visible && !Globals.is_web():
 		get_tree().quit()
-
-func show_main_menu():
-	$MenuMusic.play()
-	$Buttons/NormalButton.grab_focus()
-	
-func hide_main_menu():
-	$MenuMusic.stop()
+		
+func _input(event: InputEvent) -> void:
+	if event is InputEventScreenTouch:
+		var touch_event = event
+		print("event: " + str(touch_event.position) + "; " + str(touch_event.pressed))
+		if visible && _using_mobile_web_kludge && touch_event.pressed:
+			_try_mobile_web_kludge(touch_event.position)
 	
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_GO_BACK_REQUEST && visible && Globals.on_back_notif_receieved():
 		print("Qutting due to back from main menu")
 		get_tree().quit()
+		
+func _try_mobile_web_kludge(position: Vector2):
+	print("Trying web kludge with press at " + str(position))
+	var _buttons: Array[Button] = [
+		$Buttons/NormalButton,
+		$Buttons/GraphicsMode,
+		$Buttons/Mute,
+		$Buttons/Help,
+		$Buttons/Credits
+	]
+	var _click_action = [
+		_on_normal_button_pressed,
+		_on_graphics_mode_pressed,
+		_on_button_pressed,
+		_on_help_pressed,
+		_on_credits_pressed
+	]
+	for idx in _buttons.size():
+		var button = _buttons[idx]
+		if _is_point_in_control(position, button):
+			print("Found press inside button; clicking " + button.text)
+			_click_action[idx].call()
 
 func _on_normal_button_pressed() -> void:
 	start_game.emit()
@@ -107,3 +137,15 @@ func _show_text_dialog(title: String, path: String, font_size: int = 20) -> void
 	add_child(d)
 	d.popup_centered(Vector2i(300, 200))
 	d.show()
+	
+	if _using_mobile_web_kludge:
+		await get_tree().create_timer(5).timeout
+		d.hide()
+		
+func _is_point_in_control(point: Vector2, control: Control) -> bool:
+	var control_pos = control.global_position
+	var control_size = control.size
+	var control_scale = control.get_global_transform_with_canvas().get_scale()
+	var is_in_x: bool = point.x >= control_pos.x and point.x <= control_pos.x + (control_size.x * control_scale.x)
+	var is_in_y: bool = point.y >= control_pos.y and point.y <= control_pos.y + (control_size.y * control_scale.y)
+	return is_in_x and is_in_y

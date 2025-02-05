@@ -17,7 +17,7 @@ func get_graphics_mode() -> String:
 	return _get_key_from_file(
 		SETTINGS_FILE,
 		GFX_KEY,
-		GFX_VALUE_LOW if Globals.is_mobile() else GFX_VALUE_MEDIUM)
+		GFX_VALUE_LOW if Globals.is_mobile() or Globals.is_web() else GFX_VALUE_MEDIUM)
 
 func set_graphics_mode(new_mode: String):
 	_save_key_to_file(SETTINGS_FILE, GFX_KEY, new_mode)
