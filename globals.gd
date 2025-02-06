@@ -108,22 +108,25 @@ func _ready() -> void:
 		_shader_update_thread = Thread.new()
 		_shader_update_thread.start(_update_shader_time)
 	else:
-		print("WARNING: Inside a web project; updating shader global time on main thread")
+		print("WARNING: Inside a web project; updating shader global time on main thread in _process")
 	
 func _process(delta: float) -> void:
 	if is_web():
-		#_update_shader_time()
-		pass
+		_update_shader_time_param()
 		
 func _update_shader_time() -> void:
 	while not _shutting_down:
-		var delta = Time.get_unix_time_from_system() - _start_time_s
-		var now_ms = int(delta * 1000.0)
-		if now_ms != _shader_time_ms:
-			_shader_time_ms = now_ms
-			RenderingServer.global_shader_parameter_set("time_ms", _shader_time_ms)
+		_update_shader_time_param()
+		await get_tree().time
 	call_deferred("_join_shader_update_thread")
 	
+func _update_shader_time_param() -> void:
+	var delta = Time.get_unix_time_from_system() - _start_time_s
+	var now_ms = int(delta * 1000.0)
+	if now_ms != _shader_time_ms:
+		_shader_time_ms = now_ms
+		RenderingServer.global_shader_parameter_set("time_ms", _shader_time_ms)
+				
 func _join_shader_update_thread():
 	_shader_update_thread.wait_to_finish()
 
