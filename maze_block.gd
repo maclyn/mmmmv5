@@ -37,6 +37,8 @@ var _portal_node: SubViewport = null
 static var _has_configured_grass = false
 static var _has_configured_hedges = false
 var _player_pivot: Node3D = null
+var _is_in_camera_frustrum: bool = true
+var _is_manually_culled: bool = false
 
 func _ready():
 	# Rotate the walls and corners randomly so the same texture 
@@ -148,6 +150,10 @@ func add_exit():
 	
 func attach_player(player_pivot: Node3D):
 	_player_pivot = player_pivot
+	
+func set_manually_culled(is_manually_culled: bool):
+	_is_manually_culled = is_manually_culled
+	_update_decal_visiblity_from_culling()
 	
 func _configure_exit():
 	if is_node_ready():
@@ -621,10 +627,15 @@ func _on_quick_sand_body_exited(body: Node3D) -> void:
 		player_out_of_quicksand.emit()
 
 func _on_block_visible_notifier_screen_entered() -> void:
-	_set_decal_visibility(true)
+	_is_in_camera_frustrum = true
+	_update_decal_visiblity_from_culling()
 
 func _on_block_visible_notifier_screen_exited() -> void:
-	_set_decal_visibility(false)
+	_is_in_camera_frustrum = false
+	_update_decal_visiblity_from_culling()
+	
+func _update_decal_visiblity_from_culling():
+	_set_decal_visibility(_is_in_camera_frustrum && !_is_manually_culled)
 
 func _set_decal_visibility(is_visible: bool) -> void:
 	$GrassMultiMesh.visible = !_has_quicksand && is_visible

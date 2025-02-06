@@ -15,6 +15,7 @@ var bird_scene = preload("res://birb.tscn")
 # the first maze
 const DEBUG_ALL_BLOCKS = false
 const VERBOSE_GEN = false
+const SIMULATED_ENV_WITHOUT_OCCLUSION_CULLING = false
 
 # These values are tied to assets, and are measured in units
 # ANY CHANGES HERE NEED CORRESPONDING ASSET CHANGES TOO
@@ -67,6 +68,7 @@ var portal_block: MazeBlock = null
 var portal_exit_block: MazeBlock = null
 var path_from_exit_to_entrance: Array[MazeBlock] = []
 var map_blocks: Array[MazeBlock] = []
+var current_player_maze_block: Vector2i = Vector2.ZERO
 
 # Shared between overhead map and wall maps
 var map_image_texture: ImageTexture
@@ -276,6 +278,7 @@ func clear_maze() -> void:
 	map_blocks.clear()
 	path_from_exit_to_entrance.clear()
 	remove_child(dynamic_root)
+	current_player_maze_block = Vector2i.ZERO
 	dynamic_root = null
 		
 func on_first_frame() -> void:
@@ -313,9 +316,11 @@ func attach_player(player: Node3D, player_instance: Node3D) -> void:
 			var block = blocks[x][y]
 			block.instance.attach_player(player)
 	
-func update_player_marker(x: float, z: float, rotation_y: float):
-	$PlayerMarker.global_position = Vector3(x, 4, z)
+func update_player_marker(position: Vector3, rotation_y: float):
+	$PlayerMarker.global_position = Vector3(position.x, 4, position.z)
 	$PlayerMarker/DirectionRoot/DirectionArrow.rotation.z = -(rotation_y + (PI / 2))
+	if Globals.is_web() || SIMULATED_ENV_WITHOUT_OCCLUSION_CULLING:
+		_cull_based_on_player_position(position)
 
 func end_block_position_in_scene_space() -> Vector2i:
 	return _maze_block_position_to_center_in_scene_space(exit_block.position.x, exit_block.position.y)
@@ -640,12 +645,18 @@ func _generate_maze(allow_bad_mazes: bool = false):
 		portal_exit_block.instance.set_as_portal_exit()
 	_add_bird()
 	add_child.call_deferred(dynamic_root)
+	current_player_maze_block = Vector2i.ZERO
 	return _maze_block_position_to_center_in_scene_space(start_x, start_y)
 		
 func _maze_block_position_to_center_in_scene_space(x: int, y: int) -> Vector2i:
 	return Vector2i(
 		x * MAZE_BLOCK_SQUARE_SIZE + HEDGE_LENGTH,
 		y * MAZE_BLOCK_SQUARE_SIZE + HEDGE_LENGTH)
+		
+func _scene_space_position_to_maze_block(x: float, y: float) -> Vector2i:
+	var xi = round((x - HEDGE_LENGTH) / MAZE_BLOCK_SQUARE_SIZE)
+	var yi = round((y - HEDGE_LENGTH) / MAZE_BLOCK_SQUARE_SIZE)
+	return Vector2i(xi, yi)
 		
 func _add_snakes():
 	# New snake, who this
@@ -711,6 +722,31 @@ func _new_bird(dx: int, dy: int, target: Vector2i, start_x_pos: float, start_y_p
 	bird.connect("player_dropped", _on_player_dropped_by_bird)
 	print("Added bird at " + str(bird.position))
 	dynamic_root.add_child(bird)
+
+# In web browsers, occlusion culling is disabled
+# Though we retain some limited decal "culling" based on camera frustum
+# using 3D visibility hints, we can also cull decals that are outside of
+# the player's position
+func _cull_based_on_player_position(player_position: Vector3):
+	var xz_ints = _scene_space_position_to_maze_block(player_position.x, player_position.z)
+	if xz_ints.x != current_player_maze_block.x || xz_ints.y != current_player_maze_block.y:
+		# Selected block has changed; re-calculate culling
+		print("Current block is now " + str(xz_ints))
+		current_player_maze_block = xz_ints
+		var culled_count = 0
+		for x in blocks:
+			for y in blocks[x]:
+				# If within 5 blocks to left or right, we could possibility be
+				# showing some or all of decalsl
+				var in_x_range = abs(x - xz_ints.x) <= 5
+				var in_y_range = abs(y - xz_ints.y) <= 5
+				var should_be_culled = !(in_x_range && in_y_range)
+				if should_be_culled:
+					culled_count +=1
+				var instance = blocks[x][y].instance
+				if instance != null:
+					instance.set_manually_culled(should_be_culled)
+		print("Now manually culling decals from " + str(culled_count) + " blocks")
 	
 func _percent_chance_of_map_block():
 	if DEBUG_ALL_BLOCKS:

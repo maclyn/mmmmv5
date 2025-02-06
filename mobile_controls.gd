@@ -1,3 +1,4 @@
+@tool
 extends Control
 
 signal h_swipe(delta_x: float)
@@ -29,6 +30,8 @@ func hide_self() -> void:
 func _ready() -> void:
 	_start_position_joystick = $JoystickRect.position
 	_joystick_size = $JoystickRect.size.x
+	if Engine.is_editor_hint():
+		show_self()
 
 func _notification(what: int) -> void:
 	if not visible:

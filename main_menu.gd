@@ -1,3 +1,4 @@
+@tool
 extends Control
 
 signal start_game()

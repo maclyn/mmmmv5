@@ -100,7 +100,7 @@ func _update_minimap():
 		$HUD/MiniMapContainer/PlayerIndicator.rotation = -(player_rotation_y)
 
 func _on_player_look_direction_changed(position: Vector3, rotation_y: float) -> void:
-	$Maze.update_player_marker(position.x, position.z, rotation_y)
+	$Maze.update_player_marker(position, rotation_y)
 	player_rotation_y = rotation_y
 
 func _on_player_cheat() -> void:
