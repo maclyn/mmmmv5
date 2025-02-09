@@ -22,6 +22,7 @@ func show_self() -> void:
 	_has_seen_non_touch_input = false
 	visible = true
 	set_process_input(true)
+	_maybe_hide_if_desktop_platform()
 	
 func hide_self() -> void:
 	visible = false
@@ -203,3 +204,7 @@ func _release_key(key: String):
 func _set_has_alternate_controls() -> void:
 	_has_seen_non_touch_input = true
 	visible = false
+
+func _maybe_hide_if_desktop_platform() -> void:
+	if !Globals.is_mobile():
+		hide_self()

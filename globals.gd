@@ -117,7 +117,6 @@ func _process(delta: float) -> void:
 func _update_shader_time() -> void:
 	while not _shutting_down:
 		_update_shader_time_param()
-		await get_tree().time
 	call_deferred("_join_shader_update_thread")
 	
 func _update_shader_time_param() -> void:
