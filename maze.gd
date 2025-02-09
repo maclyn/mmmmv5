@@ -69,6 +69,8 @@ var portal_exit_block: MazeBlock = null
 var path_from_exit_to_entrance: Array[MazeBlock] = []
 var map_blocks: Array[MazeBlock] = []
 var current_player_maze_block: Vector2i = Vector2.ZERO
+var exit_ops: Array[TransitionToExitStep] = []
+var exit_ops_idx = -1
 
 # Shared between overhead map and wall maps
 var map_image_texture: ImageTexture
@@ -213,6 +215,40 @@ class MazeBlock:
 			prev == GridDirection.WEST
 		)
 
+enum ExitTransitionOp {
+	SHOW_ARROW,
+	ADD_SNAKE
+}
+
+class TransitionToExitStep:
+	var root: Object
+	var op: ExitTransitionOp
+	
+	# Show arrow
+	var block: MazeBlock = null
+	var xy: Vector2i = Vector2i.ZERO
+	
+	# Add snake
+	var snake_dxdy: Vector2 = Vector2.ZERO
+	var snake_xy: Vector2 = Vector2.ZERO
+	var snake_rotation: float = 0.0
+	
+	func _init(root: Object, op: ExitTransitionOp) -> void:
+		self.root = root
+		self.op = op
+		
+	func apply() -> void:
+		match op:
+			ExitTransitionOp.SHOW_ARROW:
+				block.show_arrow()
+			ExitTransitionOp.ADD_SNAKE:
+				root._new_snake(
+					snake_dxdy.x,
+					snake_dxdy.y,
+					snake_xy.x,
+					snake_xy.y,
+					snake_rotation)
+
 func build_new_maze(difficulty: Constants.GameDifficulty):
 	self.difficulty = difficulty
 	if Globals.is_web():
@@ -277,6 +313,8 @@ func clear_maze() -> void:
 	portal_exit_block = null
 	exit_block = null 
 	map_blocks.clear()
+	exit_ops.clear()
+	exit_ops_idx = -1
 	path_from_exit_to_entrance.clear()
 	remove_child(dynamic_root)
 	current_player_maze_block = Vector2i.ZERO
@@ -309,11 +347,16 @@ func show_path_out() -> void:
 		portal_block.instance.drop_portal()
 	if exit_block != null:
 		exit_block.instance.hide_key()
+
 	for block in path_from_exit_to_entrance:
-		block.show_arrow()
+		var op = TransitionToExitStep.new(self, ExitTransitionOp.SHOW_ARROW)
+		op.block = block
+		exit_ops.push_back(op)
 	if is_instance_valid(bird):
 		dynamic_root.remove_child(bird)
 	_add_snakes()
+	
+	maybe_run_exit_ops()
 	
 # player is actually the pivot node for the player
 func attach_player(player: Node3D, player_instance: Node3D) -> void:
@@ -354,6 +397,17 @@ func set_map_env(env: Environment):
 	
 func get_overhead_camera_image() -> Image:
 	return map_image_texture.get_image()
+	
+func maybe_run_exit_ops():
+	if exit_ops_idx == exit_ops.size():
+		return
+	# Threaded environments are much less prone to freezing up when doing
+	# a lot of scene graph changes
+	var op_count = 20 if Globals.is_threaded() else 4
+	var end_idx = max(exit_ops.size(), exit_ops_idx + op_count)
+	while exit_ops_idx < end_idx:
+		exit_ops[exit_ops_idx].apply()
+		exit_ops_idx += 1
 
 func _ready() -> void:
 	$MapViewport/MapViewportCamera.position.x = MAZE_DIMENS_IN_SCENE_SPACE / 2.0
@@ -680,7 +734,12 @@ func _add_snakes():
 		var y_pos = NORTH_SNAKE_EDGE if north_to_south else SOUTH_SNAKE_EDGE
 		var near_exit = exit_block != null && abs(x - exit_block.position.x) < 3
 		y_pos += ((1 if north_to_south else -1) * randf_range(0.2 if near_exit else 0.0, MAZE_DIMENS_IN_SCENE_SPACE * 0.5))
-		_new_snake(dx, dy, x_pos, y_pos, 90.0 if north_to_south else 270.0)
+		
+		var op = TransitionToExitStep.new(self, ExitTransitionOp.ADD_SNAKE)
+		op.snake_dxdy = Vector2(dx, dy)
+		op.snake_xy = Vector2(x_pos, y_pos)
+		op.snake_rotation = 90.0 if north_to_south else 270.0
+		exit_ops.push_back(op)
 	for y in range(1, MAZE_WIDTH_AND_HEIGHT - 1):
 		var should_snake = randf_range(0.0, 1.0) <= _percent_chance_of_snake_per_row_col() && exit_block != null && y != exit_block.position.y
 		if !should_snake:
@@ -692,7 +751,12 @@ func _add_snakes():
 		var near_exit = abs(y - exit_block.position.y) < 3
 		x_pos += ((1 if west_to_east else -1) * randf_range(0.2 if near_exit else 0.0, MAZE_DIMENS_IN_SCENE_SPACE * 0.5))
 		var y_pos = _maze_block_position_to_center_in_scene_space(0, y).y - (SNAKE_WIDTH / 2.0)
-		_new_snake(dx, dy, x_pos, y_pos, 180.0 if west_to_east else 0.0)
+		
+		var op = TransitionToExitStep.new(self, ExitTransitionOp.ADD_SNAKE)
+		op.snake_dxdy = Vector2(dx, dy)
+		op.snake_xy = Vector2(x_pos, y_pos)
+		op.snake_rotation = 180.0 if west_to_east else 0.0
+		exit_ops.push_back(op)
 		
 func _add_bird():
 	var is_col_bird = randi_range(0, 1) == 0 # true

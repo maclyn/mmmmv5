@@ -76,6 +76,7 @@ func _process(_delta: float) -> void:
 			_format_label_to_remaining_timer()
 			_update_minimap()
 		GameState.RETURNING_TO_LOCK:
+			$Maze.maybe_run_exit_ops()
 			_format_label_to_remaining_timer()
 			_update_minimap()
 			
