@@ -72,7 +72,7 @@ func set_graphics_mode(mode: String):
 func get_graphics_mode():
 	return _graphics_mode
 
-func is_mobile() -> bool:
+func is_mobile_native() -> bool:
 	return OS.get_name() == "Android" || OS.get_name() == "iOS" || emulate_mobile()
 	
 func is_web() -> bool:
@@ -88,6 +88,9 @@ func is_mobile_web() -> bool:
 		OS.has_feature("web_android") ||
 		(!OS.has_feature("web_linuxbsd") && !OS.has_feature("web_macos") && !OS.has_feature("web_windows"))
 	)
+	
+func is_mobile_device():
+	return is_mobile_native() || is_mobile_web()
 	
 func emulate_web() -> bool:
 	return false

@@ -206,5 +206,5 @@ func _set_has_alternate_controls() -> void:
 	visible = false
 
 func _maybe_hide_if_desktop_platform() -> void:
-	if !Globals.is_mobile():
+	if !Globals.is_mobile_device():
 		hide_self()

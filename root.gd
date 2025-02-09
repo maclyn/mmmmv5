@@ -4,7 +4,7 @@ extends Node3D
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	_show_main_menu()
-	get_tree().set_auto_accept_quit(!Globals.is_mobile())
+	get_tree().set_auto_accept_quit(!Globals.is_mobile_native())
 	
 func _unhandled_input(_event: InputEvent) -> void:
 	if Input.is_action_just_pressed("wireframe_mode") && Globals.is_debug():
@@ -24,7 +24,7 @@ func _show_main_menu():
 func _hide_main_menu():
 	$MainMenu.hide_main_menu()
 	$MainMenu.visible = false
-	if !Globals.is_mobile():
+	if !Globals.is_mobile_native():
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 		
 func _on_main_menu_start_game() -> void:

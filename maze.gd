@@ -403,7 +403,7 @@ func maybe_run_exit_ops():
 		return
 	# Threaded environments are much less prone to freezing up when doing
 	# a lot of scene graph changes
-	var op_count = 20 if Globals.is_threaded() else 4
+	var op_count = 4 if Globals.is_threaded() else 1
 	var end_idx = max(exit_ops.size(), exit_ops_idx + op_count)
 	while exit_ops_idx < end_idx:
 		exit_ops[exit_ops_idx].apply()

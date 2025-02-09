@@ -228,7 +228,7 @@ func _start_new_round() -> void:
 	$Maze.build_new_maze(round_difficulty)
 	
 func _on_maze_load_complete(start_position: Vector2i):
-	if Globals.is_mobile() || Globals.is_mobile_web():
+	if Globals.is_mobile_device():
 		$MobileControls.show_self()
 	$Player.position.x = start_position.x
 	$Player.position.z = start_position.y

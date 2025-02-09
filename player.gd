@@ -162,7 +162,7 @@ func _physics_process(delta: float) -> void:
 func _input(event: InputEvent) -> void:
 	if Engine.is_editor_hint():
 		return
-	if event is InputEventMouseMotion and !Globals.is_mobile():
+	if event is InputEventMouseMotion and !Globals.is_mobile_device():
 		if Globals.is_web():
 			look_rotation.y -= (event.relative.x * WEB_MOUSE_SENSITIVITY)
 		else:
