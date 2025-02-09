@@ -78,7 +78,12 @@ func is_mobile() -> bool:
 func is_web() -> bool:
 	return OS.get_name() == "Web" || emulate_web()
 	
+func is_threaded() -> bool:
+	return !is_web()
+	
 func is_mobile_web() -> bool:
+	if !is_web():
+		return false
 	return (OS.has_feature("web_ios") ||
 		OS.has_feature("web_android") ||
 		(!OS.has_feature("web_linuxbsd") && !OS.has_feature("web_macos") && !OS.has_feature("web_windows"))

@@ -22,8 +22,10 @@ var game_state: GameState = GameState.NOT_STARTED
 var round_difficulty: Constants.GameDifficulty = Constants.GameDifficulty.EASY
 var last_game_state_transition_time = Time.get_ticks_msec()
 var player_rotation_y = 0.0
-
 var minimap_atlas_texture: AtlasTexture
+var first_frame_after_gen = -1
+var have_viewports_been_marked_for_update = false
+var have_viewports_been_applied = false
 
 enum GameState {
 	NOT_STARTED,
@@ -52,6 +54,16 @@ func _ready():
 		RenderingServer.global_shader_parameter_set("time_ms", 1000)
 	
 func _process(_delta: float) -> void:
+	if game_state == GameState.GOING_TO_KEY || game_state == GameState.RETURNING_TO_LOCK:
+		if !have_viewports_been_applied:
+			var elapsed_frames = Engine.get_frames_drawn() - first_frame_after_gen
+			if elapsed_frames > 1:
+				if !have_viewports_been_marked_for_update:
+					_prep_scene_for_capture()
+					have_viewports_been_marked_for_update = true
+				else:
+					_apply_viewports_to_scene()
+					have_viewports_been_applied = true
 	match game_state:
 		GameState.NOT_STARTED:
 			pass
@@ -206,6 +218,9 @@ func _start_new_round() -> void:
 	else:
 		round_difficulty = Constants.GameDifficulty.HARD if round % 2 == 0 else Constants.GameDifficulty.SPOOKY
 	last_game_state_transition_time = Time.get_ticks_msec()
+	first_frame_after_gen = -1
+	have_viewports_been_marked_for_update = false
+	have_viewports_been_applied = false
 	player_rotation_y = 0.0
 	$HUD/RoundLabel.text = "Round %d" % round
 	$Maze.clear_maze()
@@ -251,10 +266,15 @@ func _on_maze_load_complete(start_position: Vector2i):
 			else:
 				$Music/NormalMusicPlayerAlt.play()
 	$GameTimer.start(_max_time_to_key_ms() / 1000.0)
-	RenderingServer.request_frame_drawn_callback(_on_first_frame)
+	first_frame_after_gen = Engine.get_frames_drawn()
 
-func _on_first_frame():
-	$Maze.on_first_frame()
+func _prep_scene_for_capture():
+	print("Prepping scene for capture at frame=" + str(Engine.get_frames_drawn()))
+	$Maze.prep_for_viewport_capture()
+
+func _apply_viewports_to_scene():
+	print("Applying subviewports to scene at frame=" + str(Engine.get_frames_drawn()))
+	$Maze.apply_viewports_to_textures()
 	var overhead_image: Image = $Maze.get_overhead_camera_image().duplicate()
 	overhead_image.rotate_180()
 	var minimap_image_texture = ImageTexture.create_from_image(overhead_image)

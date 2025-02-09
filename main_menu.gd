@@ -3,12 +3,16 @@ extends Control
 
 signal start_game()
 
+const new_game_str = "(N)ew Game"
+const loading_str = "Loading..."
+
 var _saver = Globals.get_saver()
 var _using_mobile_web_kludge = Globals.is_mobile_web()
 
 func show_main_menu():
 	$MenuMusic.play()
 	$Buttons/NormalButton.grab_focus()
+	$Buttons/NormalButton.text = new_game_str
 	
 func hide_main_menu():
 	$MenuMusic.stop()
@@ -63,6 +67,8 @@ func _try_mobile_web_kludge(position: Vector2):
 			_click_action[idx].call()
 
 func _on_normal_button_pressed() -> void:
+	$Buttons/NormalButton.text = loading_str
+	await get_tree().create_timer(0.1).timeout
 	start_game.emit()
 
 func _on_button_pressed() -> void:

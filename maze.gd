@@ -228,7 +228,8 @@ func join_maze_gen_thread(start_position: Vector2i):
 	var exit_position = _maze_block_position_to_center_in_scene_space(exit_block.position.x, exit_block.position.y)
 	$EndMarker.global_position = Vector3(exit_position.x, 4, exit_position.y)
 	$StartMarker.global_position = Vector3(start_position.x, 4, start_position.y)
-	$MapViewport.render_target_update_mode = SubViewport.UPDATE_ONCE
+	if !Globals.is_web():
+		$MapViewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 	if Engine.is_editor_hint():
 		print("Completed setup")
 	print("Background thread joined")
@@ -280,8 +281,13 @@ func clear_maze() -> void:
 	remove_child(dynamic_root)
 	current_player_maze_block = Vector2i.ZERO
 	dynamic_root = null
-		
-func on_first_frame() -> void:
+
+func prep_for_viewport_capture():
+	$MapViewport.render_target_update_mode = SubViewport.UPDATE_ONCE
+	if portal_exit_block != null:
+		portal_exit_block.instance.prep_for_viewport_capture()
+
+func apply_viewports_to_textures() -> void:
 	var map_viewport_texture = $MapViewport.get_texture()
 	var image: Image = map_viewport_texture.get_image()
 	map_image_texture = ImageTexture.create_from_image(image)
@@ -294,6 +300,9 @@ func on_first_frame() -> void:
 	for block in map_blocks:
 		var center = _maze_block_position_to_center_in_scene_space(block.position.x, block.position.y)
 		block.instance.get_south_wall().add_map(wall_map_image_texture, center.x, center.y)
+		
+	if portal_block != null:
+		portal_block.instance.attach_exit_capture_to_portal_entrance()
 	
 func show_path_out() -> void:
 	if portal_block != null:

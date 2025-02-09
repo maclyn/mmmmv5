@@ -30,7 +30,6 @@ var _exit_portal: Node3D = null
 
 # Portal exit state
 var _has_setup_portal_exit_viewport: bool = false
-var _has_updated_updated_portal_tex: bool = false
 var _portal_node: SubViewport = null
 
 # Multi-mesh rendering state
@@ -72,18 +71,16 @@ func _exit_tree() -> void:
 	_has_configured_grass = false
 	_has_configured_hedges = false
 
-func _process(delta: float) -> void:
-	if _is_portal && !_has_updated_updated_portal_tex:
-		get_south_wall().remove_map()
-		var tex = await _exit_portal.get_snapshot()
-		$PortalBody/PortalSurface.attach_portal_tex(tex)
-		_has_updated_updated_portal_tex = true
-		
 func _physics_process(_delta: float) -> void:
 	if _has_spike:
 		var secs = Time.get_ticks_msec() / 1000.0
 		$Spike.position.y = ((sin(secs * 2.0) + 1)) - 3.0
 		$Spike.rotation.y = cos(secs * 4.0)
+		
+func attach_exit_capture_to_portal_entrance():
+	get_south_wall().remove_map()
+	var tex = _exit_portal.get_snapshot()
+	$PortalBody/PortalSurface.attach_portal_tex(tex)
 
 func configure_walls(north: bool, east: bool, south: bool, west: bool):	
 	$HedgeWallN.visible = north && !HIDE_WALLS
@@ -111,6 +108,10 @@ func configure_walls(north: bool, east: bool, south: bool, west: bool):
 	$HedgeCornerSW.visible = !HIDE_CORNERS
 	$HedgeCornerSE.visible = !HIDE_CORNERS
 	$HedgeMultiMeshes/HedgeCornerMultiMesh.visible = !HIDE_CORNER_DECALS
+	
+func prep_for_viewport_capture() -> void:
+	if _portal_node != null:
+		_portal_node.prep_for_viewport_capture()
 	
 func debug_reset_decals() -> void:
 	_has_configured_grass = false
@@ -567,7 +568,6 @@ func get_snapshot() -> Texture2D:
 		return
 	assert(is_node_ready())
 	assert(_is_portal_exit)
-	await RenderingServer.frame_post_draw
 	var portal_viewport_texture = _portal_node.get_texture()
 	var image = portal_viewport_texture.get_image()
 	var portal_image_texture = ImageTexture.create_from_image(image)
