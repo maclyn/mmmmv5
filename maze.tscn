@@ -1,6 +1,8 @@
-[gd_scene load_steps=11 format=3 uid="uid://cp28gjjsjws27"]
+[gd_scene load_steps=13 format=3 uid="uid://cp28gjjsjws27"]
 
 [ext_resource type="Script" uid="uid://dnjsg2oqcwbpv" path="res://maze.gd" id="1_tra7k"]
+[ext_resource type="Texture2D" uid="uid://cixjd1sfeidf7" path="res://textures/end_marker.png" id="2_u11kd"]
+[ext_resource type="Texture2D" uid="uid://dcwbxupykjjsc" path="res://textures/start_marker.png" id="3_1nuxl"]
 [ext_resource type="Environment" uid="uid://dpfnmv1x4cv2d" path="res://map_environments.tres" id="5_21toe"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_elldp"]
@@ -20,27 +22,23 @@ albedo_color = Color(1, 1, 0, 1)
 material = SubResource("StandardMaterial3D_untws")
 size = Vector3(1, 2, 1)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2qw1y"]
-albedo_color = Color(1, 0, 0.0196078, 1)
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1nuxl"]
+transparency = 1
+albedo_texture = ExtResource("2_u11kd")
+texture_filter = 0
 
-[sub_resource type="CylinderMesh" id="CylinderMesh_60u6o"]
-material = SubResource("StandardMaterial3D_2qw1y")
-top_radius = 1.5
-bottom_radius = 1.5
-height = 0.5
-radial_segments = 16
-rings = 2
+[sub_resource type="QuadMesh" id="QuadMesh_ugm30"]
+material = SubResource("StandardMaterial3D_1nuxl")
+size = Vector2(4, 4)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yrc7m"]
-albedo_color = Color(1, 0.983333, 0, 1)
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ugm30"]
+transparency = 1
+albedo_texture = ExtResource("3_1nuxl")
+texture_filter = 0
 
-[sub_resource type="CylinderMesh" id="CylinderMesh_pgliq"]
-material = SubResource("StandardMaterial3D_yrc7m")
-top_radius = 1.5
-bottom_radius = 1.5
-height = 0.5
-radial_segments = 16
-rings = 2
+[sub_resource type="QuadMesh" id="QuadMesh_pgab2"]
+material = SubResource("StandardMaterial3D_ugm30")
+size = Vector2(3.5, 3.5)
 
 [node name="Maze" type="Node3D"]
 script = ExtResource("1_tra7k")
@@ -62,17 +60,17 @@ mesh = SubResource("PrismMesh_bg1dy")
 skeleton = NodePath("../..")
 
 [node name="EndMarker" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38, 4, 78)
+transform = Transform3D(-1, 8.9407e-08, 2.66454e-15, 0, -4.37114e-08, 1, 8.9407e-08, 1, 4.37114e-08, 54, 4, 78)
 layers = 524288
 cast_shadow = 0
-mesh = SubResource("CylinderMesh_60u6o")
+mesh = SubResource("QuadMesh_ugm30")
 skeleton = NodePath("../MapViewport")
 
 [node name="StartMarker" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, 4, -2)
+transform = Transform3D(-1, 8.74228e-08, 3.82137e-15, 0, -4.37114e-08, 1, 8.74228e-08, 1, 4.37114e-08, 42, 4, -2)
 layers = 524288
 cast_shadow = 0
-mesh = SubResource("CylinderMesh_pgliq")
+mesh = SubResource("QuadMesh_pgab2")
 skeleton = NodePath("../MapViewport")
 
 [node name="MapViewport" type="SubViewport" parent="."]
