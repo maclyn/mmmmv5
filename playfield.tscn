@@ -100,7 +100,7 @@ size = 150.0
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 42, 1, -2)
 
 [node name="GameTimer" type="Timer" parent="."]
-wait_time = 188.0
+wait_time = 160.0
 one_shot = true
 
 [node name="HUD" type="Control" parent="."]
@@ -120,7 +120,7 @@ offset_bottom = 80.0
 grow_horizontal = 2
 theme_override_fonts/font = ExtResource("7_eeir4")
 theme_override_font_sizes/font_size = 48
-text = "2:55:5"
+text = "1:57:9"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -164,7 +164,7 @@ layout_mode = 2
 expand_mode = 5
 
 [node name="PlayerIndicator" type="TextureRect" parent="HUD/MiniMapContainer"]
-custom_minimum_size = Vector2(24, 24)
+custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4

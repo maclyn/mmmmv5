@@ -369,8 +369,6 @@ func attach_player(player: Node3D, player_instance: Node3D) -> void:
 			block.instance.attach_player(player)
 	
 func update_player_marker(position: Vector3, rotation_y: float):
-	$PlayerMarker.global_position = Vector3(position.x, 4, position.z)
-	$PlayerMarker/DirectionRoot/DirectionArrow.rotation.z = -(rotation_y + (PI / 2))
 	if Globals.is_web() || SIMULATED_ENV_WITHOUT_OCCLUSION_CULLING:
 		_cull_based_on_player_position(position)
 
