@@ -1,7 +1,8 @@
-[gd_scene load_steps=7 format=3 uid="uid://dvaw2npxvr5ig"]
+[gd_scene load_steps=8 format=3 uid="uid://dvaw2npxvr5ig"]
 
-[ext_resource type="Script" path="res://game_over.gd" id="1_kvdhk"]
+[ext_resource type="Script" uid="uid://bm1ssotpvc6w5" path="res://game_over.gd" id="1_kvdhk"]
 [ext_resource type="Theme" uid="uid://chke2i30au63p" path="res://main_menu.tres" id="1_uic5f"]
+[ext_resource type="FontFile" uid="uid://x4pbvs84ximx" path="res://assets/Good Old DOS.ttf" id="3_ccer4"]
 
 [sub_resource type="Gradient" id="Gradient_pelir"]
 colors = PackedColorArray(1, 0, 0.054902, 1, 0.203125, 0, 0.011152, 1)
@@ -73,6 +74,7 @@ alignment = 1
 visible = false
 layout_mode = 2
 theme = ExtResource("1_uic5f")
+theme_override_fonts/font = ExtResource("3_ccer4")
 theme_override_font_sizes/font_size = 48
 text = "Game Over"
 horizontal_alignment = 1
@@ -81,6 +83,7 @@ horizontal_alignment = 1
 layout_mode = 2
 size_flags_horizontal = 6
 theme = ExtResource("1_uic5f")
+theme_override_fonts/font = ExtResource("3_ccer4")
 theme_override_font_sizes/font_size = 48
 text = "New High Score"
 horizontal_alignment = 1
@@ -90,6 +93,7 @@ vertical_alignment = 1
 layout_mode = 2
 size_flags_horizontal = 4
 theme = ExtResource("1_uic5f")
+theme_override_fonts/font = ExtResource("3_ccer4")
 theme_override_font_sizes/font_size = 32
 text = "1000 Points"
 horizontal_alignment = 1

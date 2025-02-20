@@ -43,10 +43,6 @@ quicksand_group=""
 spike_group=""
 coin_group=""
 
-[gui]
-
-theme/custom_font="res://assets/Flexi_IBM_VGA_False_437.ttf"
-
 [input]
 
 ui_accept={

@@ -2,6 +2,7 @@ Read each line as [Usecase]/[Asset + Author]/[URL]/[License]
 	CC0 = Creative Commons 0 License
 	A3.0 = Creative Commons Attribution 3.0 Unported
 	A4.0 = Creative Commons Attribution 4.0 International
+	OFL = SIL Open Font License
 
 ----- AUDIO -----
 Spooky Music/ Sly Piano Instrumental [Loop] by NearTheAtmoshphere/ https://freesound.org/s/707613/ CC0 
@@ -17,3 +18,5 @@ Quicksand/ Steps_Fine_Snow_Or_Sand_Strong_08 by BlondPanda/ https://freesound.or
 Spike/Scissor.wav by jjhouse4/ https://freesound.org/s/197989/ -- A4.0
 ----- TEXTURES -----
 grass05.png texture by athile/ https://opengameart.org/content/seamless-grass-textures-20-pack / CC0
+------ FONTS -------
+Good Old DOS by Daymarius/ https://fontesk.com/good-old-dos-typeface / OFL

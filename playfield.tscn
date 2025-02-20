@@ -6,8 +6,8 @@
 [ext_resource type="PackedScene" uid="uid://cp28gjjsjws27" path="res://maze.tscn" id="6_cy60q"]
 [ext_resource type="PackedScene" uid="uid://3mh0fvm1jcci" path="res://player.tscn" id="6_qmkiw"]
 [ext_resource type="Shader" uid="uid://dqn0yiai3isnt" path="res://shaders/screen_effect.gdshader" id="7_b1nhy"]
-[ext_resource type="FontFile" uid="uid://b88ckwrmql0l8" path="res://assets/Flexi_IBM_VGA_False_437.ttf" id="7_eeir4"]
 [ext_resource type="Texture2D" uid="uid://cnftnuevfyaxl" path="res://textures/player_position.png" id="8_5jnvf"]
+[ext_resource type="FontFile" uid="uid://x4pbvs84ximx" path="res://assets/Good Old DOS.ttf" id="8_b1nhy"]
 [ext_resource type="Shader" uid="uid://cx3g06m24jftn" path="res://shaders/pixelize.gdshader" id="9_fxjji"]
 [ext_resource type="PackedScene" uid="uid://dvaw2npxvr5ig" path="res://game_over.tscn" id="9_gsmfs"]
 [ext_resource type="PackedScene" uid="uid://bcbm4lb2vq0x6" path="res://mobile_controls.tscn" id="10_8lkyr"]
@@ -49,11 +49,11 @@ shader_parameter/color_levels = 24
 [sub_resource type="CanvasTexture" id="CanvasTexture_b1nhy"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rgj6w"]
-border_width_left = 12
-border_width_top = 12
-border_width_right = 12
-border_width_bottom = 12
-border_color = Color(3.36915e-07, 0.221838, 0, 1)
+border_width_left = 8
+border_width_top = 8
+border_width_right = 8
+border_width_bottom = 8
+border_color = Color(0, 0, 0, 1)
 corner_detail = 16
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_a4plv"]
@@ -100,10 +100,10 @@ current = true
 size = 150.0
 
 [node name="Player" parent="." instance=ExtResource("6_qmkiw")]
-transform = Transform3D(-1, -6.18173e-08, -6.18173e-08, 0, 0.707107, -0.707107, 8.74228e-08, -0.707107, -0.707107, 42, 1, -2)
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 42, 1, -2)
 
 [node name="GameTimer" type="Timer" parent="."]
-wait_time = 156.0
+wait_time = 152.0
 one_shot = true
 
 [node name="EffectShader" type="TextureRect" parent="."]
@@ -133,9 +133,9 @@ offset_left = -54.0
 offset_right = 54.0
 offset_bottom = 80.0
 grow_horizontal = 2
-theme_override_fonts/font = ExtResource("7_eeir4")
+theme_override_fonts/font = ExtResource("8_b1nhy")
 theme_override_font_sizes/font_size = 48
-text = "0:00:0"
+text = "0:08:3"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -145,7 +145,7 @@ offset_left = 12.0
 offset_top = 36.0
 offset_right = 174.0
 offset_bottom = 116.0
-theme_override_fonts/font = ExtResource("7_eeir4")
+theme_override_fonts/font = ExtResource("8_b1nhy")
 theme_override_font_sizes/font_size = 32
 text = "000000"
 horizontal_alignment = 1
@@ -156,7 +156,7 @@ layout_mode = 1
 offset_left = 12.0
 offset_right = 174.0
 offset_bottom = 80.0
-theme_override_fonts/font = ExtResource("7_eeir4")
+theme_override_fonts/font = ExtResource("8_b1nhy")
 theme_override_font_sizes/font_size = 32
 text = "Round 1"
 horizontal_alignment = 1
@@ -214,6 +214,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_fvyei")
 
 [node name="LoadingLabel" type="Label" parent="HUD/LoadingContainer"]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("8_b1nhy")
 theme_override_font_sizes/font_size = 20
 horizontal_alignment = 1
 uppercase = true
