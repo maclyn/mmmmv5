@@ -27,7 +27,7 @@ size = Vector2(3.5, 3.5)
 script = ExtResource("1_tra7k")
 
 [node name="EndMarker" type="MeshInstance3D" parent="."]
-transform = Transform3D(-1, 8.9407e-08, 2.66454e-15, 0, -4.37114e-08, 1, 8.9407e-08, 1, 4.37114e-08, 54, 4, 78)
+transform = Transform3D(-1, 8.74228e-08, 3.82137e-15, 0, -4.37114e-08, 1, 8.74228e-08, 1, 4.37114e-08, 14, 4, 78)
 layers = 524288
 cast_shadow = 0
 mesh = SubResource("QuadMesh_ugm30")
