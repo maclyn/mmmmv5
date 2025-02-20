@@ -1,7 +1,7 @@
 shader_type spatial;
 
-uniform sampler2D base_map : source_color, filter_linear_mipmap;
-uniform sampler2D pin : source_color, filter_linear;
+uniform sampler2D base_map : source_color, filter_nearest;
+uniform sampler2D pin : source_color, filter_nearest;
 
 uniform float map_size_units;
 uniform float maze_size_units;
