@@ -7,7 +7,7 @@ const new_game_str = "(N)ew Game"
 const loading_str = "Loading..."
 
 var _saver = Globals.get_saver()
-var _using_mobile_web_kludge = Globals.is_mobile_web()
+var _using_mobile_kludge = Globals.is_mobile_device()
 
 func show_main_menu():
 	if !Engine.is_editor_hint():
@@ -38,7 +38,7 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventScreenTouch:
 		var touch_event = event
 		print("event: " + str(touch_event.position) + "; " + str(touch_event.pressed))
-		if visible && _using_mobile_web_kludge && touch_event.pressed:
+		if visible && _using_mobile_kludge && touch_event.pressed:
 			_try_mobile_web_kludge(touch_event.position)
 	
 func _notification(what: int) -> void:
@@ -147,7 +147,7 @@ func _show_text_dialog(title: String, path: String, font_size: int = 20) -> void
 	d.popup_centered(Vector2i(300, 200))
 	d.show()
 	
-	if _using_mobile_web_kludge:
+	if _using_mobile_kludge:
 		await get_tree().create_timer(5).timeout
 		d.hide()
 		

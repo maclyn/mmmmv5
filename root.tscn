@@ -13,13 +13,13 @@ script = ExtResource("1_b1y3i")
 
 [node name="Playfield" parent="." instance=ExtResource("2_wqq1c")]
 
-[node name="MainMenu" parent="." instance=ExtResource("7_lvl7v")]
-
 [node name="ResumeButton" type="TouchScreenButton" parent="."]
 position = Vector2(640, 360)
 shape = SubResource("RectangleShape2D_vvh5c")
 
+[node name="MainMenu" parent="." instance=ExtResource("7_lvl7v")]
+
 [connection signal="back_pressed" from="Playfield" to="." method="_on_playfield_back_pressed"]
 [connection signal="game_over" from="Playfield" to="." method="_on_playfield_game_over"]
-[connection signal="start_game" from="MainMenu" to="." method="_on_main_menu_start_game"]
 [connection signal="pressed" from="ResumeButton" to="." method="_on_resume_button_pressed"]
+[connection signal="start_game" from="MainMenu" to="." method="_on_main_menu_start_game"]
