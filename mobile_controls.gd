@@ -2,7 +2,7 @@
 extends Control
 
 signal h_swipe(delta_x: float)
-signal main_menu()
+signal back_pressed()
 
 const DEBUG_MOBILE_CONTROLS = true
 
@@ -39,7 +39,7 @@ func _notification(what: int) -> void:
 		return
 	if what == NOTIFICATION_WM_GO_BACK_REQUEST && Globals.on_back_notif_receieved():
 		print("Going back from game")
-		main_menu.emit()
+		back_pressed.emit()
 
 func _input(event: InputEvent) -> void:
 	if _has_seen_non_touch_input:

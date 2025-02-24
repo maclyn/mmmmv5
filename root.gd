@@ -1,7 +1,6 @@
 @tool
 extends Node3D
 
-# Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	_show_main_menu()
 	get_tree().set_auto_accept_quit(!Globals.is_mobile_native())
@@ -15,6 +14,10 @@ func _unhandled_input(_event: InputEvent) -> void:
 			get_window().mode = Window.MODE_FULLSCREEN
 		else:
 			get_window().mode = Window.MODE_WINDOWED
+	if Input.is_action_just_pressed("ui_cancel"):
+		_on_back_signal()
+	if Input.is_action_just_pressed("resume_game"):
+		_on_resume()
 	
 func _show_main_menu():
 	$MainMenu.show_main_menu()
@@ -33,3 +36,23 @@ func _on_main_menu_start_game() -> void:
 
 func _on_playfield_game_over() -> void:
 	_show_main_menu()
+
+func _on_playfield_back_pressed() -> void:
+	_on_back_signal()
+	
+func _on_back_signal() -> void:
+	if $Playfield.is_in_game():
+		if get_tree().paused:
+			$Playfield._round_over(false, true)
+		else:
+			$Playfield/HUD/PausedContainer.visible = true
+			get_tree().paused = true
+			$ResumeButton.visible = true
+
+func _on_resume_button_pressed() -> void:
+	_on_resume()
+
+func _on_resume() -> void:
+	get_tree().paused = false
+	$Playfield/HUD/PausedContainer.visible = false
+	$ResumeButton.visible = false

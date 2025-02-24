@@ -39,6 +39,7 @@ fill_from = Vector2(0.5, 0.5)
 fill_to = Vector2(0.83, 0.83)
 
 [node name="MobileControls" type="Control"]
+visible = false
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0

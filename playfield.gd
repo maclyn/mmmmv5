@@ -8,6 +8,7 @@ extends Node
 @export var default_map_env: Resource
 @export var dark_map_env: Resource
 
+signal back_pressed()
 signal game_over()
 
 const ROUND_TRANSITION_TIME_MS = 1500
@@ -37,6 +38,9 @@ enum GameState {
 
 func start_new_game() -> void:
 	_start_new_game()
+	
+func is_in_game():
+	return game_state != GameState.GAME_OVER && game_state != GameState.NOT_STARTED
 	
 func _ready():
 	$GameOver.visible = false
@@ -79,10 +83,6 @@ func _process(_delta: float) -> void:
 			$Maze.maybe_run_exit_ops()
 			_format_label_to_remaining_timer()
 			_update_minimap()
-			
-func _unhandled_input(_event: InputEvent) -> void:
-	if Input.is_action_just_pressed("ui_cancel") && game_state != GameState.GAME_OVER && game_state != GameState.NOT_STARTED:
-		_round_over(false, true)
 			
 func _update_minimap():
 	var player_pos = $Player.global_position
@@ -345,7 +345,7 @@ func _on_mobile_controls_h_swipe(delta_x: float) -> void:
 	$Player.external_x_movement(delta_x * 3.0)
 
 func _on_mobile_controls_main_menu() -> void:
-	_round_over(false, true)
+	back_pressed.emit()
 	
 func _update_loading_screen(visible: bool, text: String = "") -> void:
 	if round > 1:

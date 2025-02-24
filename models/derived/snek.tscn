@@ -4,7 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://dvsw8ngvesm2x" path="res://models/snek.glb" id="2_4f6uu"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ftojm"]
-size = Vector3(2.62314, 0.117279, 0.147339)
+size = Vector3(2.58989, 0.203171, 0.198959)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_e3ai4"]
 resource_name = "skin"
@@ -109,11 +109,11 @@ collision_mask = 2
 script = ExtResource("1_ocp1a")
 
 [node name="SnekCollider" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0251312, 0.0788737, 6.10352e-05)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.041756, 0.12182, -0.0118179)
 shape = SubResource("BoxShape3D_ftojm")
 
 [node name="SnekMesh" parent="." instance=ExtResource("2_4f6uu")]
-transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0.198364, 0.060313, 0)
+transform = Transform3D(0.2, 0, 0, 0, 0.4, 0, 0, 0, 0.4, 0.198, 0.1, 0)
 
 [node name="body" parent="SnekMesh" index="0"]
 layers = 65536
@@ -126,7 +126,8 @@ layers = 65536
 layers = 65536
 
 [node name="SnekNotifier" type="VisibleOnScreenNotifier3D" parent="."]
-aabb = AABB(-1.2, 0, -0.1, 2.4, 0.1, 0.2)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0444572, -0.0122732)
+aabb = AABB(-1.2, -0.044195, -0.1, 2.4, 0.18839, 0.2)
 
 [connection signal="screen_entered" from="SnekNotifier" to="." method="_on_snek_notifier_screen_entered"]
 

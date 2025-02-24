@@ -3,8 +3,7 @@ extends AnimatableBody3D
 
 signal collided_with_player()
 
-const SNAKE_SPEED_UNITS_PER_S = 5.0
-const MAX_DIST_FOR_VALID_HIT = 6.0
+const SNAKE_SPEED_UNITS_PER_S = 3.5
 
 var x_dir = 0
 var y_dir = 0
@@ -94,11 +93,6 @@ func _check_spotted() -> void:
 	# Check in camera frustrum
 	if !on_screen:
 		print("Snake not on screen")
-		return
-		
-	# Check distance
-	if self.global_position.distance_to(player_node.global_position) > MAX_DIST_FOR_VALID_HIT:
-		print("Too far")
 		return
 	
 	# Make sure not behind wall

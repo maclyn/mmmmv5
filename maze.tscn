@@ -8,7 +8,8 @@
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1nuxl"]
 transparency = 1
 albedo_texture = ExtResource("2_u11kd")
-texture_filter = 0
+texture_filter = 1
+texture_repeat = false
 
 [sub_resource type="QuadMesh" id="QuadMesh_ugm30"]
 material = SubResource("StandardMaterial3D_1nuxl")
@@ -17,7 +18,8 @@ size = Vector2(4, 4)
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ugm30"]
 transparency = 1
 albedo_texture = ExtResource("3_1nuxl")
-texture_filter = 0
+texture_filter = 1
+texture_repeat = false
 
 [sub_resource type="QuadMesh" id="QuadMesh_pgab2"]
 material = SubResource("StandardMaterial3D_ugm30")
@@ -42,6 +44,8 @@ skeleton = NodePath("../MapViewport")
 
 [node name="MapViewport" type="SubViewport" parent="."]
 msaa_3d = 2
+scaling_3d_scale = 1.0
+canvas_item_default_texture_filter = 0
 positional_shadow_atlas_size = 0
 size = Vector2i(2048, 2048)
 render_target_update_mode = 1
