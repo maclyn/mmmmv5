@@ -262,8 +262,9 @@ func join_maze_gen_thread(start_position: Vector2i):
 	if gen_thread != null:
 		gen_thread.wait_to_finish()
 	var exit_position = _maze_block_position_to_center_in_scene_space(exit_block.position.x, exit_block.position.y)
-	$EndMarker.global_position = Vector3(exit_position.x, 4, exit_position.y)
-	$StartMarker.global_position = Vector3(start_position.x, 4, start_position.y)
+	if !Engine.is_editor_hint():
+		$EndMarker.global_position = Vector3(exit_position.x, 4, exit_position.y)
+		$StartMarker.global_position = Vector3(start_position.x, 4, start_position.y)
 	if !Globals.is_web():
 		$MapViewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 	if Engine.is_editor_hint():

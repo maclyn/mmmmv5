@@ -10,7 +10,8 @@ var _saver = Globals.get_saver()
 var _using_mobile_web_kludge = Globals.is_mobile_web()
 
 func show_main_menu():
-	$MenuMusic.play()
+	if !Engine.is_editor_hint():
+		$MenuMusic.play()
 	$Buttons/NormalButton.grab_focus()
 	$Buttons/NormalButton.text = new_game_str
 	
@@ -18,9 +19,10 @@ func hide_main_menu():
 	$MenuMusic.stop()
 	
 func _ready() -> void:
-	_apply_mute_mode(_saver.get_is_muted())
-	_apply_gfx_mode(_saver.get_graphics_mode())
-	_apply_high_score(_saver.get_high_score())
+	if !Engine.is_editor_hint():
+		_apply_mute_mode(_saver.get_is_muted())
+		_apply_gfx_mode(_saver.get_graphics_mode())
+		_apply_high_score(_saver.get_high_score())
 	$Buttons/Quit.visible = !Globals.is_web()
 	show_main_menu()
 	
