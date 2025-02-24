@@ -23,7 +23,7 @@ func _ready() -> void:
 		_apply_mute_mode(_saver.get_is_muted())
 		_apply_gfx_mode(_saver.get_graphics_mode())
 		_apply_high_score(_saver.get_high_score())
-	$Buttons/Quit.visible = !Globals.is_web()
+	$Buttons/Quit.visible = !Globals.is_web() && !Globals.is_mobile_device()
 	show_main_menu()
 	
 func _on_visibility_changed() -> void:

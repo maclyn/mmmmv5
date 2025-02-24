@@ -43,6 +43,7 @@ func _on_playfield_back_pressed() -> void:
 func _on_back_signal() -> void:
 	if $Playfield.is_in_game():
 		if get_tree().paused:
+			_on_resume()
 			$Playfield._round_over(false, true)
 		else:
 			$Playfield/HUD/PausedContainer.visible = true
