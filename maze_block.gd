@@ -24,6 +24,7 @@ var _is_portal_exit: bool = false
 var _has_spike: bool = false
 var _has_quicksand: bool = false
 var _has_coin: bool = true
+var _hide_corners: bool = false
 
 # Portal entrance state
 var _exit_portal: Node3D = null
@@ -66,6 +67,9 @@ func _ready():
 	_configure_coin()
 	_configure_grass()
 	_configure_hedge()
+	_configure_corners()
+	
+	_update_decal_visiblity_from_culling()
 	
 func _exit_tree() -> void:
 	_has_configured_grass = false
@@ -154,7 +158,12 @@ func attach_player(player_pivot: Node3D):
 	
 func set_manually_culled(is_manually_culled: bool):
 	_is_manually_culled = is_manually_culled
-	_update_decal_visiblity_from_culling()
+	if is_node_ready():
+		_update_decal_visiblity_from_culling()
+		
+func set_hide_corners(hide_corners: bool):
+	_hide_corners = hide_corners
+	_configure_corners()
 	
 func _configure_exit():
 	if is_node_ready():
@@ -229,6 +238,13 @@ func _configure_coin():
 	if is_node_ready():
 		$Coin/CoinCollider.disabled = !_has_coin
 		$Coin/CoinSurface.visible = _has_coin
+		
+func _configure_corners():
+	if is_node_ready():
+		$HedgeCornerNE.visible = !_hide_corners || $HedgeWallN.visible || $HedgeWallE.visible
+		$HedgeCornerSE.visible = !_hide_corners || $HedgeWallS.visible || $HedgeWallE.visible
+		$HedgeCornerNW.visible = !_hide_corners || $HedgeWallN.visible || $HedgeWallW.visible
+		$HedgeCornerSW.visible = !_hide_corners || $HedgeWallS.visible || $HedgeWallW.visible
 		
 func _configure_grass():
 	if _has_configured_grass:

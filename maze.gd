@@ -68,6 +68,7 @@ var portal_block: MazeBlock = null
 var portal_exit_block: MazeBlock = null
 var path_from_exit_to_entrance: Array[MazeBlock] = []
 var map_blocks: Array[MazeBlock] = []
+var shading_blocks: Dictionary = {}
 var current_player_maze_block: Vector2i = Vector2.ZERO
 var exit_ops: Array[TransitionToExitStep] = []
 var exit_ops_idx = -1
@@ -121,6 +122,8 @@ class MazeBlock:
 	var is_exit: bool = false
 	var in_solution_path: bool = false
 	var dist_from_start: int = 0
+	var should_cull: bool = false
+	var hide_corners: bool = false
 	var instance: Node = null
 	
 	func _init(x: int, y: int):
@@ -182,6 +185,8 @@ class MazeBlock:
 		maze_block.position.x = x + HEDGE_LENGTH
 		maze_block.position.y = HEDGE_HEIGHT / 2.0
 		maze_block.position.z = y + HEDGE_LENGTH
+		maze_block.set_manually_culled(should_cull)
+		maze_block.set_hide_corners(hide_corners)
 		instance = maze_block
 		maze_block.configure_walls(
 			walls[GridDirection.NORTH],
@@ -301,6 +306,12 @@ func clear_maze() -> void:
 			var instance = blocks[x][y].instance
 			dynamic_root.remove_child(instance)
 			instance.queue_free()
+	for x in shading_blocks:
+		for y in shading_blocks[x]:
+			var instance = shading_blocks[x][y].instance
+			if instance:
+				dynamic_root.remove_child(instance)
+				instance.queue_free()
 	blocks = {}
 	for snake in snakes:
 		dynamic_root.remove_child(snake)
@@ -314,6 +325,7 @@ func clear_maze() -> void:
 	portal_exit_block = null
 	exit_block = null 
 	map_blocks.clear()
+	shading_blocks = {}
 	exit_ops.clear()
 	exit_ops_idx = -1
 	path_from_exit_to_entrance.clear()
@@ -562,6 +574,23 @@ func _add_block_at_position(block: MazeBlock):
 	sub_dict[y] = block
 	blocks_count += 1
 	
+func _get_or_add_shading_block_at_position(x: int, y: int) -> MazeBlock:
+	if x in shading_blocks && y in shading_blocks[x]:
+		return shading_blocks[x][y]
+	var block: MazeBlock = MazeBlock.new(x, y)
+	block.walls[GridDirection.NORTH] = false
+	block.walls[GridDirection.SOUTH] = false
+	block.walls[GridDirection.WEST] = false
+	block.walls[GridDirection.EAST] = false
+	block.should_cull = true
+	block.hide_corners = true
+	if x not in shading_blocks:
+		shading_blocks[x] = {}
+	var sub_dict = shading_blocks[x]
+	assert(y not in sub_dict, "should not add block at existing position")
+	sub_dict[y] = block
+	return block
+	
 # Generate the maze, and return the center of the maze entrance in world space
 # or return Vector2i.ZERO if it failed to generate a good maze
 # We consider a maze "bad" in 2 situations:
@@ -637,9 +666,44 @@ func _generate_maze(allow_bad_mazes: bool = false):
 	# Also choose special maze blocks
 	_emit_load_changed("Building completed maze...")
 	
+	# One problem with the overhead map is that every wall *usually* borders
+	# another wall, so it looks thick
+	# But there are some walls that *don't* border other walls
+	# To "fix" this, we create shading blocks -- decal-less MazeBlocks just
+	# added for their walls'
+	for x in blocks:
+		for y in blocks[x]:
+			if not x - 1 in blocks || not y in blocks[x - 1]:
+				if VERBOSE_GEN:
+					print("missing to west of " + str(x) + " , " + str(y))
+				var block: MazeBlock = _get_or_add_shading_block_at_position(x - 1, y)
+				block.walls[GridDirection.EAST] = true
+			if not x + 1 in blocks || not y in blocks[x + 1]:
+				if VERBOSE_GEN:
+					print("missing to east of " + str(x) + " , " + str(y))
+				var block: MazeBlock = _get_or_add_shading_block_at_position(x + 1, y)
+				block.walls[GridDirection.WEST] = true
+			if not y - 1 in blocks[x]:
+				if VERBOSE_GEN:
+					print("missing to north of " + str(x) + " , " + str(y))
+				var block: MazeBlock = _get_or_add_shading_block_at_position(x, y - 1)
+				block.walls[GridDirection.SOUTH] = true
+			if not y + 1 in blocks[x]:
+				if VERBOSE_GEN:
+					print("missing to south of " + str(x) + " , " + str(y))
+				var block: MazeBlock = _get_or_add_shading_block_at_position(x, y + 1)
+				block.walls[GridDirection.NORTH] = true
+	
 	# We can add_child(...) to a dummy node so long as we don't took the
 	# actual scene graph (which needs to be deferred)
 	dynamic_root = Node3D.new()
+	
+	# These are pretty fast, won't update loading screen from this one
+	for x in shading_blocks:
+		for y in shading_blocks[x]:
+			var block = shading_blocks[x][y]
+			block.actualize(maze_block_scene.instantiate())
+			dynamic_root.add_child(block.instance)
 	
 	var blocks_built = 0
 	for x in blocks:
