@@ -94,7 +94,7 @@ func _update_minimap():
 		# a x = 0 and w = 2048, and y = 0 and h = 2048 just draws the whole map
 		# the center is (40, 40)
 		var viewport_size = 124.0 # 20 units * 4 = 80 units; 44 units padding (22 / 4 -> ~5.5 blocks of padding)
-		var tex_size = 2048.0
+		var tex_size = Constants.MINIMAP_SIZE
 		var tex_px_per_scene_unit = tex_size / viewport_size
 		var desired_map_size_span_px = tex_px_per_scene_unit * 40.0 # 5 units on each side -> 20.0 -> 40.0
 		var half_desired_map_size_span_px = desired_map_size_span_px / 2.0

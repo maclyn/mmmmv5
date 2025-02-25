@@ -9,6 +9,8 @@ enum GameDifficulty {
 	HARD
 }
 
+const MINIMAP_SIZE = 1024.0
+
 const Saver = preload("res://saver.gd")
 
 var _saver = Saver.new()
