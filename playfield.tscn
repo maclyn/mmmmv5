@@ -78,7 +78,7 @@ script = ExtResource("1_de1dc")
 default_map_env = ExtResource("13_03e11")
 dark_map_env = ExtResource("3_g75ud")
 
-[node name="Ground" type="StaticBody3D" parent="."]
+[node name="Ground" type="StaticBody3D" parent="." groups=["ground_group"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, 40)
 
 [node name="GroundCollider" type="CollisionShape3D" parent="Ground"]
@@ -104,7 +104,7 @@ current = true
 size = 150.0
 
 [node name="Player" parent="." instance=ExtResource("6_qmkiw")]
-transform = Transform3D(-1, -6.18172e-08, -6.18172e-08, 0, 0.707107, -0.707107, 8.74228e-08, -0.707107, -0.707107, 42, 1, -2)
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 42, 1, -2)
 
 [node name="GameTimer" type="Timer" parent="."]
 wait_time = 216.0

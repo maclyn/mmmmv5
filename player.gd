@@ -132,16 +132,21 @@ func _physics_process(delta: float) -> void:
 			continue
 		if collider.is_in_group("exit_group"):
 			at_exit.emit()
-		if collider.is_in_group("key_group"):
+		elif collider.is_in_group("key_group"):
 			at_key.emit()
-		if collider.is_in_group("portal_group"):
+		elif collider.is_in_group("portal_group"):
 			at_portal.emit()
-		if collider.is_in_group("spike_group"):
+		elif collider.is_in_group("spike_group"):
 			at_spike.emit()
-		if collider.is_in_group("coin_group"):
+		elif collider.is_in_group("coin_group"):
 			if not collider.has_collided_before():
 				collider.remove_self()
 				at_coin.emit()
+		elif collider.is_in_group("enemy_group"):
+			collider.handle_external_collision()
+		elif !collider.is_in_group("ground_group"):
+			pass
+			# print("Player hit interesting collider: " + str(collider))
 	
 	if in_quicksand:
 		if !$Sounds/QuicksandPlayer.playing:

@@ -42,6 +42,7 @@ portal_group=""
 quicksand_group=""
 spike_group=""
 coin_group=""
+ground_group=""
 
 [input]
 

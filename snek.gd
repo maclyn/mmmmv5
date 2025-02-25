@@ -70,6 +70,17 @@ func init_snek(x_dir: int, y_dir: int, min_x: float, max_x: float, min_y: float,
 	
 func attach_player(node: Node3D):
 	player_node = node
+	
+func handle_external_collision():
+	if !spotted:
+		_check_spotted()
+	if !spotted:
+		print("Droppping unfair collision with unspotted player")
+		_reset_position(start_pos)
+	else:
+		print("Colliding!")
+		collided = true
+		collided_with_player.emit()
 
 func _on_snek_notifier_screen_entered() -> void:
 	on_screen = true
