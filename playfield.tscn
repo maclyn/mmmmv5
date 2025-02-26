@@ -107,7 +107,7 @@ size = 150.0
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 42, 1, -2)
 
 [node name="GameTimer" type="Timer" parent="."]
-wait_time = 216.0
+wait_time = 168.0
 one_shot = true
 
 [node name="EffectShader" type="TextureRect" parent="."]
@@ -139,7 +139,7 @@ offset_bottom = 80.0
 grow_horizontal = 2
 theme_override_fonts/font = ExtResource("8_b1nhy")
 theme_override_font_sizes/font_size = 48
-text = "0:00:0"
+text = "2:39:2"
 horizontal_alignment = 1
 vertical_alignment = 1
 
