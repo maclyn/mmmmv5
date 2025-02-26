@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dghtc8eovy3xq"
-path.s3tc="res://.godot/imported/splash.png-884e1230cc34c1d58ec385e59f593754.s3tc.ctex"
-path.etc2="res://.godot/imported/splash.png-884e1230cc34c1d58ec385e59f593754.etc2.ctex"
+path.bptc="res://.godot/imported/splash.png-884e1230cc34c1d58ec385e59f593754.bptc.ctex"
+path.astc="res://.godot/imported/splash.png-884e1230cc34c1d58ec385e59f593754.astc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -13,17 +13,17 @@ metadata={
 [deps]
 
 source_file="res://textures/splash.png"
-dest_files=["res://.godot/imported/splash.png-884e1230cc34c1d58ec385e59f593754.s3tc.ctex", "res://.godot/imported/splash.png-884e1230cc34c1d58ec385e59f593754.etc2.ctex"]
+dest_files=["res://.godot/imported/splash.png-884e1230cc34c1d58ec385e59f593754.bptc.ctex", "res://.godot/imported/splash.png-884e1230cc34c1d58ec385e59f593754.astc.ctex"]
 
 [params]
 
 compress/mode=2
-compress/high_quality=false
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""
