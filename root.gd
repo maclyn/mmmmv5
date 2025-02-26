@@ -49,6 +49,7 @@ func _on_back_signal() -> void:
 			$Playfield/HUD/PausedContainer.visible = true
 			get_tree().paused = true
 			$ResumeButton.visible = true
+			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func _on_resume_button_pressed() -> void:
 	_on_resume()
@@ -57,3 +58,4 @@ func _on_resume() -> void:
 	get_tree().paused = false
 	$Playfield/HUD/PausedContainer.visible = false
 	$ResumeButton.visible = false
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED

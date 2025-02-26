@@ -98,12 +98,15 @@ func _physics_process(delta: float) -> void:
 	# Handle jump.
 	if Input.is_action_just_pressed("jump") and (is_on_floor() or in_quicksand):
 		velocity.y = JUMP_VELOCITY
+		_maybe_recapture()
 
 	if not in_quicksand:
 		var kb_input_dir := Input.get_vector("strafe_left", "strafe_right", "forward", "backwards")
 		var joystick_input_dir := Input.get_vector("joystick_left", "joystick_right", "joystick_up", "joystick_down")
 		var use_joystick = !joystick_input_dir.is_zero_approx()
 		var chosen_input_dir = joystick_input_dir if use_joystick else kb_input_dir
+		if !chosen_input_dir.is_zero_approx():
+			_maybe_recapture()
 		var direction := (transform.basis * Vector3(chosen_input_dir.x, 0, chosen_input_dir.y)).normalized()
 		var speed = SPEED if Input.is_action_pressed("walk") else RUN_SPEED
 		if direction:
@@ -178,6 +181,10 @@ func _unhandled_input(_event: InputEvent) -> void:
 		return
 	if Input.is_action_just_pressed("cheat"):
 		cheat.emit()
+		
+func _maybe_recapture():
+	if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 		
 func _process_look(delta: float):
 	var angular_velocity = get_platform_angular_velocity()
