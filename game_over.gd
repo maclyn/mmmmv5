@@ -1,4 +1,3 @@
-@tool
 extends Control
 
 signal done_showing()
@@ -9,18 +8,10 @@ const HALF_TIMER_DURATION_MS = (TIMER_LENGTH_S / 2.0) * 1000.0
 var start_time_ms = Time.get_ticks_msec()
 var is_timer_active = false
 
-func _ready():
-	if Engine.is_editor_hint():
-		visible = true
-		$EndState.visible = true
-		new_high_score(1000)
-		$Timer.stop()
-
 func _process(delta: float):
 	if !is_timer_active:
 		return
 	modulate.a = pct_faded_in()
-	print("Fade is " + str(modulate.a))
 
 func new_high_score(score: int):
 	$EndState/LoseBG.visible = false
