@@ -71,6 +71,7 @@ var map_blocks: Array[MazeBlock] = []
 var shading_blocks: Dictionary = {}
 var current_player_maze_block: Vector2i = Vector2.ZERO
 var exit_ops: Array[TransitionToExitStep] = []
+var has_applied_viewport_capture: bool = false
 var exit_ops_idx = -1
 
 # Shared between overhead map and wall maps
@@ -294,6 +295,7 @@ func build_new_maze_impl():
 		blocks.clear()
 		blocks_count = 0
 		start_position = _generate_maze(Engine.is_editor_hint())
+	has_applied_viewport_capture = false
 	_emit_loaded(start_position)
 	call_deferred("join_maze_gen_thread", start_position)
 	print("Background thread complete")
@@ -354,6 +356,8 @@ func apply_viewports_to_textures() -> void:
 		
 	if portal_block != null:
 		portal_block.instance.attach_exit_capture_to_portal_entrance()
+		
+	has_applied_viewport_capture = true
 	
 func show_path_out() -> void:
 	if portal_block != null:
@@ -382,7 +386,7 @@ func attach_player(player: Node3D, player_instance: Node3D) -> void:
 			block.instance.attach_player(player)
 	
 func update_player_marker(position: Vector3, rotation_y: float):
-	if Globals.is_web() || SIMULATED_ENV_WITHOUT_OCCLUSION_CULLING:
+	if (Globals.is_web() || SIMULATED_ENV_WITHOUT_OCCLUSION_CULLING) && has_applied_viewport_capture:
 		_cull_based_on_player_position(position)
 
 func end_block_position_in_scene_space() -> Vector2i:
