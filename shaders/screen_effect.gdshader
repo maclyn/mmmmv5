@@ -18,7 +18,7 @@ void fragment() {
 	vec2 low_res_coord = SCREEN_UV * low_res_size;
 	vec2 snapped_coord = (floor(low_res_coord) + 0.5) / low_res_size;
 	vec3 screen_color = texture(screen_texture, snapped_coord).rgb;
-	// Now dither, a la https://github.com/immaculate-lift-studio/PSX-Style-Camera-Shader
+	// Now posterize, a la https://github.com/immaculate-lift-studio/PSX-Style-Camera-Shader
 	vec3 final_color = quantize(screen_color);
 	COLOR = vec4(final_color.r, final_color.g, final_color.b, 1.0);
 }

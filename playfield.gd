@@ -43,7 +43,6 @@ func is_in_game():
 	return game_state != GameState.GAME_OVER && game_state != GameState.NOT_STARTED
 	
 func _ready():
-	$GameOver.visible = false
 	var indicator_size = $HUD/MiniMapContainer/PlayerIndicator.size.x
 	$HUD/MiniMapContainer/PlayerIndicator.pivot_offset = Vector2(indicator_size / 2.0, indicator_size / 2.0)
 	var minimap_size = $HUD/MiniMapContainer.size.x
@@ -332,8 +331,7 @@ func _round_over(did_win: bool = false, skip_anim: bool = false) -> void:
 			$GameOver.new_high_score(score)
 		else:
 			$GameOver.game_over()
-		$GameOver.visible = true
-		await get_tree().create_timer($GameOver.get_show_time_s()).timeout
+		await $GameOver.done_showing
 	$Maze.clear_maze()
 	game_over.emit()
 	
