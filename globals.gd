@@ -43,30 +43,32 @@ func next_graphics_mode():
 	
 func set_graphics_mode(mode: String):
 	_graphics_mode = mode
-	var msaa_value = Viewport.MSAA_DISABLED
-	match mode:
-		"min":
-			msaa_value = Viewport.MSAA_DISABLED
-		"low":
-			msaa_value = Viewport.MSAA_DISABLED
-		"medium":
-			msaa_value = Viewport.MSAA_DISABLED
-		"high":
-			msaa_value = Viewport.MSAA_2X
-		"ultra":
-			msaa_value = Viewport.MSAA_4X
-	get_viewport().msaa_3d = msaa_value
-	if mode == "medium":
-		get_viewport().screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA
-	else:
-		get_viewport().screen_space_aa = Viewport.SCREEN_SPACE_AA_DISABLED
+	
+	# DISABLED: Doesn't match the aesthetics 
+	#var msaa_value = Viewport.MSAA_DISABLED
+	#match mode:
+		#"min":
+			#msaa_value = Viewport.MSAA_DISABLED
+		#"low":
+			#msaa_value = Viewport.MSAA_DISABLED
+		#"medium":
+			#msaa_value = Viewport.MSAA_DISABLED
+		#"high":
+			#msaa_value = Viewport.MSAA_2X
+		#"ultra":
+			#msaa_value = Viewport.MSAA_4X
+	#get_viewport().msaa_3d = msaa_value
+	#if mode == "medium":
+		#get_viewport().screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA
+	#else:
+		#get_viewport().screen_space_aa = Viewport.SCREEN_SPACE_AA_DISABLED
 	
 	# Weirdly stuttery without these
 	Engine.physics_jitter_fix = 0
 	Input.set_use_accumulated_input(false)
 	
 	# This makes the game a lot more responsive (at the cost of CPU consumption, but
-	# physics on this game are really easy, so we can eat it in most cases 
+	# physics on this game are really easy, so we can eat it in most cases )
 	var refresh = DisplayServer.screen_get_refresh_rate()
 	if mode != "low" && !Globals.is_web():
 		Engine.physics_ticks_per_second = DisplayServer.screen_get_refresh_rate()

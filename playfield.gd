@@ -73,7 +73,8 @@ func _process(_delta: float) -> void:
 		GameState.ROUND_OVER_WIN:
 			pass
 		GameState.GAME_OVER:
-			$Player.rotation.x = deg_to_rad($GameOver.pct_faded_in() * 45)
+			if !Engine.is_editor_hint():
+				$Player.rotation.x = deg_to_rad($GameOver.pct_faded_in() * 45)
 			pass
 		GameState.GOING_TO_KEY:
 			_format_label_to_remaining_timer()
@@ -313,7 +314,7 @@ func _round_over(did_win: bool = false, skip_anim: bool = false) -> void:
 		# Dump the framebuffer into a texture
 		var freeze_frame: Image = get_viewport().get_texture().get_image()
 		# Account for our "render at" resolution
-		var scale_down = 0.4;
+		var scale_down = 1.0
 		freeze_frame.resize(freeze_frame.get_width() * scale_down, freeze_frame.get_height() * scale_down, Image.INTERPOLATE_NEAREST)
 		var image_tex = ImageTexture.new()
 		image_tex.image = freeze_frame

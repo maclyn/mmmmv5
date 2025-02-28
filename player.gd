@@ -10,9 +10,11 @@ signal at_coin()
 signal cheat()
 signal look_direction_changed(position: Vector3, rotation_y: float)
 
+const DEBUG_MOVEMENT = false
 const MOUSE_SENSITIVITY = 0.0007
-const WEB_MOUSE_SENSITIVITY = 0.0021
+const WEB_MOUSE_SENSITIVITY = 0.0018
 const JOYSTICK_SENSITIVITY = 0.04
+var USING_INPUT_FILTER = Globals.is_web() && !Globals.is_mobile_device()
 
 var camera_sun = preload("res://player_camera_sun.tscn")
 var camera_moon = preload("res://player_camera_moon.tscn")
@@ -31,12 +33,17 @@ var captured_by_bird = false
 var in_quicksand = false
 var ground_node: StaticBody3D = null
 
+var mouse_movement_count = 0
+var mouse_movement_amount = 0
+
 func restore_camera():
 	var camera = $CameraRoot.get_child(0)
 	if camera is Camera3D:
 		camera.make_current()
 
 func set_camera(sun: bool, moon: bool):
+	mouse_movement_count = 0
+	mouse_movement_amount = 0
 	while $CameraRoot.get_child_count() > 0:
 		$CameraRoot.remove_child($CameraRoot.get_child(0))
 	if sun:
@@ -60,6 +67,8 @@ func bird_release():
 	captured_by_bird = false
 	
 func external_x_movement(delta_x: float):
+	if DEBUG_MOVEMENT:
+		print("External delta x: " + str(delta_x))
 	look_rotation.y -= (delta_x * MOUSE_SENSITIVITY)
 	look_rotation.x -= delta_x * MOUSE_SENSITIVITY
 	look_rotation.x = clamp(look_rotation.x, min_angle, max_angle)
@@ -171,10 +180,30 @@ func _input(event: InputEvent) -> void:
 	if Engine.is_editor_hint():
 		return
 	if event is InputEventMouseMotion and !Globals.is_mobile_device():
-		if Globals.is_web():
-			look_rotation.y -= (event.relative.x * WEB_MOUSE_SENSITIVITY)
-		else:
-			look_rotation.y -= (event.relative.x * MOUSE_SENSITIVITY)
+		if DEBUG_MOVEMENT:
+			var p = event.position
+			var pos = event.global_position
+			print("Pos: " + str(p))
+			print("Global pos: " + str(pos))
+			print("Screen relative x: " + str(event.screen_relative.x))
+			if event.relative.x != event.screen_relative.x:
+				print("No match of relative and screen_relative!")
+
+		var screen_relative_amount = event.screen_relative.x
+		if USING_INPUT_FILTER:
+			var amount_ceil = (mouse_movement_amount / mouse_movement_count) * 10.0 if mouse_movement_amount > 0 else 100.0
+			if abs(screen_relative_amount) > amount_ceil:
+				print("Filtering out look event.screen_relative.x of " + \
+					str(screen_relative_amount) + \
+					"; too large compared to input ceiling of " + \
+					str(amount_ceil))
+				return
+			else:
+				mouse_movement_amount += abs(screen_relative_amount)
+				mouse_movement_count += 1
+				
+		var sensitivity = WEB_MOUSE_SENSITIVITY if Globals.is_web() else MOUSE_SENSITIVITY
+		look_rotation.y -= screen_relative_amount * sensitivity
 
 func _unhandled_input(_event: InputEvent) -> void:
 	if Engine.is_editor_hint() || !Globals.is_debug():
