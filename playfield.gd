@@ -313,9 +313,7 @@ func _round_over(did_win: bool = false, skip_anim: bool = false) -> void:
 	if did_win:
 		# Dump the framebuffer into a texture
 		var freeze_frame: Image = get_viewport().get_texture().get_image()
-		# Account for our "render at" resolution
-		var scale_down = 1.0
-		freeze_frame.resize(freeze_frame.get_width() * scale_down, freeze_frame.get_height() * scale_down, Image.INTERPOLATE_NEAREST)
+		freeze_frame.resize(freeze_frame.get_width(), freeze_frame.get_height(), Image.INTERPOLATE_NEAREST)
 		var image_tex = ImageTexture.new()
 		image_tex.image = freeze_frame
 		$HUD/NewRoundOverlay.texture = image_tex
