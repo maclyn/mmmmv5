@@ -826,9 +826,9 @@ func _add_snakes():
 		exit_ops.push_back(op)
 		
 func _add_bird():
-	var is_col_bird = randi_range(0, 1) == 0 # true
+	var is_col_bird = true if DEBUG_ALL_BLOCKS else randi_range(0, 1) == 0 # true
 	# Birds always go south-to-north *or* east-to-west
-	var row_or_col = randi_range(BIRD_COL_ROW_PADDING, MAZE_WIDTH_AND_HEIGHT - BIRD_COL_ROW_PADDING) # 10
+	var row_or_col = 10 if DEBUG_ALL_BLOCKS else randi_range(BIRD_COL_ROW_PADDING, MAZE_WIDTH_AND_HEIGHT - BIRD_COL_ROW_PADDING) # 10
 	var dx = 0 if is_col_bird else -1
 	var dy = -1 if is_col_bird else 0
 	var centered_in_row_or_col_pos = (

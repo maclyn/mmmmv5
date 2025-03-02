@@ -2,7 +2,9 @@
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_n5kh7"]
 sky_top_color = Color(0.0406199, 0.153452, 1, 1)
-sky_horizon_color = Color(1, 1, 1, 1)
+sky_horizon_color = Color(0.964912, 0.976608, 1, 1)
+ground_bottom_color = Color(0.517647, 0.552941, 0.607843, 1)
+ground_horizon_color = Color(0.963477, 0.977639, 1, 1)
 
 [sub_resource type="Sky" id="Sky_24qyn"]
 sky_material = SubResource("ProceduralSkyMaterial_n5kh7")
@@ -19,6 +21,6 @@ reflected_light_source = 2
 fog_enabled = true
 fog_mode = 1
 fog_density = 1.0
-fog_sky_affect = 0.1
+fog_sky_affect = 0.0
 fog_depth_begin = 5.0
 fog_depth_end = 25.0
