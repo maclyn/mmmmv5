@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://3mh0fvm1jcci"]
 
-[ext_resource type="Script" path="res://player.gd" id="1_an2rx"]
+[ext_resource type="Script" uid="uid://dpmml5522ff8b" path="res://player.gd" id="1_an2rx"]
 [ext_resource type="AudioStream" uid="uid://d2gg2ermq8b0a" path="res://sounds/quicksand.wav" id="2_gkhwn"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_kqxx0"]
