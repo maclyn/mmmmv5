@@ -238,7 +238,7 @@ layout_mode = 2
 theme_override_fonts/font = ExtResource("8_b1nhy")
 theme_override_font_sizes/font_size = 32
 text = "PAUSED
-ENTER/START TO RESUME"
+ENTER/A TO RESUME"
 horizontal_alignment = 1
 uppercase = true
 

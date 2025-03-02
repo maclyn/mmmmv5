@@ -5,7 +5,7 @@ func _ready() -> void:
 	_show_main_menu()
 	get_tree().set_auto_accept_quit(!Globals.is_mobile_native())
 	
-func _unhandled_input(_event: InputEvent) -> void:
+func _process(delta: float) -> void:
 	if Input.is_action_just_pressed("wireframe_mode") && Globals.is_debug():
 		var rs = get_viewport()
 		rs.debug_draw = (rs.debug_draw + 1) % 5
@@ -14,9 +14,9 @@ func _unhandled_input(_event: InputEvent) -> void:
 			get_window().mode = Window.MODE_FULLSCREEN
 		else:
 			get_window().mode = Window.MODE_WINDOWED
-	if Input.is_action_just_pressed("ui_cancel"):
-		_on_back_signal()
-	if Input.is_action_just_pressed("resume_game"):
+	if Input.is_action_just_pressed("quit_game"): # Escape/Start
+		_on_back()
+	if Input.is_action_just_pressed("resume_game") or Input.is_action_just_pressed("jump"): # Enter/A button
 		_on_resume()
 	
 func _show_main_menu():
@@ -38,9 +38,9 @@ func _on_playfield_game_over() -> void:
 	_show_main_menu()
 
 func _on_playfield_back_pressed() -> void:
-	_on_back_signal()
+	_on_back()
 	
-func _on_back_signal() -> void:
+func _on_back() -> void:
 	if $Playfield.is_in_game():
 		if get_tree().paused:
 			_on_resume()
@@ -50,9 +50,6 @@ func _on_back_signal() -> void:
 			get_tree().paused = true
 			$ResumeButton.visible = true
 			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-
-func _on_resume_button_pressed() -> void:
-	_on_resume()
 
 func _on_resume() -> void:
 	get_tree().paused = false
