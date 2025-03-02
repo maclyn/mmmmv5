@@ -4,6 +4,7 @@ const SAVE_FILE = "user://score.save"
 const SETTINGS_FILE = "user://settings.save"
 
 const SCORE_KEY = "score"
+
 const MUTE_KEY = "mute"
 
 const GFX_KEY = "gfx_mode"
@@ -12,6 +13,8 @@ const GFX_VALUE_LOW = "low"
 const GFX_VALUE_MEDIUM = "medium"
 const GFX_VALUE_HIGH = "high"
 const GFX_VALUE_ULTRA = "ultra"
+
+const SENSITIVITY_MODIFIER_KEY = "sensitivity"
 
 func get_graphics_mode() -> String:
 	return _get_key_from_file(
@@ -27,6 +30,12 @@ func get_is_muted() -> bool:
 	
 func set_is_muted(is_muted: bool) -> void:
 	_save_key_to_file(SETTINGS_FILE, MUTE_KEY, is_muted)
+	
+func get_sensitivity_modifier() -> float:
+	return _get_key_from_file(SETTINGS_FILE, SENSITIVITY_MODIFIER_KEY, 1.0)
+	
+func set_sensitivity_modifier(sensitivity: float) -> void:
+	_save_key_to_file(SETTINGS_FILE, SENSITIVITY_MODIFIER_KEY, sensitivity)
 	
 func get_high_score() -> int:
 	return _get_key_from_file(SAVE_FILE, SCORE_KEY, 0)

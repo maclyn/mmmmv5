@@ -33,6 +33,7 @@ var captured_by_bird = false
 var in_quicksand = false
 var ground_node: StaticBody3D = null
 
+@onready var sensitivity_modifier = 1.0 if Engine.is_editor_hint() else Globals.get_saver().get_sensitivity_modifier()
 var mouse_movement_count = 0
 var mouse_movement_amount = 0
 
@@ -93,6 +94,7 @@ func _physics_process(delta: float) -> void:
 		return
 		
 	if captured_by_bird:
+		_update_joystick_look_direction()
 		_process_look(delta)
 		return
 	
@@ -108,6 +110,13 @@ func _physics_process(delta: float) -> void:
 	if Input.is_action_just_pressed("jump") and (is_on_floor() or in_quicksand):
 		velocity.y = JUMP_VELOCITY
 		_maybe_recapture()
+		
+	if Input.is_action_just_pressed("sensitivity_down"):
+		sensitivity_modifier = max(0.1, sensitivity_modifier - 0.1)
+		Globals.get_saver().set_sensitivity_modifier(sensitivity_modifier)
+	if Input.is_action_just_pressed("sensitivity_up"):
+		sensitivity_modifier = min(4.0, sensitivity_modifier + 0.1)
+		Globals.get_saver().set_sensitivity_modifier(sensitivity_modifier)
 
 	if not in_quicksand:
 		var kb_input_dir := Input.get_vector("strafe_left", "strafe_right", "forward", "backwards")
@@ -166,14 +175,8 @@ func _physics_process(delta: float) -> void:
 		if position.y < 0.25:
 			die()
 			at_quicksand.emit()
-	
-	if Input.is_action_pressed("right_joystick_left") || Input.is_action_pressed("right_joystick_right"):
-		var right_stick_vector = Input.get_vector("right_joystick_left", "right_joystick_right", "", "")
-		var delta_x = right_stick_vector.x
-		look_rotation.y -= (delta_x * JOYSTICK_SENSITIVITY)
-		look_rotation.x -= delta_x * JOYSTICK_SENSITIVITY
-		look_rotation.x = clamp(look_rotation.x, min_angle, max_angle)
-		
+
+	_update_joystick_look_direction()
 	_process_look(delta)
 	
 func _input(event: InputEvent) -> void:
@@ -203,7 +206,7 @@ func _input(event: InputEvent) -> void:
 				mouse_movement_count += 1
 				
 		var sensitivity = WEB_MOUSE_SENSITIVITY if Globals.is_web() else MOUSE_SENSITIVITY
-		look_rotation.y -= screen_relative_amount * sensitivity
+		look_rotation.y -= screen_relative_amount * sensitivity * sensitivity_modifier
 
 func _unhandled_input(_event: InputEvent) -> void:
 	if Engine.is_editor_hint() || !Globals.is_debug():
@@ -214,7 +217,15 @@ func _unhandled_input(_event: InputEvent) -> void:
 func _maybe_recapture():
 	if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-		
+
+func _update_joystick_look_direction():
+	if Input.is_action_pressed("right_joystick_left") || Input.is_action_pressed("right_joystick_right"):
+		var right_stick_vector = Input.get_vector("right_joystick_left", "right_joystick_right", "", "")
+		var delta_x = right_stick_vector.x * JOYSTICK_SENSITIVITY * sensitivity_modifier
+		look_rotation.y -= delta_x
+		look_rotation.x -= delta_x 
+		look_rotation.x = clamp(look_rotation.x, min_angle, max_angle)
+
 func _process_look(delta: float):
 	var angular_velocity = get_platform_angular_velocity()
 	look_rotation.y += angular_velocity.y * delta

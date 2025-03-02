@@ -1,5 +1,8 @@
 Navigate through the maze to grab the key and get back to the start.
------ DANGERS -----
+----- CONTROLS ------
+WASD (strafe) + mouse (look) + space (jump); Esc (pause/quit), -= (look sensitivity), Alt+Enter (fullscreen)
+Left stick (strafe) + right stick (look) + A (jump); Start (pause/quit), Select (fullscreen)
+----- DANGERS -------
 Watch out for spikes, quicksand, the clock, and -- when you're running
 back -- snakes. 
 ----- POWER-UPS -----
