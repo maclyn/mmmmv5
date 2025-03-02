@@ -1,0 +1,4 @@
+* This is a project I used to get familiar with Godot. Of note may be `maze.gd` and `maze_block.gd`, which do some interesting things.
+* To open this Godot project, use Godot v4.4-rc2 (the release version will work fine, I assume).
+* See https://maclyn.itch.io/mms-maze-madness for release builds.
+* Source and 3D models are my own; included font, one texture, and all audio are from elsewhere but under permissive licenses. See `misc/CREDITS.txt`.
