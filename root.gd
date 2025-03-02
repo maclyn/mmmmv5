@@ -6,6 +6,9 @@ func _ready() -> void:
 	get_tree().set_auto_accept_quit(!Globals.is_mobile_native())
 	
 func _process(delta: float) -> void:
+	if Engine.is_editor_hint():
+		return
+
 	if Input.is_action_just_pressed("wireframe_mode") && Globals.is_debug():
 		var rs = get_viewport()
 		rs.debug_draw = (rs.debug_draw + 1) % 5

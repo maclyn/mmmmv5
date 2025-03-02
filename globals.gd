@@ -77,6 +77,8 @@ func set_graphics_mode(mode: String):
 		Engine.physics_ticks_per_second = DisplayServer.screen_get_refresh_rate()
 	else:
 		Engine.physics_ticks_per_second = 60.0
+		
+	get_viewport().scaling_3d_scale = 1.0 if mode != "min" else 0.5
 	
 func get_graphics_mode():
 	return _graphics_mode
